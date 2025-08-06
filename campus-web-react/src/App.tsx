@@ -745,19 +745,242 @@ function App() {
     }
   };
 
+  // Get current section count for management screens
+  const getCurrentSectionCount = () => {
+    switch (activeSection) {
+      case 'lost-found-management':
+        return lostFoundItems.length;
+      case 'marketplace-management':
+        return marketplaceItems.length;
+      case 'services-management':
+        return serviceRequests.length;
+      case 'forum-management':
+        return forumPosts.length;
+      case 'cafeteria-management':
+        return cafeteriaOrders.length;
+      case 'community-management':
+        return communityEvents.length;
+      case 'help-management':
+        return helpTickets.length;
+      default:
+        return 0;
+    }
+  };
+
+  const getActiveItemsCount = () => {
+    switch (activeSection) {
+      case 'lost-found-management':
+        return lostFoundItems.filter(item => item.status === 'open').length;
+      case 'marketplace-management':
+        return marketplaceItems.filter(item => item.status === 'available').length;
+      case 'services-management':
+        return serviceRequests.filter(item => item.status === 'pending').length;
+      case 'forum-management':
+        return forumPosts.filter(item => item.status === 'active').length;
+      case 'cafeteria-management':
+        return cafeteriaOrders.filter(item => item.status === 'pending').length;
+      case 'community-management':
+        return communityEvents.filter(item => item.status === 'upcoming').length;
+      case 'help-management':
+        return helpTickets.filter(item => item.status === 'open').length;
+      default:
+        return 0;
+    }
+  };
+
+  const getPendingItemsCount = () => {
+    switch (activeSection) {
+      case 'lost-found-management':
+        return lostFoundItems.filter(item => item.status === 'claimed').length;
+      case 'marketplace-management':
+        return marketplaceItems.filter(item => item.status === 'sold').length;
+      case 'services-management':
+        return serviceRequests.filter(item => item.status === 'in-progress').length;
+      case 'forum-management':
+        return forumPosts.filter(item => item.status === 'closed').length;
+      case 'cafeteria-management':
+        return cafeteriaOrders.filter(item => item.status === 'preparing').length;
+      case 'community-management':
+        return communityEvents.filter(item => item.status === 'ongoing').length;
+      case 'help-management':
+        return helpTickets.filter(item => item.status === 'in-progress').length;
+      default:
+        return 0;
+    }
+  };
+
+  const getCompletedItemsCount = () => {
+    switch (activeSection) {
+      case 'lost-found-management':
+        return lostFoundItems.filter(item => item.status === 'closed').length;
+      case 'marketplace-management':
+        return marketplaceItems.filter(item => item.status === 'sold').length;
+      case 'services-management':
+        return serviceRequests.filter(item => item.status === 'completed').length;
+      case 'forum-management':
+        return forumPosts.filter(item => item.status === 'closed').length;
+      case 'cafeteria-management':
+        return cafeteriaOrders.filter(item => item.status === 'ready').length;
+      case 'community-management':
+        return communityEvents.filter(item => item.status === 'completed').length;
+      case 'help-management':
+        return helpTickets.filter(item => item.status === 'resolved').length;
+      default:
+        return 0;
+    }
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Header Component */}
-      <Header
-        currentUser={currentUser}
-        onLogin={handleLogin}
-        onLogout={handleLogout}
-        onNavigate={setActiveSection}
-        currentSection={activeSection}
-      />
+      {/* App Bar */}
+      <AppBar position="static" sx={{ backgroundColor: '#2e7d32' }}>
+        <Toolbar>
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={() => setDrawerOpen(true)}
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+          
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            ONO - מערכת ניהול קמפוס
+          </Typography>
+          
+          {isLoggedIn ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Typography variant="body2">
+                שלום, {currentUser?.name}
+              </Typography>
+              <IconButton color="inherit" onClick={handleLogout}>
+                <LogoutIcon />
+              </IconButton>
+            </Box>
+          ) : (
+            <Button 
+              color="inherit" 
+              startIcon={<LoginIcon />}
+              onClick={() => setLoginDialogOpen(true)}
+            >
+              התחברות
+            </Button>
+          )}
+        </Toolbar>
+      </AppBar>
+
+      {/* Navigation Drawer */}
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+        <Box sx={{ width: 250, pt: 2 }}>
+          <List>
+            {navigationItems.map((item) => (
+              <ListItem key={item.id} disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    setDrawerOpen(false);
+                  }}
+                  selected={activeSection === item.id}
+                >
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.label} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
 
       {/* Main Content */}
       <Container maxWidth="xl" sx={{ flexGrow: 1, py: 3 }}>
+        {/* Page Header for Regular Screens */}
+        {!activeSection.includes('management') && activeSection !== 'home' && (
+          <Paper 
+            elevation={2} 
+            sx={{ 
+              p: 3, 
+              mb: 3, 
+              background: 'linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%)',
+              border: '1px solid #c8e6c9'
+            }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                  {activeSection === 'profile' && 'פרופיל אישי'}
+                  {activeSection === 'learning' && 'מרכז הלימודים'}
+                  {activeSection === 'cafeteria' && 'קפיטריה'}
+                  {activeSection === 'lost-found' && 'מציאות ואבדות'}
+                  {activeSection === 'marketplace' && 'שוק יד שנייה'}
+                  {activeSection === 'services' && 'שירותים בקמפוס'}
+                  {activeSection === 'community' && 'קהילה'}
+                  {activeSection === 'forum' && 'פורום קורס'}
+                  {activeSection === 'help' && 'עזרה'}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  {activeSection === 'profile' && 'ניהול הפרופיל האישי שלך'}
+                  {activeSection === 'learning' && 'גישה לכלי הלמידה והקורסים'}
+                  {activeSection === 'cafeteria' && 'הזמנת אוכל מהקפיטריה'}
+                  {activeSection === 'lost-found' && 'דיווח על פריטים אבודים או נמצאים'}
+                  {activeSection === 'marketplace' && 'קנייה ומכירה של פריטים'}
+                  {activeSection === 'services' && 'בקשות שירות בקמפוס'}
+                  {activeSection === 'community' && 'אירועים ופעילויות קהילתיות'}
+                  {activeSection === 'forum' && 'דיונים ופורומים לקורסים'}
+                  {activeSection === 'help' && 'בקשת עזרה ותמיכה'}
+                </Typography>
+              </Box>
+              
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => {
+                    switch (activeSection) {
+                      case 'lost-found':
+                        setLostFoundDialogOpen(true);
+                        break;
+                      case 'marketplace':
+                        setMarketplaceDialogOpen(true);
+                        break;
+                      case 'services':
+                        setServiceRequestDialogOpen(true);
+                        break;
+                      case 'forum':
+                        setForumPostDialogOpen(true);
+                        break;
+                      case 'cafeteria':
+                        setCafeteriaOrderDialogOpen(true);
+                        break;
+                      case 'community':
+                        setCommunityEventDialogOpen(true);
+                        break;
+                      case 'help':
+                        setHelpTicketDialogOpen(true);
+                        break;
+                    }
+                  }}
+                  sx={{ 
+                    backgroundColor: '#2e7d32',
+                    display: ['lost-found', 'marketplace', 'services', 'forum', 'cafeteria', 'community', 'help'].includes(activeSection) ? 'flex' : 'none'
+                  }}
+                >
+                  {activeSection === 'lost-found' && 'דווח על פריט'}
+                  {activeSection === 'marketplace' && 'הוסף פריט למכירה'}
+                  {activeSection === 'services' && 'בקש שירות'}
+                  {activeSection === 'forum' && 'צור פוסט'}
+                  {activeSection === 'cafeteria' && 'הזמן אוכל'}
+                  {activeSection === 'community' && 'צור אירוע'}
+                  {activeSection === 'help' && 'פתח כרטיס עזרה'}
+                </Button>
+              </Box>
+            </Box>
+          </Paper>
+        )}
+
         {activeSection === 'home' && (
           <Box>
             {/* Welcome Banner */}
@@ -1937,6 +2160,110 @@ function App() {
             <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
               תוכן זה יפותח בהמשך...
             </Typography>
+          </Paper>
+        )}
+
+        {/* Page Header for Management Screens */}
+        {activeSection.includes('management') && (
+          <Paper 
+            elevation={2} 
+            sx={{ 
+              p: 3, 
+              mb: 3, 
+              background: 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
+              border: '1px solid #e0e0e0'
+            }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Box>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                  {activeSection === 'lost-found-management' && 'ניהול מציאות ואבדות'}
+                  {activeSection === 'marketplace-management' && 'ניהול שוק יד שנייה'}
+                  {activeSection === 'services-management' && 'ניהול שירותים'}
+                  {activeSection === 'forum-management' && 'ניהול פורום'}
+                  {activeSection === 'cafeteria-management' && 'ניהול קפיטריה'}
+                  {activeSection === 'community-management' && 'ניהול קהילה'}
+                  {activeSection === 'help-management' && 'ניהול עזרה'}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  ניהול מלא של הנתונים במערכת
+                </Typography>
+              </Box>
+              
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => {
+                    switch (activeSection) {
+                      case 'lost-found-management':
+                        setLostFoundDialogOpen(true);
+                        break;
+                      case 'marketplace-management':
+                        setMarketplaceDialogOpen(true);
+                        break;
+                      case 'services-management':
+                        setServiceRequestDialogOpen(true);
+                        break;
+                      case 'forum-management':
+                        setForumPostDialogOpen(true);
+                        break;
+                      case 'cafeteria-management':
+                        setCafeteriaOrderDialogOpen(true);
+                        break;
+                      case 'community-management':
+                        setCommunityEventDialogOpen(true);
+                        break;
+                      case 'help-management':
+                        setHelpTicketDialogOpen(true);
+                        break;
+                    }
+                  }}
+                  sx={{ backgroundColor: '#2e7d32' }}
+                >
+                  הוסף חדש
+                </Button>
+              </Box>
+            </Box>
+            
+            {/* Quick Stats */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2 }}>
+              <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: 'white' }}>
+                <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold' }}>
+                  {getCurrentSectionCount()}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  סה"כ פריטים
+                </Typography>
+              </Paper>
+              
+              <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: 'white' }}>
+                <Typography variant="h5" color="success.main" sx={{ fontWeight: 'bold' }}>
+                  {getActiveItemsCount()}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פעילים
+                </Typography>
+              </Paper>
+              
+              <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: 'white' }}>
+                <Typography variant="h5" color="warning.main" sx={{ fontWeight: 'bold' }}>
+                  {getPendingItemsCount()}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  ממתינים
+                </Typography>
+              </Paper>
+              
+              <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: 'white' }}>
+                <Typography variant="h5" color="info.main" sx={{ fontWeight: 'bold' }}>
+                  {getCompletedItemsCount()}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  הושלמו
+                </Typography>
+              </Paper>
+            </Box>
           </Paper>
         )}
       </Container>
