@@ -874,24 +874,551 @@ function App() {
         anchor="right"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: 320,
+            backgroundColor: '#f8f9fa',
+            borderLeft: '1px solid #e0e0e0'
+          }
+        }}
       >
-        <Box sx={{ width: 250, pt: 2 }}>
-          <List>
-            {navigationItems.map((item) => (
-              <ListItem key={item.id} disablePadding>
-                <ListItemButton
-                  onClick={() => {
-                    setActiveSection(item.id);
-                    setDrawerOpen(false);
-                  }}
-                  selected={activeSection === item.id}
-                >
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.label} />
-                </ListItemButton>
-              </ListItem>
-            ))}
+        <Box sx={{ width: 320, pt: 2 }}>
+          {/* Header */}
+          <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0', mb: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+              תפריט ניווט
+            </Typography>
+            {isLoggedIn && (
+              <Typography variant="body2" color="text.secondary">
+                שלום, {currentUser?.name}
+              </Typography>
+            )}
+          </Box>
+
+          <List sx={{ px: 1 }}>
+            {/* Main Navigation */}
+            <Typography variant="subtitle2" sx={{ px: 2, py: 1, color: 'text.secondary', fontWeight: 'bold' }}>
+              ניווט ראשי
+            </Typography>
+            
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setActiveSection('home');
+                  setDrawerOpen(false);
+                }}
+                selected={activeSection === 'home'}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&.Mui-selected': {
+                    backgroundColor: '#e8f5e8',
+                    color: '#2e7d32',
+                    '&:hover': { backgroundColor: '#c8e6c9' }
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ color: activeSection === 'home' ? '#2e7d32' : 'inherit' }}>
+                  <HomeIcon />
+                </ListItemIcon>
+                <ListItemText primary="עמוד בית" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setActiveSection('profile');
+                  setDrawerOpen(false);
+                }}
+                selected={activeSection === 'profile'}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&.Mui-selected': {
+                    backgroundColor: '#e8f5e8',
+                    color: '#2e7d32',
+                    '&:hover': { backgroundColor: '#c8e6c9' }
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ color: activeSection === 'profile' ? '#2e7d32' : 'inherit' }}>
+                  <PersonIcon />
+                </ListItemIcon>
+                <ListItemText primary="פרופיל אישי" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setActiveSection('learning');
+                  setDrawerOpen(false);
+                }}
+                selected={activeSection === 'learning'}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&.Mui-selected': {
+                    backgroundColor: '#e8f5e8',
+                    color: '#2e7d32',
+                    '&:hover': { backgroundColor: '#c8e6c9' }
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ color: activeSection === 'learning' ? '#2e7d32' : 'inherit' }}>
+                  <SchoolIcon />
+                </ListItemIcon>
+                <ListItemText primary="מרכז הלימודים" />
+              </ListItemButton>
+            </ListItem>
+
+            {/* Services Section */}
+            <Typography variant="subtitle2" sx={{ px: 2, py: 1, color: 'text.secondary', fontWeight: 'bold', mt: 2 }}>
+              שירותים בקמפוס
+            </Typography>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setActiveSection('cafeteria');
+                  setDrawerOpen(false);
+                }}
+                selected={activeSection === 'cafeteria'}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&.Mui-selected': {
+                    backgroundColor: '#e8f5e8',
+                    color: '#2e7d32',
+                    '&:hover': { backgroundColor: '#c8e6c9' }
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ color: activeSection === 'cafeteria' ? '#2e7d32' : 'inherit' }}>
+                  <RestaurantIcon />
+                </ListItemIcon>
+                <ListItemText primary="קפיטריה" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setActiveSection('lost-found');
+                  setDrawerOpen(false);
+                }}
+                selected={activeSection === 'lost-found'}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&.Mui-selected': {
+                    backgroundColor: '#e8f5e8',
+                    color: '#2e7d32',
+                    '&:hover': { backgroundColor: '#c8e6c9' }
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ color: activeSection === 'lost-found' ? '#2e7d32' : 'inherit' }}>
+                  <SearchIcon />
+                </ListItemIcon>
+                <ListItemText primary="מציאות ואבדות" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setActiveSection('marketplace');
+                  setDrawerOpen(false);
+                }}
+                selected={activeSection === 'marketplace'}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&.Mui-selected': {
+                    backgroundColor: '#e8f5e8',
+                    color: '#2e7d32',
+                    '&:hover': { backgroundColor: '#c8e6c9' }
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ color: activeSection === 'marketplace' ? '#2e7d32' : 'inherit' }}>
+                  <ShoppingCartIcon />
+                </ListItemIcon>
+                <ListItemText primary="שוק יד שנייה" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setActiveSection('services');
+                  setDrawerOpen(false);
+                }}
+                selected={activeSection === 'services'}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&.Mui-selected': {
+                    backgroundColor: '#e8f5e8',
+                    color: '#2e7d32',
+                    '&:hover': { backgroundColor: '#c8e6c9' }
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ color: activeSection === 'services' ? '#2e7d32' : 'inherit' }}>
+                  <BuildIcon />
+                </ListItemIcon>
+                <ListItemText primary="שירותים בקמפוס" />
+              </ListItemButton>
+            </ListItem>
+
+            {/* Community Section */}
+            <Typography variant="subtitle2" sx={{ px: 2, py: 1, color: 'text.secondary', fontWeight: 'bold', mt: 2 }}>
+              קהילה ותקשורת
+            </Typography>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setActiveSection('community');
+                  setDrawerOpen(false);
+                }}
+                selected={activeSection === 'community'}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&.Mui-selected': {
+                    backgroundColor: '#e8f5e8',
+                    color: '#2e7d32',
+                    '&:hover': { backgroundColor: '#c8e6c9' }
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ color: activeSection === 'community' ? '#2e7d32' : 'inherit' }}>
+                  <GroupIcon />
+                </ListItemIcon>
+                <ListItemText primary="קהילה" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setActiveSection('forum');
+                  setDrawerOpen(false);
+                }}
+                selected={activeSection === 'forum'}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&.Mui-selected': {
+                    backgroundColor: '#e8f5e8',
+                    color: '#2e7d32',
+                    '&:hover': { backgroundColor: '#c8e6c9' }
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ color: activeSection === 'forum' ? '#2e7d32' : 'inherit' }}>
+                  <ForumIcon />
+                </ListItemIcon>
+                <ListItemText primary="פורום קורס" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setActiveSection('help');
+                  setDrawerOpen(false);
+                }}
+                selected={activeSection === 'help'}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&.Mui-selected': {
+                    backgroundColor: '#e8f5e8',
+                    color: '#2e7d32',
+                    '&:hover': { backgroundColor: '#c8e6c9' }
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ color: activeSection === 'help' ? '#2e7d32' : 'inherit' }}>
+                  <HelpIcon />
+                </ListItemIcon>
+                <ListItemText primary="עזרה" />
+              </ListItemButton>
+            </ListItem>
+
+            {/* Management Section - Only for logged in users */}
+            {isLoggedIn && (
+              <>
+                <Typography variant="subtitle2" sx={{ px: 2, py: 1, color: 'text.secondary', fontWeight: 'bold', mt: 2 }}>
+                  ניהול מערכת
+                </Typography>
+
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      setActiveSection('lost-found-management');
+                      setDrawerOpen(false);
+                    }}
+                    selected={activeSection === 'lost-found-management'}
+                    sx={{
+                      borderRadius: 1,
+                      mx: 1,
+                      '&.Mui-selected': {
+                        backgroundColor: '#e8f5e8',
+                        color: '#2e7d32',
+                        '&:hover': { backgroundColor: '#c8e6c9' }
+                      }
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: activeSection === 'lost-found-management' ? '#2e7d32' : 'inherit' }}>
+                      <SearchIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="ניהול מציאות ואבדות" />
+                  </ListItemButton>
+                </ListItem>
+
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      setActiveSection('marketplace-management');
+                      setDrawerOpen(false);
+                    }}
+                    selected={activeSection === 'marketplace-management'}
+                    sx={{
+                      borderRadius: 1,
+                      mx: 1,
+                      '&.Mui-selected': {
+                        backgroundColor: '#e8f5e8',
+                        color: '#2e7d32',
+                        '&:hover': { backgroundColor: '#c8e6c9' }
+                      }
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: activeSection === 'marketplace-management' ? '#2e7d32' : 'inherit' }}>
+                      <ShoppingCartIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="ניהול שוק יד שנייה" />
+                  </ListItemButton>
+                </ListItem>
+
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      setActiveSection('services-management');
+                      setDrawerOpen(false);
+                    }}
+                    selected={activeSection === 'services-management'}
+                    sx={{
+                      borderRadius: 1,
+                      mx: 1,
+                      '&.Mui-selected': {
+                        backgroundColor: '#e8f5e8',
+                        color: '#2e7d32',
+                        '&:hover': { backgroundColor: '#c8e6c9' }
+                      }
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: activeSection === 'services-management' ? '#2e7d32' : 'inherit' }}>
+                      <BuildIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="ניהול שירותים" />
+                  </ListItemButton>
+                </ListItem>
+
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      setActiveSection('forum-management');
+                      setDrawerOpen(false);
+                    }}
+                    selected={activeSection === 'forum-management'}
+                    sx={{
+                      borderRadius: 1,
+                      mx: 1,
+                      '&.Mui-selected': {
+                        backgroundColor: '#e8f5e8',
+                        color: '#2e7d32',
+                        '&:hover': { backgroundColor: '#c8e6c9' }
+                      }
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: activeSection === 'forum-management' ? '#2e7d32' : 'inherit' }}>
+                      <ForumIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="ניהול פורום" />
+                  </ListItemButton>
+                </ListItem>
+
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      setActiveSection('cafeteria-management');
+                      setDrawerOpen(false);
+                    }}
+                    selected={activeSection === 'cafeteria-management'}
+                    sx={{
+                      borderRadius: 1,
+                      mx: 1,
+                      '&.Mui-selected': {
+                        backgroundColor: '#e8f5e8',
+                        color: '#2e7d32',
+                        '&:hover': { backgroundColor: '#c8e6c9' }
+                      }
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: activeSection === 'cafeteria-management' ? '#2e7d32' : 'inherit' }}>
+                      <RestaurantIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="ניהול קפיטריה" />
+                  </ListItemButton>
+                </ListItem>
+
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      setActiveSection('community-management');
+                      setDrawerOpen(false);
+                    }}
+                    selected={activeSection === 'community-management'}
+                    sx={{
+                      borderRadius: 1,
+                      mx: 1,
+                      '&.Mui-selected': {
+                        backgroundColor: '#e8f5e8',
+                        color: '#2e7d32',
+                        '&:hover': { backgroundColor: '#c8e6c9' }
+                      }
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: activeSection === 'community-management' ? '#2e7d32' : 'inherit' }}>
+                      <GroupIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="ניהול קהילה" />
+                  </ListItemButton>
+                </ListItem>
+
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      setActiveSection('help-management');
+                      setDrawerOpen(false);
+                    }}
+                    selected={activeSection === 'help-management'}
+                    sx={{
+                      borderRadius: 1,
+                      mx: 1,
+                      '&.Mui-selected': {
+                        backgroundColor: '#e8f5e8',
+                        color: '#2e7d32',
+                        '&:hover': { backgroundColor: '#c8e6c9' }
+                      }
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: activeSection === 'help-management' ? '#2e7d32' : 'inherit' }}>
+                      <HelpIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="ניהול עזרה" />
+                  </ListItemButton>
+                </ListItem>
+              </>
+            )}
+
+            {/* Quick Actions */}
+            <Typography variant="subtitle2" sx={{ px: 2, py: 1, color: 'text.secondary', fontWeight: 'bold', mt: 2 }}>
+              פעולות מהירות
+            </Typography>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setLostFoundDialogOpen(true);
+                  setDrawerOpen(false);
+                }}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&:hover': { backgroundColor: '#f5f5f5' }
+                }}
+              >
+                <ListItemIcon>
+                  <AddIcon />
+                </ListItemIcon>
+                <ListItemText primary="דווח על פריט אבוד/נמצא" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setMarketplaceDialogOpen(true);
+                  setDrawerOpen(false);
+                }}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&:hover': { backgroundColor: '#f5f5f5' }
+                }}
+              >
+                <ListItemIcon>
+                  <AddIcon />
+                </ListItemIcon>
+                <ListItemText primary="הוסף פריט למכירה" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setServiceRequestDialogOpen(true);
+                  setDrawerOpen(false);
+                }}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&:hover': { backgroundColor: '#f5f5f5' }
+                }}
+              >
+                <ListItemIcon>
+                  <AddIcon />
+                </ListItemIcon>
+                <ListItemText primary="בקש שירות" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  setHelpTicketDialogOpen(true);
+                  setDrawerOpen(false);
+                }}
+                sx={{
+                  borderRadius: 1,
+                  mx: 1,
+                  '&:hover': { backgroundColor: '#f5f5f5' }
+                }}
+              >
+                <ListItemIcon>
+                  <AddIcon />
+                </ListItemIcon>
+                <ListItemText primary="פתח כרטיס עזרה" />
+              </ListItemButton>
+            </ListItem>
           </List>
+
+          {/* Footer */}
+          <Box sx={{ p: 2, borderTop: '1px solid #e0e0e0', mt: 'auto' }}>
+            <Typography variant="caption" color="text.secondary" align="center" display="block">
+              מערכת ניהול קמפוס ONO
+            </Typography>
+            <Typography variant="caption" color="text.secondary" align="center" display="block">
+              גרסה 1.0
+            </Typography>
+          </Box>
         </Box>
       </Drawer>
 
@@ -978,6 +1505,63 @@ function App() {
                 </Button>
               </Box>
             </Box>
+
+            {/* Quick Navigation */}
+            <Paper sx={{ p: 2, mt: 2, backgroundColor: 'white' }}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#2e7d32' }}>
+                ניווט מהיר
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setActiveSection('home')}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  עמוד בית
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setActiveSection('profile')}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  פרופיל
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setActiveSection('learning')}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  לימודים
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setActiveSection('cafeteria')}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  קפיטריה
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setActiveSection('community')}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  קהילה
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setActiveSection('help')}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  עזרה
+                </Button>
+              </Box>
+            </Paper>
           </Paper>
         )}
 
@@ -1005,6 +1589,186 @@ function App() {
             </Paper>
 
 
+
+            {/* Secondary Navigation - Quick Access */}
+            <Paper sx={{ p: 3, mb: 4 }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#2e7d32' }}>
+                גישה מהירה
+              </Typography>
+              
+              <Box sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+                gap: 2 
+              }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setLostFoundDialogOpen(true)}
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    p: 2,
+                    height: 'auto',
+                    flexDirection: 'column',
+                    gap: 1
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    דווח על פריט אבוד/נמצא
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    דווח על פריטים אבודים או נמצאים
+                  </Typography>
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setMarketplaceDialogOpen(true)}
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    p: 2,
+                    height: 'auto',
+                    flexDirection: 'column',
+                    gap: 1
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    הוסף פריט למכירה
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    מכור פריטים בשוק יד שנייה
+                  </Typography>
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setServiceRequestDialogOpen(true)}
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    p: 2,
+                    height: 'auto',
+                    flexDirection: 'column',
+                    gap: 1
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    בקש שירות
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    בקש שירותים בקמפוס
+                  </Typography>
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setHelpTicketDialogOpen(true)}
+                  sx={{ 
+                    justifyContent: 'flex-start',
+                    p: 2,
+                    height: 'auto',
+                    flexDirection: 'column',
+                    gap: 1
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    פתח כרטיס עזרה
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    קבל עזרה ותמיכה
+                  </Typography>
+                </Button>
+              </Box>
+            </Paper>
+
+            {/* Management Quick Access - Only for logged in users */}
+            {isLoggedIn && (
+              <Paper sx={{ p: 3, mb: 4, background: 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)' }}>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#2e7d32' }}>
+                  ניהול מערכת
+                </Typography>
+                
+                <Box sx={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+                  gap: 2 
+                }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<SearchIcon />}
+                    onClick={() => setActiveSection('lost-found-management')}
+                    sx={{ 
+                      backgroundColor: '#2e7d32',
+                      '&:hover': { backgroundColor: '#1b5e20' }
+                    }}
+                  >
+                    ניהול מציאות ואבדות
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    startIcon={<ShoppingCartIcon />}
+                    onClick={() => setActiveSection('marketplace-management')}
+                    sx={{ 
+                      backgroundColor: '#2e7d32',
+                      '&:hover': { backgroundColor: '#1b5e20' }
+                    }}
+                  >
+                    ניהול שוק יד שנייה
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    startIcon={<BuildIcon />}
+                    onClick={() => setActiveSection('services-management')}
+                    sx={{ 
+                      backgroundColor: '#2e7d32',
+                      '&:hover': { backgroundColor: '#1b5e20' }
+                    }}
+                  >
+                    ניהול שירותים
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    startIcon={<ForumIcon />}
+                    onClick={() => setActiveSection('forum-management')}
+                    sx={{ 
+                      backgroundColor: '#2e7d32',
+                      '&:hover': { backgroundColor: '#1b5e20' }
+                    }}
+                  >
+                    ניהול פורום
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    startIcon={<RestaurantIcon />}
+                    onClick={() => setActiveSection('cafeteria-management')}
+                    sx={{ 
+                      backgroundColor: '#2e7d32',
+                      '&:hover': { backgroundColor: '#1b5e20' }
+                    }}
+                  >
+                    ניהול קפיטריה
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    startIcon={<HelpIcon />}
+                    onClick={() => setActiveSection('help-management')}
+                    sx={{ 
+                      backgroundColor: '#2e7d32',
+                      '&:hover': { backgroundColor: '#1b5e20' }
+                    }}
+                  >
+                    ניהול עזרה
+                  </Button>
+                </Box>
+              </Paper>
+            )}
 
             {/* Content Cards */}
             <Box sx={{ 
@@ -2264,6 +3028,63 @@ function App() {
                 </Typography>
               </Paper>
             </Box>
+
+            {/* Quick Navigation */}
+            <Paper sx={{ p: 2, mt: 2, backgroundColor: 'white' }}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: '#2e7d32' }}>
+                ניווט מהיר
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setActiveSection('home')}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  עמוד בית
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setActiveSection('lost-found')}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  מציאות ואבדות
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setActiveSection('marketplace')}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  שוק יד שנייה
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setActiveSection('services')}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  שירותים
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setActiveSection('forum')}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  פורום
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setActiveSection('help')}
+                  sx={{ fontSize: '0.75rem' }}
+                >
+                  עזרה
+                </Button>
+              </Box>
+            </Paper>
           </Paper>
         )}
       </Container>
