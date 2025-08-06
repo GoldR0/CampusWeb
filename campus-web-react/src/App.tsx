@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -16,7 +16,121 @@ import {
   AccessTime as TimeIcon,
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
-  Error as ErrorIcon
+  Error as ErrorIcon,
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Save as SaveIcon,
+  Cancel as CancelIcon,
+  Send as SendIcon,
+  AttachFile as AttachFileIcon,
+  PhotoCamera as PhotoCameraIcon,
+  Phone as PhoneIcon,
+  Email as EmailIcon,
+  Work as WorkIcon,
+  LocalOffer as LocalOfferIcon,
+  Star as StarIcon,
+  StarBorder as StarBorderIcon,
+  ThumbUp as ThumbUpIcon,
+  ThumbDown as ThumbDownIcon,
+  Reply as ReplyIcon,
+  Share as ShareIcon,
+  Bookmark as BookmarkIcon,
+  BookmarkBorder as BookmarkBorderIcon,
+  Notifications as NotificationsIcon,
+  NotificationsNone as NotificationsNoneIcon,
+  Settings as SettingsIcon,
+  AccountCircle as AccountCircleIcon,
+  VpnKey as VpnKeyIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+  Lock as LockIcon,
+  LockOpen as LockOpenIcon,
+  Security as SecurityIcon,
+  VerifiedUser as VerifiedUserIcon,
+  Report as ReportIcon,
+  Flag as FlagIcon,
+  Block as BlockIcon,
+  Archive as ArchiveIcon,
+  Unarchive as UnarchiveIcon,
+  Refresh as RefreshIcon,
+  FilterList as FilterListIcon,
+  Sort as SortIcon,
+  ViewList as ViewListIcon,
+  ViewModule as ViewModuleIcon,
+  GridView as GridViewIcon,
+  List as ListIcon,
+  Dashboard as DashboardIcon,
+  Assessment as AssessmentIcon,
+  Analytics as AnalyticsIcon,
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
+  ShowChart as ShowChartIcon,
+  BarChart as BarChartIcon,
+  PieChart as PieChartIcon,
+  DonutLarge as DonutLargeIcon,
+  DonutSmall as DonutSmallIcon,
+  InsertChart as InsertChartIcon,
+  BubbleChart as BubbleChartIcon,
+  ScatterPlot as ScatterPlotIcon,
+  Schedule as ScheduleIcon,
+  AccessTimeFilled as AccessTimeFilledIcon,
+  Today as TodayIcon,
+  DateRange as DateRangeIcon,
+  EventAvailable as EventAvailableIcon,
+  EventBusy as EventBusyIcon,
+  EventNote as EventNoteIcon,
+  LocationCity as LocationCityIcon,
+  LocationSearching as LocationSearchingIcon,
+  MyLocation as MyLocationIcon,
+  Place as PlaceIcon,
+  Room as RoomIcon,
+  Store as StoreIcon,
+  Storefront as StorefrontIcon,
+  ShoppingBasket as ShoppingBasketIcon,
+  ShoppingCartCheckout as ShoppingCartCheckoutIcon,
+  AddShoppingCart as AddShoppingCartIcon,
+  RemoveShoppingCart as RemoveShoppingCartIcon,
+  LocalGroceryStore as LocalGroceryStoreIcon,
+  LocalMall as LocalMallIcon,
+  LocalOffer as LocalOfferIcon2,
+  LocalShipping as LocalShippingIcon,
+  LocalTaxi as LocalTaxiIcon,
+  DirectionsCar as DirectionsCarIcon,
+  DirectionsBus as DirectionsBusIcon,
+  DirectionsWalk as DirectionsWalkIcon,
+  DirectionsBike as DirectionsBikeIcon,
+  DirectionsSubway as DirectionsSubwayIcon,
+  DirectionsBoat as DirectionsBoatIcon,
+  Flight as FlightIcon,
+  Hotel as HotelIcon,
+  Restaurant as RestaurantIcon2,
+  LocalBar as LocalBarIcon,
+  LocalCafe as LocalCafeIcon,
+  LocalPizza as LocalPizzaIcon,
+  LocalDining as LocalDiningIcon,
+  LocalDrink as LocalDrinkIcon,
+  LocalConvenienceStore as LocalConvenienceStoreIcon,
+  LocalPharmacy as LocalPharmacyIcon,
+  LocalHospital as LocalHospitalIcon,
+  LocalPolice as LocalPoliceIcon,
+  LocalFireDepartment as LocalFireDepartmentIcon,
+  LocalLibrary as LocalLibraryIcon,
+  LocalPostOffice as LocalPostOfficeIcon,
+  LocalGasStation as LocalGasStationIcon,
+  LocalCarWash as LocalCarWashIcon,
+  LocalAtm as LocalAtmIcon,
+  LocalPrintshop as LocalPrintshopIcon,
+  LocalFlorist as LocalFloristIcon,
+  LocalLaundryService as LocalLaundryServiceIcon,
+  LocalParking as LocalParkingIcon,
+  LocalAirport as LocalAirportIcon,
+  LocalMovies as LocalMoviesIcon,
+  LocalPlay as LocalPlayIcon,
+  LocalActivity as LocalActivityIcon,
+  BeachAccess as BeachAccessIcon,
+  GolfCourse as GolfCourseIcon,
+  IceSkating as IceSkatingIcon
 } from '@mui/icons-material';
 import { User, Task, Event, Facility } from './types';
 import Header from './components/Header';
@@ -127,6 +241,114 @@ function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [activeSection, setActiveSection] = useState('home');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  
+  // Form states
+  const [lostFoundItems, setLostFoundItems] = useState<LostFoundItem[]>([]);
+  const [marketplaceItems, setMarketplaceItems] = useState<MarketplaceItem[]>([]);
+  const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
+  const [forumPosts, setForumPosts] = useState<ForumPost[]>([]);
+  const [cafeteriaOrders, setCafeteriaOrders] = useState<CafeteriaOrder[]>([]);
+  const [communityEvents, setCommunityEvents] = useState<CommunityEvent[]>([]);
+  const [helpTickets, setHelpTickets] = useState<HelpTicket[]>([]);
+  
+  // Form dialogs
+  const [lostFoundDialogOpen, setLostFoundDialogOpen] = useState(false);
+  const [marketplaceDialogOpen, setMarketplaceDialogOpen] = useState(false);
+  const [serviceRequestDialogOpen, setServiceRequestDialogOpen] = useState(false);
+  const [forumPostDialogOpen, setForumPostDialogOpen] = useState(false);
+  const [cafeteriaOrderDialogOpen, setCafeteriaOrderDialogOpen] = useState(false);
+  const [communityEventDialogOpen, setCommunityEventDialogOpen] = useState(false);
+  const [helpTicketDialogOpen, setHelpTicketDialogOpen] = useState(false);
+  
+  // Form data
+  const [lostFoundForm, setLostFoundForm] = useState({
+    type: 'lost' as 'lost' | 'found',
+    title: '',
+    description: '',
+    location: '',
+    date: '',
+    contactName: '',
+    contactPhone: '',
+    contactEmail: ''
+  });
+  
+  const [marketplaceForm, setMarketplaceForm] = useState({
+    title: '',
+    description: '',
+    price: '',
+    category: 'books' as 'books' | 'electronics' | 'furniture' | 'clothing' | 'other',
+    condition: 'good' as 'new' | 'like-new' | 'good' | 'fair' | 'poor',
+    sellerName: '',
+    sellerPhone: '',
+    sellerEmail: ''
+  });
+  
+  const [serviceRequestForm, setServiceRequestForm] = useState({
+    type: 'maintenance' as 'maintenance' | 'cleaning' | 'security' | 'technical' | 'other',
+    title: '',
+    description: '',
+    location: '',
+    priority: 'medium' as 'low' | 'medium' | 'high' | 'urgent',
+    requesterName: '',
+    requesterPhone: '',
+    requesterEmail: ''
+  });
+  
+  const [forumPostForm, setForumPostForm] = useState({
+    courseId: '',
+    title: '',
+    content: '',
+    authorName: '',
+    authorEmail: '',
+    tags: [] as string[]
+  });
+  
+  const [cafeteriaOrderForm, setCafeteriaOrderForm] = useState({
+    customerName: '',
+    customerPhone: '',
+    customerEmail: '',
+    items: [] as CafeteriaOrderItem[],
+    pickupTime: '',
+    specialInstructions: ''
+  });
+  
+  const [communityEventForm, setCommunityEventForm] = useState({
+    title: '',
+    description: '',
+    date: '',
+    time: '',
+    location: '',
+    organizerName: '',
+    organizerEmail: '',
+    organizerPhone: '',
+    maxParticipants: '',
+    category: 'social' as 'social' | 'academic' | 'sports' | 'cultural' | 'other',
+    registrationRequired: false
+  });
+  
+  const [helpTicketForm, setHelpTicketForm] = useState({
+    category: 'technical' as 'technical' | 'academic' | 'administrative' | 'financial' | 'other',
+    title: '',
+    description: '',
+    priority: 'medium' as 'low' | 'medium' | 'high' | 'urgent',
+    requesterName: '',
+    requesterEmail: '',
+    requesterPhone: ''
+  });
+  
+  // Form validation errors
+  const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
+  
+  // Load data from localStorage on component mount
+  useEffect(() => {
+    setLostFoundItems(loadFromLocalStorage(STORAGE_KEYS.LOST_FOUND, []));
+    setMarketplaceItems(loadFromLocalStorage(STORAGE_KEYS.MARKETPLACE, []));
+    setServiceRequests(loadFromLocalStorage(STORAGE_KEYS.SERVICE_REQUESTS, []));
+    setForumPosts(loadFromLocalStorage(STORAGE_KEYS.FORUM_POSTS, []));
+    setCafeteriaOrders(loadFromLocalStorage(STORAGE_KEYS.CAFETERIA_ORDERS, []));
+    setCommunityEvents(loadFromLocalStorage(STORAGE_KEYS.COMMUNITY_EVENTS, []));
+    setHelpTickets(loadFromLocalStorage(STORAGE_KEYS.HELP_TICKETS, []));
+  }, []);
 
   const handleLogin = (email: string, password: string) => {
     const user = demoUsers[email];
