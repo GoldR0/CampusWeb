@@ -717,7 +717,14 @@ function App() {
     { id: 'services', label: 'שירותים בקמפוס', icon: <BuildIcon /> },
     { id: 'community', label: 'קהילה', icon: <GroupIcon /> },
     { id: 'forum', label: 'פורום-קורס', icon: <ForumIcon /> },
-    { id: 'help', label: 'עזרה', icon: <HelpIcon /> }
+    { id: 'help', label: 'עזרה', icon: <HelpIcon /> },
+    { id: 'lost-found-management', label: 'ניהול מציאות ואבדות', icon: <SearchIcon /> },
+    { id: 'marketplace-management', label: 'ניהול שוק יד שנייה', icon: <ShoppingCartIcon /> },
+    { id: 'services-management', label: 'ניהול שירותים', icon: <BuildIcon /> },
+    { id: 'forum-management', label: 'ניהול פורום', icon: <ForumIcon /> },
+    { id: 'cafeteria-management', label: 'ניהול קפיטריה', icon: <RestaurantIcon /> },
+    { id: 'community-management', label: 'ניהול קהילה', icon: <GroupIcon /> },
+    { id: 'help-management', label: 'ניהול עזרה', icon: <HelpIcon /> }
   ];
 
   const getStatusColor = (status: string) => {
@@ -1304,6 +1311,612 @@ function App() {
                 </Button>
               </Paper>
             )}
+          </Box>
+        )}
+
+        {/* Management Screens */}
+        {activeSection === 'lost-found-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול מציאות ואבדות</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setLostFoundDialogOpen(true)}
+              >
+                הוסף פריט חדש
+              </Button>
+            </Box>
+            
+            {/* Search and Filter */}
+            <Paper sx={{ p: 2, mb: 2 }}>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <TextField
+                  placeholder="חיפוש לפי כותרת או מיקום..."
+                  size="small"
+                  sx={{ minWidth: 300 }}
+                />
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>סוג</InputLabel>
+                  <Select label="סוג">
+                    <MenuItem value="all">הכל</MenuItem>
+                    <MenuItem value="lost">אבד</MenuItem>
+                    <MenuItem value="found">נמצא</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>סטטוס</InputLabel>
+                  <Select label="סטטוס">
+                    <MenuItem value="all">הכל</MenuItem>
+                    <MenuItem value="open">פתוח</MenuItem>
+                    <MenuItem value="claimed">נטען</MenuItem>
+                    <MenuItem value="closed">סגור</MenuItem>
+                  </Select>
+                </FormControl>
+                <Button variant="outlined" size="small">נקה סינון</Button>
+              </Box>
+            </Paper>
+            
+            {/* Statistics */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 3 }}>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="primary">
+                  {lostFoundItems.length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  סה"כ פריטים
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="error">
+                  {lostFoundItems.filter(item => item.type === 'lost').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פריטים אבודים
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="success.main">
+                  {lostFoundItems.filter(item => item.type === 'found').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פריטים שנמצאו
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="warning.main">
+                  {lostFoundItems.filter(item => item.status === 'open').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פריטים פתוחים
+                </Typography>
+              </Paper>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>סוג</TableCell>
+                      <TableCell>כותרת</TableCell>
+                      <TableCell>מיקום</TableCell>
+                      <TableCell>תאריך</TableCell>
+                      <TableCell>איש קשר</TableCell>
+                      <TableCell>טלפון</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {lostFoundItems.map((item) => (
+                      <TableRow key={item.id} hover>
+                        <TableCell>
+                          <Chip 
+                            label={item.type === 'lost' ? 'אבד' : 'נמצא'} 
+                            color={item.type === 'lost' ? 'error' : 'success'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>{item.title}</TableCell>
+                        <TableCell>{item.location}</TableCell>
+                        <TableCell>{item.date}</TableCell>
+                        <TableCell>{item.contactName}</TableCell>
+                        <TableCell>{item.contactPhone}</TableCell>
+                        <TableCell>{item.contactEmail}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={item.status === 'open' ? 'פתוח' : item.status === 'claimed' ? 'נטען' : 'סגור'} 
+                            color={item.status === 'open' ? 'primary' : item.status === 'claimed' ? 'warning' : 'default'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteLostFound(item.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={lostFoundItems.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {activeSection === 'marketplace-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול שוק יד שנייה</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setMarketplaceDialogOpen(true)}
+              >
+                הוסף פריט חדש
+              </Button>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>כותרת</TableCell>
+                      <TableCell>קטגוריה</TableCell>
+                      <TableCell>מצב</TableCell>
+                      <TableCell>מחיר</TableCell>
+                      <TableCell>מוכר</TableCell>
+                      <TableCell>טלפון</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>תאריך פרסום</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {marketplaceItems.map((item) => (
+                      <TableRow key={item.id} hover>
+                        <TableCell>{item.title}</TableCell>
+                        <TableCell>
+                          <Chip label={item.category} size="small" />
+                        </TableCell>
+                        <TableCell>
+                          <Chip label={item.condition} size="small" />
+                        </TableCell>
+                        <TableCell>₪{item.price}</TableCell>
+                        <TableCell>{item.sellerName}</TableCell>
+                        <TableCell>{item.sellerPhone}</TableCell>
+                        <TableCell>{item.sellerEmail}</TableCell>
+                        <TableCell>{item.datePosted}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={item.status === 'available' ? 'זמין' : item.status === 'sold' ? 'נמכר' : 'שמור'} 
+                            color={item.status === 'available' ? 'success' : item.status === 'sold' ? 'error' : 'warning'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteMarketplace(item.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={marketplaceItems.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {activeSection === 'services-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול שירותים</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setServiceRequestDialogOpen(true)}
+              >
+                הוסף בקשה חדשה
+              </Button>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>סוג שירות</TableCell>
+                      <TableCell>כותרת</TableCell>
+                      <TableCell>מיקום</TableCell>
+                      <TableCell>עדיפות</TableCell>
+                      <TableCell>מבקש</TableCell>
+                      <TableCell>טלפון</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>תאריך בקשה</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {serviceRequests.map((request) => (
+                      <TableRow key={request.id} hover>
+                        <TableCell>
+                          <Chip label={request.type} size="small" />
+                        </TableCell>
+                        <TableCell>{request.title}</TableCell>
+                        <TableCell>{request.location}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={request.priority} 
+                            color={request.priority === 'urgent' ? 'error' : request.priority === 'high' ? 'warning' : 'success'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>{request.requesterName}</TableCell>
+                        <TableCell>{request.requesterPhone}</TableCell>
+                        <TableCell>{request.requesterEmail}</TableCell>
+                        <TableCell>{request.dateRequested}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={request.status === 'pending' ? 'ממתין' : request.status === 'in-progress' ? 'בטיפול' : request.status === 'completed' ? 'הושלם' : 'בוטל'} 
+                            color={request.status === 'pending' ? 'warning' : request.status === 'in-progress' ? 'info' : request.status === 'completed' ? 'success' : 'default'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteServiceRequest(request.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={serviceRequests.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {activeSection === 'forum-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול פורום</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setForumPostDialogOpen(true)}
+              >
+                צור פוסט חדש
+              </Button>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>קורס</TableCell>
+                      <TableCell>כותרת</TableCell>
+                      <TableCell>מחבר</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>תאריך פרסום</TableCell>
+                      <TableCell>תגובות</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {forumPosts.map((post) => (
+                      <TableRow key={post.id} hover>
+                        <TableCell>{post.courseId}</TableCell>
+                        <TableCell>{post.title}</TableCell>
+                        <TableCell>{post.authorName}</TableCell>
+                        <TableCell>{post.authorEmail}</TableCell>
+                        <TableCell>{post.datePosted}</TableCell>
+                        <TableCell>{post.replies.length}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={post.status === 'active' ? 'פעיל' : post.status === 'closed' ? 'סגור' : 'נמחק'} 
+                            color={post.status === 'active' ? 'success' : post.status === 'closed' ? 'warning' : 'default'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteForumPost(post.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={forumPosts.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {activeSection === 'cafeteria-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול קפיטריה</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setCafeteriaOrderDialogOpen(true)}
+              >
+                הוסף הזמנה חדשה
+              </Button>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>מספר הזמנה</TableCell>
+                      <TableCell>לקוח</TableCell>
+                      <TableCell>טלפון</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>פריטים</TableCell>
+                      <TableCell>סה"כ</TableCell>
+                      <TableCell>זמן איסוף</TableCell>
+                      <TableCell>תאריך הזמנה</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {cafeteriaOrders.map((order) => (
+                      <TableRow key={order.id} hover>
+                        <TableCell>#{order.id.slice(-6)}</TableCell>
+                        <TableCell>{order.customerName}</TableCell>
+                        <TableCell>{order.customerPhone}</TableCell>
+                        <TableCell>{order.customerEmail}</TableCell>
+                        <TableCell>{order.items.length}</TableCell>
+                        <TableCell>₪{order.totalPrice}</TableCell>
+                        <TableCell>{order.pickupTime}</TableCell>
+                        <TableCell>{order.orderDate}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={order.status === 'pending' ? 'ממתין' : order.status === 'preparing' ? 'בהכנה' : order.status === 'ready' ? 'מוכן' : order.status === 'completed' ? 'הושלם' : 'בוטל'} 
+                            color={order.status === 'pending' ? 'warning' : order.status === 'preparing' ? 'info' : order.status === 'ready' ? 'success' : order.status === 'completed' ? 'default' : 'error'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteCafeteriaOrder(order.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={cafeteriaOrders.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {activeSection === 'community-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול קהילה</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setCommunityEventDialogOpen(true)}
+              >
+                צור אירוע חדש
+              </Button>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>כותרת</TableCell>
+                      <TableCell>קטגוריה</TableCell>
+                      <TableCell>תאריך</TableCell>
+                      <TableCell>שעה</TableCell>
+                      <TableCell>מיקום</TableCell>
+                      <TableCell>מארגן</TableCell>
+                      <TableCell>טלפון</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>משתתפים</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {communityEvents.map((event) => (
+                      <TableRow key={event.id} hover>
+                        <TableCell>{event.title}</TableCell>
+                        <TableCell>
+                          <Chip label={event.category} size="small" />
+                        </TableCell>
+                        <TableCell>{event.date}</TableCell>
+                        <TableCell>{event.time}</TableCell>
+                        <TableCell>{event.location}</TableCell>
+                        <TableCell>{event.organizerName}</TableCell>
+                        <TableCell>{event.organizerPhone}</TableCell>
+                        <TableCell>{event.organizerEmail}</TableCell>
+                        <TableCell>{event.currentParticipants}/{event.maxParticipants}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={event.status === 'upcoming' ? 'קרוב' : event.status === 'ongoing' ? 'מתקיים' : event.status === 'completed' ? 'הושלם' : 'בוטל'} 
+                            color={event.status === 'upcoming' ? 'success' : event.status === 'ongoing' ? 'info' : event.status === 'completed' ? 'default' : 'error'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteCommunityEvent(event.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={communityEvents.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {activeSection === 'help-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול עזרה</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setHelpTicketDialogOpen(true)}
+              >
+                פתח כרטיס חדש
+              </Button>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>קטגוריה</TableCell>
+                      <TableCell>כותרת</TableCell>
+                      <TableCell>עדיפות</TableCell>
+                      <TableCell>מבקש</TableCell>
+                      <TableCell>טלפון</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>תאריך יצירה</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {helpTickets.map((ticket) => (
+                      <TableRow key={ticket.id} hover>
+                        <TableCell>
+                          <Chip label={ticket.category} size="small" />
+                        </TableCell>
+                        <TableCell>{ticket.title}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={ticket.priority} 
+                            color={ticket.priority === 'urgent' ? 'error' : ticket.priority === 'high' ? 'warning' : ticket.priority === 'medium' ? 'info' : 'success'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>{ticket.requesterName}</TableCell>
+                        <TableCell>{ticket.requesterPhone}</TableCell>
+                        <TableCell>{ticket.requesterEmail}</TableCell>
+                        <TableCell>{ticket.dateCreated}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={ticket.status === 'open' ? 'פתוח' : ticket.status === 'in-progress' ? 'בטיפול' : ticket.status === 'resolved' ? 'נפתר' : 'סגור'} 
+                            color={ticket.status === 'open' ? 'warning' : ticket.status === 'in-progress' ? 'info' : ticket.status === 'resolved' ? 'success' : 'default'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteHelpTicket(ticket.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={helpTickets.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
           </Box>
         )}
 
@@ -2071,6 +2684,46 @@ function App() {
           {notification?.message}
         </Alert>
       </Snackbar>
+
+      {/* Status Update Dialog */}
+      <Dialog open={statusUpdateDialogOpen} onClose={() => setStatusUpdateDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>עדכן סטטוס</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <FormControl fullWidth>
+              <InputLabel>סטטוס חדש</InputLabel>
+              <Select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+              >
+                {statusOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setStatusUpdateDialogOpen(false)}>ביטול</Button>
+          <Button variant="contained" onClick={handleStatusUpdate}>עדכן</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmDialogOpen} onClose={() => setConfirmDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>אישור מחיקה</DialogTitle>
+        <DialogContent>
+          <Typography>
+            האם אתה בטוח שברצונך למחוק את הפריט הזה? פעולה זו אינה הפיכה.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDialogOpen(false)}>ביטול</Button>
+          <Button variant="contained" color="error" onClick={handleConfirmDelete}>מחק</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
