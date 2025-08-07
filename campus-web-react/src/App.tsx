@@ -925,7 +925,7 @@ function App() {
           {/* Right Section - User Info and Actions */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {/* Quick Stats for Management Screens */}
-            {activeSection.includes('management') && (
+            {activeSection.endsWith('-management') && (
               <Box sx={{ display: { xs: 'none', lg: 'flex' }, gap: 1 }}>
                 <Chip 
                   label={`${getCurrentSectionCount()} פריטים`} 
@@ -1531,7 +1531,7 @@ function App() {
       {/* Main Content */}
       <Container maxWidth="xl" sx={{ flexGrow: 1, py: 3 }}>
         {/* Page Header for Regular Screens */}
-        {!activeSection.includes('management') && activeSection !== 'home' && (
+        {!activeSection.endsWith('-management') && activeSection !== 'home' && (
           <Paper 
             elevation={2} 
             sx={{ 
@@ -2023,7 +2023,99 @@ function App() {
                 </Card>
               </Box>
             </Paper>
+          </Box>
+        )}
 
+        {/* Profile Section */}
+        {activeSection === 'profile' && (
+          <Box>
+            <Paper sx={{ p: 3, mb: 3 }}>
+              <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#2e7d32' }}>
+                פרופיל אישי
+              </Typography>
+              
+              {isLoggedIn && currentUser ? (
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
+                  <Box>
+                    <Typography variant="h6" sx={{ mb: 2, color: '#2e7d32' }}>פרטים אישיים</Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">שם מלא</Typography>
+                        <Typography variant="body1">{currentUser.name}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">אימייל</Typography>
+                        <Typography variant="body1">{currentUser.email}</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">תפקיד</Typography>
+                        <Typography variant="body1">{currentUser.role === 'student' ? 'סטודנט' : currentUser.role === 'lecturer' ? 'מרצה' : 'מנהל'}</Typography>
+                      </Box>
+                      {currentUser.phone && (
+                        <Box>
+                          <Typography variant="body2" color="text.secondary">טלפון</Typography>
+                          <Typography variant="body1">{currentUser.phone}</Typography>
+                        </Box>
+                      )}
+                      {currentUser.age && (
+                        <Box>
+                          <Typography variant="body2" color="text.secondary">גיל</Typography>
+                          <Typography variant="body1">{currentUser.age}</Typography>
+                        </Box>
+                      )}
+                      {currentUser.city && (
+                        <Box>
+                          <Typography variant="body2" color="text.secondary">עיר</Typography>
+                          <Typography variant="body1">{currentUser.city}</Typography>
+                        </Box>
+                      )}
+                      {currentUser.gender && (
+                        <Box>
+                          <Typography variant="body2" color="text.secondary">מגדר</Typography>
+                          <Typography variant="body1">{currentUser.gender === 'male' ? 'זכר' : 'נקבה'}</Typography>
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
+                  
+                  <Box>
+                    <Typography variant="h6" sx={{ mb: 2, color: '#2e7d32' }}>סטטיסטיקות</Typography>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
+                      <Paper sx={{ p: 2, textAlign: 'center' }}>
+                        <Typography variant="h4" color="primary">{demoTasks.length}</Typography>
+                        <Typography variant="body2" color="text.secondary">מטלות</Typography>
+                      </Paper>
+                      <Paper sx={{ p: 2, textAlign: 'center' }}>
+                        <Typography variant="h4" color="success.main">{demoEvents.length}</Typography>
+                        <Typography variant="body2" color="text.secondary">אירועים</Typography>
+                      </Paper>
+                      <Paper sx={{ p: 2, textAlign: 'center' }}>
+                        <Typography variant="h4" color="warning.main">{lostFoundItems.length}</Typography>
+                        <Typography variant="body2" color="text.secondary">פריטים אבודים/נמצאים</Typography>
+                      </Paper>
+                      <Paper sx={{ p: 2, textAlign: 'center' }}>
+                        <Typography variant="h4" color="info.main">{marketplaceItems.length}</Typography>
+                        <Typography variant="body2" color="text.secondary">פריטים למכירה</Typography>
+                      </Paper>
+                    </Box>
+                  </Box>
+                </Box>
+              ) : (
+                <Box sx={{ textAlign: 'center', py: 4 }}>
+                  <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                    יש להתחבר כדי לצפות בפרופיל
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    onClick={() => setLoginDialogOpen(true)}
+                    sx={{ backgroundColor: '#2e7d32' }}
+                  >
+                    התחברות
+                  </Button>
+                </Box>
+              )}
+            </Paper>
+          </Box>
         )}
 
         {/* Learning Center Section */}
@@ -3883,7 +3975,7 @@ function App() {
         )}
 
         {/* Other sections */}
-        {!['home', 'lost-found', 'marketplace', 'services', 'forum', 'cafeteria', 'community', 'help'].includes(activeSection) && (
+        {!['home', 'profile', 'learning', 'lost-found', 'marketplace', 'services', 'forum', 'cafeteria', 'community', 'help', 'lost-found-management', 'marketplace-management', 'services-management', 'forum-management', 'cafeteria-management', 'community-management', 'help-management'].includes(activeSection) && (
           <Paper sx={{ p: 3, textAlign: 'center' }}>
             <Typography variant="h5">
               {activeSection === 'profile' && 'פרופיל אישי'}
@@ -3903,7 +3995,7 @@ function App() {
         )}
 
         {/* Page Header for Management Screens */}
-        {activeSection.includes('management') && (
+        {activeSection.endsWith('-management') && (
           <Paper 
             elevation={2} 
             sx={{ 

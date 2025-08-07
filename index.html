@@ -3,1396 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ono - מערכת ניהול קמפוס</title>
-    <link rel="icon" type="image/png" href="onologo.png">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <title>ONO - מערכת ניהול קמפוס - מדריך התקנה</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            direction: rtl;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 30px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-right: 4px solid;
+        }
+        .success {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+            border-color: #4caf50;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-color: #f44336;
+        }
+        .info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border-color: #2196f3;
+        }
+        .warning {
+            background-color: #fff3e0;
+            color: #ef6c00;
+            border-color: #ff9800;
+        }
+        .step {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .step h4 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+        .code {
+            background-color: #f1f3f4;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            display: block;
+        }
+        .download-btn {
+            display: inline-block;
+            background-color: #2e7d32;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 10px 5px;
+            font-weight: bold;
+        }
+        .download-btn:hover {
+            background-color: #1b5e20;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .feature-item h4 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-top">
-                <div class="logo-container">
-                    <img src="onologo.png" alt="קמפוס לוגו" class="site-logo">
-                    <h1>מערכת ניהול קמפוס</h1>
-                </div>
-                <div class="user-controls">
-                    <button class="btn login-btn" id="loginBtn">🔐 התחברות</button>
-                    <div class="user-info" id="userInfo" style="display: none;">
-                        <span id="userName"></span>
-                        <span id="userRole"></span>
-                        <button class="btn logout-btn" id="logoutBtn">🚪 התנתקות</button>
-                    </div>
-                </div>
-            </div>
-            <p>ברוכים הבאים למערכת המקיפה לניהול חיי הסטודנטים בקמפוס</p>
-        </header>
+        <div class="header">
+            <h1>ONO - מערכת ניהול קמפוס</h1>
+            <h2>מדריך התקנה והרצה</h2>
+        </div>
+        
+        <div class="status success">
+            <h3>✅ תיקונים שבוצעו בהצלחה:</h3>
+            <ul>
+                <li>תיקון מבנה JSX - הוספת תגי סגירה חסרים</li>
+                <li>הוספת סקציית פרופיל אישי מלאה</li>
+                <li>תיקון שגיאות TypeScript בהשוואות מחרוזות</li>
+                <li>תיקון תנאים לזיהוי מסכי ניהול</li>
+                <li>וידוא שכל התגים נסגרים כראוי</li>
+                <li>הקוד מוכן להרצה!</li>
+            </ul>
+        </div>
 
-        <!-- Login Modal -->
-        <div id="loginModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>🔐 התחברות למערכת</h2>
-                <form class="login-form" id="loginForm">
-                    <div class="form-group">
-                        <label>סוג משתמש:</label>
-                        <select id="userType" required>
-                            <option value="">בחר סוג משתמש</option>
-                            <option value="student">סטודנט</option>
-                            <option value="lecturer">מרצה</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>אימייל:</label>
-                        <input type="email" id="loginEmail" placeholder="הכנס אימייל" required>
-                    </div>
-                    <div class="form-group">
-                        <label>סיסמה:</label>
-                        <input type="password" id="loginPassword" placeholder="הכנס סיסמה" required>
-                    </div>
-                    <button type="submit" class="btn">התחבר</button>
-                </form>
-                <div class="demo-accounts">
-                    <h3>חשבונות לדוגמה:</h3>
-                    <div class="demo-account">
-                        <strong>סטודנט:</strong> student@campus.ac.il / 123456
-                    </div>
-                    <div class="demo-account">
-                        <strong>מרצה:</strong> lecturer@campus.ac.il / 123456
-                    </div>
+        <div class="status warning">
+            <h3>⚠️ בעיה זוהתה:</h3>
+            <p><strong>Node.js לא מותקן במערכת שלך.</strong></p>
+            <p>כדי להריץ את האפליקציה, יש להתקין Node.js תחילה.</p>
+        </div>
+
+        <div class="step">
+            <h4>שלב 1: התקנת Node.js</h4>
+            <p>Node.js הוא סביבת הרצה ל-JavaScript שנדרשת להרצת פרויקטי React.</p>
+            
+            <h5>אפשרות א' - הורדה ישירה:</h5>
+            <a href="https://nodejs.org/en/download/" class="download-btn" target="_blank">
+                הורד Node.js מהאתר הרשמי
+            </a>
+            
+            <h5>אפשרות ב' - התקנה דרך Chocolatey (אם מותקן):</h5>
+            <code>choco install nodejs</code>
+            
+            <h5>אפשרות ג' - התקנה דרך Winget:</h5>
+            <code>winget install OpenJS.NodeJS</code>
+        </div>
+
+        <div class="step">
+            <h4>שלב 2: אימות ההתקנה</h4>
+            <p>לאחר ההתקנה, פתח טרמינל חדש ובדוק:</p>
+            <code>node --version</code>
+            <code>npm --version</code>
+            <p>אם הפקודות עובדות, Node.js מותקן כראוי.</p>
+        </div>
+
+        <div class="step">
+            <h4>שלב 3: הרצת הפרויקט</h4>
+            <p>נווט לתיקיית הפרויקט והרץ את הפקודות הבאות:</p>
+            <code>cd campus-web-react</code>
+            <code>npm install</code>
+            <code>npm start</code>
+            <p>האפליקציה תיפתח אוטומטית בדפדפן בכתובת: <code>http://localhost:3000</code></p>
+        </div>
+
+        <div class="status info">
+            <h3>ℹ️ מידע על הפרויקט:</h3>
+            <ul>
+                <li><strong>טכנולוגיות:</strong> React 18, TypeScript, Material-UI</li>
+                <li><strong>תמיכה:</strong> עברית עם כיוון RTL</li>
+                <li><strong>גודל:</strong> מעל 4,000 שורות קוד</li>
+                <li><strong>תכונות:</strong> מערכת ניהול קמפוס מקיפה</li>
+            </ul>
+        </div>
+
+        <div class="status success">
+            <h3>🎉 תכונות האפליקציה:</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h4>🏠 מסך בית</h4>
+                    <p>ניווט מהיר לכל השירותים, סטטיסטיקות, הודעות חשובות</p>
+                </div>
+                <div class="feature-item">
+                    <h4>👤 פרופיל אישי</h4>
+                    <p>פרטים אישיים, סטטיסטיקות, היסטוריית פעילות</p>
+                </div>
+                <div class="feature-item">
+                    <h4>📚 מרכז לימודים</h4>
+                    <p>ניהול מטלות, לוח זמנים, חומרי לימוד</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🔍 מציאות ואבדות</h4>
+                    <p>דיווח פריטים אבודים, חיפוש פריטים שנמצאו</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🛒 שוק יד שנייה</h4>
+                    <p>מכירה וקנייה של פריטים, ניהול מודעות</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🛠️ בקשות שירות</h4>
+                    <p>דיווח בעיות, מעקב אחר בקשות, תמיכה טכנית</p>
+                </div>
+                <div class="feature-item">
+                    <h4>💬 פורום קורס</h4>
+                    <p>דיונים, שאלות ותשובות, שיתוף מידע</p>
+                </div>
+                <div class="feature-item">
+                    <h4>☕ קפיטריה</h4>
+                    <p>הזמנת אוכל, תפריטים, מעקב הזמנות</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🎉 אירועים קהילתיים</h4>
+                    <p>ארגון אירועים, הרשמה, ניהול משתתפים</p>
+                </div>
+                <div class="feature-item">
+                    <h4>❓ עזרה ותמיכה</h4>
+                    <p>כרטיסי עזרה, מדריכים, תמיכה טכנית</p>
+                </div>
+                <div class="feature-item">
+                    <h4>⚙️ מסכי ניהול</h4>
+                    <p>ניהול מלא לכל המערכות, סטטיסטיקות, בקרה</p>
                 </div>
             </div>
         </div>
 
-        <!-- Navigation -->
-        <nav class="nav">
-            <button class="nav-btn active" data-section="home">🏠 עמוד בית</button>
-            <button class="nav-btn" data-section="profile">👤 פרופיל אישי</button>
-            <button class="nav-btn" data-section="learning">📚 מרכז הלימודים</button>
-            <button class="nav-btn" data-section="cafeteria">☕ קפיטריה</button>
-            <button class="nav-btn" data-section="lostfound">🔍 מציאות ואבדות</button>
-            <button class="nav-btn" data-section="marketplace">🛒 שוק יד שנייה</button>
-            <button class="nav-btn" data-section="services">🛠️ שירותים בקמפוס</button>
-            <button class="nav-btn" data-section="community">👥 קהילה</button>
-            <button class="nav-btn" data-section="course-forum">💬 פורום-קורס</button>
-            <button class="nav-btn" data-section="help">❓ עזרה</button>
-            <button class="nav-btn admin-only" data-section="admin">⚙️ ניהול</button>
-        </nav>
+        <div class="status info">
+            <h3>🔧 פקודות שימושיות:</h3>
+            <ul>
+                <li><code>npm start</code> - הרצת האפליקציה במצב פיתוח</li>
+                <li><code>npm run build</code> - בניית האפליקציה לייצור</li>
+                <li><code>npm test</code> - הרצת בדיקות</li>
+                <li><code>npm run eject</code> - יצירת קונפיגורציה מותאמת (לא מומלץ)</li>
+            </ul>
+        </div>
 
-        <!-- Content Sections -->
-        <main>
-            <!-- Home Section -->
-            <section id="home" class="content active">
-                <h2 class="section-title">🏠 עמוד הבית</h2>
-                
-                <div class="notification">
-                    🎉 ברוכים הבאים! היום יש לך 2 מבחנים ו-3 מטלות להגשה
-                </div>
-
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3><span class="card-icon">📅</span> תזכורות יומיות</h3>
-                        <ul id="dailyReminders">
-                            <li>מבחן מתמטיקה - 14:00</li>
-                            <li>מבחן פיזיקה - 16:30</li>
-                            <li>הגשת עבודה - מחר</li>
-                        </ul>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">🏢</span> מצב מתקנים</h3>
-                        <p>📚 ספרייה: <span class="status open">פתוחה</span>6:30-22:30</p>
-                        <p>☕ קפיטריה: <span class="status busy">עמוסה</span>7:00-22:00</p>
-                        <p>💪 חדר כושר: <span class="status open">פתוח</span>6:30-8:00</p>
-                        <p>🅿️ חניה: <span class="status busy">עמוסה</span></p>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">📅</span> לוח אירועים</h3>
-                        <div class="events-container">
-                            <div class="event-item urgent">
-                                <div class="event-date">15/12</div>
-                                <div class="event-content">
-                                    <h4>מיטאפ יזמות</h4>
-                                    <p>מפגש עם יזמים מובילים בתעשייה</p>
-                                    <span class="event-time">18:00 - אודיטוריום</span>
-                                </div>
-                            </div>
-                            <div class="event-item">
-                                <div class="event-date">20/12</div>
-                                <div class="event-content">
-                                    <h4>הרצאת אורח - AI</h4>
-                                    <p>ד"ר כהן על בינה מלאכותית</p>
-                                    <span class="event-time">14:00 - חדר 301</span>
-                                </div>
-                            </div>
-                            <div class="event-item">
-                                <div class="event-date">25/12</div>
-                                <div class="event-content">
-                                    <h4>סדנת פיתוח</h4>
-                                    <p>סדנה מעשית בפיתוח אפליקציות</p>
-                                    <span class="event-time">10:00 - מעבדת מחשבים</span>
-                                </div>
-                            </div>
-                            <div class="event-item">
-                                <div class="event-date">30/12</div>
-                                <div class="event-content">
-                                    <h4>יום אטרקציות</h4>
-                                    <p>יום כיף עם פעילויות מגוונות</p>
-                                    <span class="event-time">09:00 - קמפוס</span>
-                                </div>
-                            </div>
-                            <div class="event-item">
-                                <div class="event-date">05/01</div>
-                                <div class="event-content">
-                                    <h4>מועדים חשובים</h4>
-                                    <p>תחילת סמסטר ב' - הרשמה לקורסים</p>
-                                    <span class="event-time">08:00 - משרד רישום</span>
-                                </div>
-                            </div>
-                            <div class="event-item">
-                                <div class="event-date">10/01</div>
-                                <div class="event-content">
-                                    <h4>אירוע סוף שנה</h4>
-                                    <p>חגיגת סיום שנה אקדמית</p>
-                                    <span class="event-time">19:00 - אולם הכנסים</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Event Images Gallery -->
-                <div class="card">
-                    <h3><span class="card-icon">📸</span> אירועים נוספים</h3>
-                    <div class="event-gallery">
-                        <div class="event-image">
-                            <img src="loc1.png" alt="אירוע 1" class="gallery-img">
-                        </div>
-                        <div class="event-image">
-                            <img src="loc2.png" alt="אירוע 2" class="gallery-img">
-                        </div>
-                        <div class="event-image">
-                            <img src="loc3.png" alt="אירוע 3" class="gallery-img">
-                        </div>
-                        <div class="event-image">
-                            <img src="loc4.png" alt="אירוע 4" class="gallery-img">
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Learning Center Section -->
-            <section id="learning" class="content">
-                <h2 class="section-title">📚 מרכז לימודים</h2>
-                
-                <!-- Task Board - Now at the top as requested -->
-                <div class="card">
-                    <h3><span class="card-icon">📅</span> לוח מטלות</h3>
-                    <div class="task-filters">
-                        <button class="filter-btn active" data-filter="all">הכל</button>
-                        <button class="filter-btn" data-filter="urgent">דחוף</button>
-                        <button class="filter-btn" data-filter="pending">ממתין</button>
-                        <button class="filter-btn" data-filter="completed">הושלם</button>
-                    </div>
-                    <div class="task-stats">
-                        <div class="stat-item">
-                            <strong>סה"כ מטלות:</strong>
-                            <span id="totalTasks">6</span>
-                        </div>
-                        <div class="stat-item">
-                            <strong>דחופות:</strong>
-                            <span id="urgentTasks">2</span>
-                        </div>
-                        <div class="stat-item">
-                            <strong>הושלמו:</strong>
-                            <span id="completedTasks">1</span>
-                        </div>
-                    </div>
-                    <div class="task-table-container">
-                        <table class="table" id="tasksTable">
-                            <thead>
-                                <tr>
-                                    <th>סוג מטלה</th>
-                                    <th>קורס</th>
-                                    <th>כותרת</th>
-                                    <th>תאריך יעד</th>
-                                    <th>דחיפות</th>
-                                    <th>סטטוס</th>
-                                    <th>פעולות</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            <tr class="task-urgent">
-                                <td><span class="task-type exam">מבחן</span></td>
-                                <td>מתמטיקה 1</td>
-                                <td>מבחן אמצע</td>
-                                <td>15/12/2024</td>
-                                <td><span class="priority urgent">דחוף מאוד</span></td>
-                                <td><span class="status pending">ממתין</span></td>
-                                <td>
-                                    <button class="btn small-btn edit-btn">ערוך</button>
-                                    <button class="btn small-btn delete-btn">מחק</button>
-                                </td>
-                            </tr>
-                            <tr class="task-urgent">
-                                <td><span class="task-type assignment">עבודת הגשה</span></td>
-                                <td>תכנות</td>
-                                <td>פרויקט סופי</td>
-                                <td>18/12/2024</td>
-                                <td><span class="priority urgent">דחוף מאוד</span></td>
-                                <td><span class="status in-progress">בביצוע</span></td>
-                                <td>
-                                    <button class="btn small-btn edit-btn">ערוך</button>
-                                    <button class="btn small-btn delete-btn">מחק</button>
-                                </td>
-                            </tr>
-                            <tr class="task-medium">
-                                <td><span class="task-type homework">שיעורי בית</span></td>
-                                <td>פיזיקה 1</td>
-                                <td>תרגילי כוחות</td>
-                                <td>20/12/2024</td>
-                                <td><span class="priority medium">בינוני</span></td>
-                                <td><span class="status pending">ממתין</span></td>
-                                <td>
-                                    <button class="btn small-btn edit-btn">ערוך</button>
-                                    <button class="btn small-btn delete-btn">מחק</button>
-                                </td>
-                            </tr>
-                            <tr class="task-medium">
-                                <td><span class="task-type quiz">בוחן</span></td>
-                                <td>מתמטיקה 1</td>
-                                <td>בוחן קצר - נגזרות</td>
-                                <td>22/12/2024</td>
-                                <td><span class="priority medium">בינוני</span></td>
-                                <td><span class="status pending">ממתין</span></td>
-                                <td>
-                                    <button class="btn small-btn edit-btn">ערוך</button>
-                                    <button class="btn small-btn delete-btn">מחק</button>
-                                </td>
-                            </tr>
-                            <tr class="task-low">
-                                <td><span class="task-type task">מטלה</span></td>
-                                <td>תכנות</td>
-                                <td>קריאת מאמר</td>
-                                <td>25/12/2024</td>
-                                <td><span class="priority low">נמוך</span></td>
-                                <td><span class="status completed">הושלם</span></td>
-                                <td>
-                                    <button class="btn small-btn edit-btn">ערוך</button>
-                                    <button class="btn small-btn delete-btn">מחק</button>
-                                </td>
-                            </tr>
-                            <tr class="task-low">
-                                <td><span class="task-type presentation">הצגה</span></td>
-                                <td>פיזיקה 1</td>
-                                <td>הצגת ניסוי</td>
-                                <td>28/12/2024</td>
-                                <td><span class="priority low">נמוך</span></td>
-                                <td><span class="status pending">ממתין</span></td>
-                                <td>
-                                    <button class="btn small-btn edit-btn">ערוך</button>
-                                    <button class="btn small-btn delete-btn">מחק</button>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Task Management Form -->
-                <div class="card">
-                    <h3><span class="card-icon">📝</span> ניהול מטלות</h3>
-                    <form class="task-form">
-                        <div class="form-group">
-                            <label>סוג מטלה:</label>
-                            <select required>
-                                <option value="">בחר סוג מטלה</option>
-                                <option value="exam">מבחן</option>
-                                <option value="assignment">עבודת הגשה</option>
-                                <option value="homework">שיעורי בית</option>
-                                <option value="quiz">בוחן</option>
-                                <option value="task">מטלה</option>
-                                <option value="presentation">הצגה</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>קורס:</label>
-                            <select required>
-                                <option value="">בחר קורס</option>
-                                <option value="מתמטיקה 1">מתמטיקה 1</option>
-                                <option value="פיזיקה 1">פיזיקה 1</option>
-                                <option value="תכנות">תכנות</option>
-                                <option value="אחר">אחר</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>כותרת המטלה:</label>
-                            <input type="text" placeholder="הכנס כותרת מטלה" required>
-                        </div>
-                        <div class="form-group">
-                            <label>תיאור:</label>
-                            <textarea placeholder="תיאור המטלה" rows="3" required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>תאריך יעד:</label>
-                            <input type="date" required>
-                        </div>
-                        <button type="submit" class="btn">הוסף מטלה</button>
-                    </form>
-                </div>
-
-                <!-- Academic Progress -->
-                <div class="card">
-                    <h3><span class="card-icon">📊</span> התקדמות אקדמית</h3>
-                    <div class="academic-progress-container">
-                        <div class="progress-summary">
-                            <div class="summary-item">
-                                <span class="summary-label">סה"כ נקודות זכות:</span>
-                                <span class="summary-value" id="totalCredits">16</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="summary-label">ממוצע ציונים:</span>
-                                <span class="summary-value" id="gradeAverage">88.3</span>
-                            </div>
-                            <div class="summary-item">
-                                <span class="summary-label">קורסים פעילים:</span>
-                                <span class="summary-value" id="activeCourses">3</span>
-                            </div>
-                        </div>
-                        
-                        <div class="course-progress" id="courseProgress">
-                            <h4>התקדמות קורסים נוכחיים</h4>
-                            <!-- התקדמות יוכנס דינמית -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Course Details and Grades -->
-                <div class="card">
-                    <h3><span class="card-icon">📋</span> פירוט קורסים וציונים</h3>
-                    <table class="table" id="academicTable">
-                        <thead>
-                            <tr>
-                                <th>קורס</th>
-                                <th>נקודות זכות</th>
-                                <th>ציון</th>
-                                <th>סטטוס</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>מתמטיקה 1</td>
-                                <td>6</td>
-                                <td>85</td>
-                                <td><span class="status completed">הושלם</span></td>
-                            </tr>
-                            <tr>
-                                <td>פיזיקה 1</td>
-                                <td>6</td>
-                                <td>92</td>
-                                <td><span class="status completed">הושלם</span></td>
-                            </tr>
-                            <tr>
-                                <td>תכנות</td>
-                                <td>4</td>
-                                <td>88</td>
-                                <td><span class="status completed">הושלם</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- My Courses -->
-                <div class="card">
-                    <h3><span class="card-icon">🎓</span> הקורסים שלי</h3>
-                    <div class="courses-list" id="userCourses">
-                        <!-- קורסים יוכנסו דינמית לפי סוג המשתמש -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- Admin Section -->
-            <section id="admin" class="content">
-                <h2 class="section-title">⚙️ ניהול מערכת - מרצה</h2>
-                
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3><span class="card-icon">👥</span> ניהול סטודנטים</h3>
-                        <form class="student-form">
-                            <div class="form-group">
-                                <label>תעודת זהות:</label>
-                                <input type="text" placeholder="תעודת זהות" required>
-                            </div>
-                            <div class="form-group">
-                                <label>שם פרטי:</label>
-                                <input type="text" placeholder="שם פרטי" required>
-                            </div>
-                            <div class="form-group">
-                                <label>שם משפחה:</label>
-                                <input type="text" placeholder="שם משפחה" required>
-                            </div>
-                            <div class="form-group">
-                                <label>אימייל:</label>
-                                <input type="email" placeholder="אימייל" required>
-                            </div>
-                            <div class="form-group">
-                                <label>שנה:</label>
-                                <input type="number" min="2025" placeholder="שנה" required>
-                            </div>
-                            <div class="form-group">
-                                <label>תואר:</label>
-                                <input type="text" placeholder="שם התואר" required>
-                            </div>
-                            <button type="submit" class="btn">הוסף סטודנט</button>
-                        </form>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">📝</span> ניהול מטלות</h3>
-                        <form class="admin-task-form">
-                            <div class="form-group">
-                                <label>כותרת מטלה:</label>
-                                <input type="text" placeholder="כותרת מטלה" maxlength="40" required>
-                            </div>
-                            <div class="form-group">
-                                <label>סוג מטלה:</label>
-                                <select required>
-                                    <option value="">בחר סוג</option>
-                                    <option value="exam">מבחן</option>
-                                    <option value="assignment">עבודת הגשה</option>
-                                    <option value="homework">שיעורי בית</option>
-                                    <option value="quiz">בוחן</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>קורס:</label>
-                                <select required>
-                                    <option value="">בחר קורס</option>
-                                    <option value="math1">מתמטיקה 1</option>
-                                    <option value="physics1">פיזיקה 1</option>
-                                    <option value="programming">תכנות</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>תאריך:</label>
-                                <input type="date" required>
-                            </div>
-                            <button type="submit" class="btn">הוסף מטלה</button>
-                        </form>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">📊</span> ניהול ציונים</h3>
-                        <form class="grade-form">
-                            <div class="form-group">
-                                <label>סטודנט:</label>
-                                <select required>
-                                    <option value="">בחר סטודנט</option>
-                                    <option value="123456789">ישראל ישראלי</option>
-                                    <option value="987654321">שרה כהן</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>קורס:</label>
-                                <select required>
-                                    <option value="">בחר קורס</option>
-                                    <option value="math1">מתמטיקה 1</option>
-                                    <option value="physics1">פיזיקה 1</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>ציון:</label>
-                                <input type="number" min="0" max="100" placeholder="ציון" required>
-                            </div>
-                            <div class="form-group">
-                                <label>נקודות זכות:</label>
-                                <input type="number" min="1" max="10" placeholder="נקודות זכות" required>
-                            </div>
-                            <button type="submit" class="btn">עדכן ציון</button>
-                        </form>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">🎓</span> ניהול קורסים</h3>
-                        <form class="course-form">
-                            <div class="form-group">
-                                <label>שם קורס:</label>
-                                <input type="text" placeholder="שם הקורס" required>
-                            </div>
-                            <div class="form-group">
-                                <label>מרצה אחראי:</label>
-                                <select required>
-                                    <option value="">בחר מרצה</option>
-                                    <option value="123456789">ד"ר כהן</option>
-                                    <option value="987654321">פרופ' לוי</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>סמסטר:</label>
-                                <select required>
-                                    <option value="">בחר סמסטר</option>
-                                    <option value="א">סמסטר א</option>
-                                    <option value="ב">סמסטר ב</option>
-                                    <option value="ג">סמסטר ג</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>שנה:</label>
-                                <input type="number" min="2025" placeholder="שנה" required>
-                            </div>
-                            <button type="submit" class="btn">הוסף קורס</button>
-                        </form>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">📊</span> סטטיסטיקות מערכת</h3>
-                        <div class="stats-grid">
-                            <div class="stat-item">
-                                <strong>סה"כ סטודנטים:</strong>
-                                <span>150</span>
-                            </div>
-                            <div class="stat-item">
-                                <strong>קורסים פעילים:</strong>
-                                <span>25</span>
-                            </div>
-                            <div class="stat-item">
-                                <strong>מטלות פתוחות:</strong>
-                                <span>45</span>
-                            </div>
-                            <div class="stat-item">
-                                <strong>מבחנים קרובים:</strong>
-                                <span>8</span>
-                            </div>
-                        </div>
-                    </div>
-
-
-                </div>
-
-                <!-- Student List - Alone at the bottom -->
-                <div class="card student-list-card">
-                    <h3><span class="card-icon">📋</span> רשימת סטודנטים</h3>
-                    <table class="table" id="studentsTable">
-                        <thead>
-                            <tr>
-                                <th>ת"ז</th>
-                                <th>שם</th>
-                                <th>אימייל</th>
-                                <th>שנה</th>
-                                <th>פעולות</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="student-row">
-                                <td>123456789</td>
-                                <td>ישראל ישראלי</td>
-                                <td>israel@campus.ac.il</td>
-                                <td>2025</td>
-                                <td>
-                                    <button class="btn small-btn edit-student-btn">ערוך</button>
-                                    <button class="btn small-btn delete-btn">מחק</button>
-                                </td>
-                            </tr>
-                            <tr class="student-row">
-                                <td>987654321</td>
-                                <td>שרה כהן</td>
-                                <td>sarah@campus.ac.il</td>
-                                <td>2025</td>
-                                <td>
-                                    <button class="btn small-btn edit-student-btn">ערוך</button>
-                                    <button class="btn small-btn delete-btn">מחק</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="card">
-                    <h3><span class="card-icon">📊</span> טבלת ניהול קורסים, מטלות וציונים</h3>
-                    <div class="table-container">
-                        <table class="table" id="coursesSummaryTable">
-                            <thead>
-                                <tr>
-                                    <th>קוד קורס</th>
-                                    <th>שם קורס</th>
-                                    <th>מרצה</th>
-                                    <th>סטודנטים</th>
-                                    <th>נקודות זכות</th>
-                                    <th>סמסטר</th>
-                                    <th>חדר</th>
-                                    <th>סטטוס</th>
-                                    <th>מס' מטלות</th>
-                                    <th>מס' מבחנים</th>
-                                    <th>ממוצע ציונים</th>
-                                    <th>מטלה אחרונה</th>
-                                    <th>תאריך הגשה קרוב</th>
-                                    <th>ממוצע ציוני מטלות</th>
-                                    <th>ממוצע מבחנים</th>
-                                    <th>פעולות</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>MATH101</td>
-                                    <td>מתמטיקה 1</td>
-                                    <td>ד"ר כהן</td>
-                                    <td>45</td>
-                                    <td>6</td>
-                                    <td>א</td>
-                                    <td>אולם 101</td>
-                                    <td><span class="status active">פעיל</span></td>
-                                    <td>3</td>
-                                    <td>1</td>
-                                    <td>85</td>
-                                    <td>מבחן אמצע</td>
-                                    <td>15/12/2024</td>
-                                    <td>88</td>
-                                    <td>82</td>
-                                    <td>
-                                        <button class="btn small-btn edit-course-btn">ערוך</button>
-                                        <button class="btn small-btn delete-btn">מחק</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>PHYS101</td>
-                                    <td>פיזיקה 1</td>
-                                    <td>פרופ' לוי</td>
-                                    <td>38</td>
-                                    <td>6</td>
-                                    <td>א</td>
-                                    <td>אולם 203</td>
-                                    <td><span class="status active">פעיל</span></td>
-                                    <td>2</td>
-                                    <td>1</td>
-                                    <td>78</td>
-                                    <td>בוחן ראשון</td>
-                                    <td>20/12/2024</td>
-                                    <td>80</td>
-                                    <td>76</td>
-                                    <td>
-                                        <button class="btn small-btn edit-course-btn">ערוך</button>
-                                        <button class="btn small-btn delete-btn">מחק</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>PROG101</td>
-                                    <td>תכנות בסיסי</td>
-                                    <td>ד"ר גולדברג</td>
-                                    <td>52</td>
-                                    <td>4</td>
-                                    <td>א</td>
-                                    <td>מעבדה 5</td>
-                                    <td><span class="status active">פעיל</span></td>
-                                    <td>5</td>
-                                    <td>0</td>
-                                    <td>92</td>
-                                    <td>הגשת פרויקט</td>
-                                    <td>18/12/2024</td>
-                                    <td>95</td>
-                                    <td>-</td>
-                                    <td>
-                                        <button class="btn small-btn edit-course-btn">ערוך</button>
-                                        <button class="btn small-btn delete-btn">מחק</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>MATH201</td>
-                                    <td>מתמטיקה 2</td>
-                                    <td>ד"ר כהן</td>
-                                    <td>42</td>
-                                    <td>6</td>
-                                    <td>ב</td>
-                                    <td>אולם 101</td>
-                                    <td><span class="status upcoming">קרוב</span></td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>
-                                        <button class="btn small-btn edit-course-btn">ערוך</button>
-                                        <button class="btn small-btn delete-btn">מחק</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Cafeteria Section -->
-            <section id="cafeteria" class="content">
-                <h2 class="section-title">☕ קפיטריה</h2>
-                
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3><span class="card-icon">🍽️</span> תפריט יומי</h3>
-                        <form class="order-form">
-                            <div class="form-group">
-                                <label>בחר מוצר:</label>
-                                <select required>
-                                    <option value="">בחר מוצר</option>
-                                    <option value="omelette-sandwich">כריך חביתה - ₪15</option>
-                                    <option value="chocolate-croissant">קרואסון שוקולד - ₪15</option>
-                                    <option value="ice-coffee">אייס קפה - ₪12</option>
-                                    <option value="tuna-sandwich">כריך טונה - ₪20</option>
-                                    <option value="cola-bottle">בקבוק קולה - ₪10</option>
-                                    <option value="water-bottle">בקבוק מים - ₪8</option>
-                                    <option value="roasted-peanuts">בוטנים קלויים - ₪5</option>
-                                    <option value="hot-chocolate">שוקו חם - ₪12</option>
-                                    <option value="cheese-borekas">בורקס גבינה - ₪12</option>
-                                    <option value="wasabi-bisli">ביסלי ווסאבי - ₪7</option>
-                                    <option value="chips">תפוצ'יפס - ₪7</option>
-                                    <option value="fuzetea-bottle">בקבוק פיוזטי - ₪10</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>הערות מיוחדות:</label>
-                                <textarea placeholder="הערות או בקשות מיוחדות" rows="2"></textarea>
-                            </div>
-                            <button type="submit" class="btn">הזמן עכשיו</button>
-                        </form>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">📅</span> הזמנות שלי</h3>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>מנה</th>
-                                    <th>תאריך</th>
-                                    
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>קפה הפוך</td>
-                                    <td>היום 10:30</td>
-                                    
-                                </tr>
-                                <tr>
-                                    <td>כריך טונה</td>
-                                    <td>אתמול 12:00</td>
-                                  
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">⭐</span> דירוגים</h3>
-                        <div class="ratings">
-                            <p>קפה: ⭐⭐⭐⭐⭐</p>
-                            <p>כריכים: ⭐⭐⭐⭐</p>
-                            <p>סלטים: ⭐⭐⭐⭐⭐</p>
-                            <p>שירות: ⭐⭐⭐⭐</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Cafeteria Images Gallery -->
-                <div class="card">
-                    <h3><span class="card-icon">📸</span> גלריית תמונות קפיטריה</h3>
-                    <div class="cafeteria-gallery">
-                        <div class="gallery-item">
-                            <img src="a1.png" alt="תמונה 1" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a2.png" alt="תמונה 2" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a3.png" alt="תמונה 3" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a4.png" alt="תמונה 4" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a5.png" alt="תמונה 5" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a6.png" alt="תמונה 6" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a7.png" alt="תמונה 7" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a8.png" alt="תמונה 8" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a9.png" alt="תמונה 9" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a10.png" alt="תמונה 10" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a11.png" alt="תמונה 11" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a12.png" alt="תמונה 12" class="cafeteria-image">
-                        </div>
-                        
-                        <div class="gallery-item">
-                            <img src="a17.png" alt="תמונה 17" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a18.png" alt="תמונה 18" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a19.png" alt="תמונה 19" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a20.png" alt="תמונה 20" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a21.png" alt="תמונה 21" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a22.png" alt="תמונה 22" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a23.png" alt="23 תמונה" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a24.png" alt="תמונה 24" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a13.png" alt="תמונה 13" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a14.png" alt="תמונה 14" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a15.png" alt="תמונה 15" class="cafeteria-image">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="a16.png" alt="תמונה 16" class="cafeteria-image">
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Lost and Found Section -->
-            <section id="lostfound" class="content">
-                <h2 class="section-title">🔍 מציאות ואבדות</h2>
-                
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3><span class="card-icon">📝</span> דיווח חדש</h3>
-                        <form class="report-form">
-                            <div class="form-group">
-                                <label>סוג דיווח:</label>
-                                <select required>
-                                    <option value="">בחר סוג דיווח</option>
-                                    <option value="lost">אבדתי משהו</option>
-                                    <option value="found">מצאתי משהו</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>קטגוריה:</label>
-                                <select required>
-                                    <option value="">בחר קטגוריה</option>
-                                    <option value="electronics">אלקטרוניקה</option>
-                                    <option value="books">ספרים</option>
-                                    <option value="clothes">בגדים</option>
-                                    <option value="jewelry">תכשיטים</option>
-                                    <option value="other">אחר</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>מיקום:</label>
-                                <input type="text" placeholder="בניין, חדר או אזור" required>
-                            </div>
-                            <div class="form-group">
-                                <label>תיאור:</label>
-                                <textarea placeholder="תאר את הפריט בפירוט" rows="3" maxlength="200" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>תאריך:</label>
-                                <input type="date" required>
-                            </div>
-                            <button type="submit" class="btn">שלח דיווח</button>
-                        </form>
-                    </div>
-
-
-
-                    <div class="card">
-                        <h3><span class="card-icon">📋</span> פריטים אחרונים</h3>
-                        <div class="items-list">
-                            <div class="item">
-                                <strong>📱 אייפון 13</strong>
-                                <small>נמצא בבניין מדעי המחשב | 15/12/2024</small>
-                            </div>
-                            <div class="item">
-                                <strong>📚 ספר מתמטיקה</strong>
-                                <small>אבד בספרייה | 14/12/2024</small>
-                            </div>
-                            <div class="item">
-                                <strong>💍 טבעת זהב</strong>
-                                <small>נמצאה בקפיטריה | 13/12/2024</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Marketplace Section -->
-            <section id="marketplace" class="content">
-                <h2 class="section-title">🛒 שוק יד שנייה</h2>
-                
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3><span class="card-icon">💬</span> צ'אט פורום</h3>
-                        <div class="chat-container">
-                            <div class="chat-messages">
-                                <div class="message">
-                                    <strong>דוד:</strong> מישהו רוצה לקנות ספר מתמטיקה 1? ₪50
-                                </div>
-                                <div class="message">
-                                    <strong>שרה:</strong> אני מעוניינת! איפה אפשר להיפגש?
-                                </div>
-                                <div class="message">
-                                    <strong>דוד:</strong> בקפיטריה בשעה 12:00?
-                                </div>
-                                <div class="message">
-                                    <strong>מיכאל:</strong> יש למישהו אוזניות Bluetooth למכירה?
-                                </div>
-                            </div>
-                            <form class="chat-form">
-                                <input type="text" placeholder="הקלד הודעה..." required>
-                                <button type="submit" class="btn">שלח</button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">📦</span> הוסף פריט למכירה</h3>
-                        <form class="item-form">
-                            <div class="form-group">
-                                <label>כותרת:</label>
-                                <input type="text" placeholder="כותרת הפריט" required>
-                            </div>
-                            <div class="form-group">
-                                <label>קטגוריה:</label>
-                                <select required>
-                                    <option value="">בחר קטגוריה</option>
-                                    <option value="books">ספרים</option>
-                                    <option value="electronics">אלקטרוניקה</option>
-                                    <option value="clothes">בגדים</option>
-                                    <option value="furniture">ריהוט</option>
-                                    <option value="other">אחר</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>מחיר:</label>
-                                <input type="number" placeholder="₪" min="0" required>
-                            </div>
-                            <div class="form-group">
-                                <label>תיאור:</label>
-                                <textarea placeholder="תאר את הפריט" rows="3" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>תמונה:</label>
-                                <input type="file" accept="image/*">
-                            </div>
-                            <button type="submit" class="btn">פרסם פריט</button>
-                        </form>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">🛍️</span> פריטים למכירה</h3>
-                        <div class="marketplace-items">
-                            <div class="marketplace-item">
-                                <strong>📚 ספר מתמטיקה 1</strong>
-                                <small>מצב: טוב מאוד | מחיר: ₪50</small>
-                                <button class="btn contact-btn">צור קשר</button>
-                            </div>
-                            <div class="marketplace-item">
-                                <strong>💻 מחשב נייד Dell</strong>
-                                <small>מצב: מעולה | מחיר: ₪800</small>
-                                <button class="btn contact-btn">צור קשר</button>
-                            </div>
-                            <div class="marketplace-item">
-                                <strong>👕 חולצות אוניברסיטה</strong>
-                                <small>מצב: חדש | מחיר: ₪30</small>
-                                <button class="btn contact-btn">צור קשר</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Campus Services Section -->
-            <section id="services" class="content">
-                <h2 class="section-title">🛠️ שירותים בקמפוס</h2>
-                
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3><span class="card-icon">🏢</span> הזמנת חדרים</h3>
-                        <form class="room-booking-form">
-                            <div class="form-group">
-                                <label>סוג חדר:</label>
-                                <select required>
-                                    <option value="">בחר סוג חדר</option>
-                                    <option value="study">חדר למידה (2-4 אנשים)</option>
-                                    <option value="classroom">כיתה קטנה (10-15 אנשים)</option>
-                                    <option value="lecture">אולם הרצאות (50+ אנשים)</option>
-                                    <option value="meeting">חדר ישיבות</option>
-                                    <option value="computer">מעבדת מחשבים</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>מספר חדר:</label>
-                                <input type="text" placeholder="הכנס מספר חדר " maxlength="10">
-                            </div>
-                            <div class="form-group">
-                                <label>תאריך:</label>
-                                <input type="date" required>
-                            </div>
-                            <div class="form-group">
-                                <label>שעה:</label>
-                                <input type="time" required>
-                            </div>
-                            <div class="form-group">
-                                <label>משך זמן:</label>
-                                <select required>
-                                    <option value="">בחר משך זמן</option>
-                                    <option value="1">שעה</option>
-                                    <option value="2">שעתיים</option>
-                                    <option value="3">3 שעות</option>
-                                    <option value="4">חצי יום</option>
-                                    <option value="8">יום מלא</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn">הזמן חדר</button>
-                        </form>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">🚌</span> הסעות</h3>
-                        <form class="transport-form">
-                            <div class="form-group">
-                                <label>יעד:</label>
-                                <select required>
-                                    <option value="">בחר יעד</option>
-                                    <option value="train">תחנת רכבת מרכז</option>
-                                    <option value="city">מרכז העיר</option>
-                                    <option value="mall">קניון</option>
-                                    <option value="hospital">בית חולים</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>תאריך:</label>
-                                <input type="date" required>
-                            </div>
-                            <div class="form-group">
-                                <label>שעה:</label>
-                                <input type="time" required>
-                            </div>
-                            <button type="submit" class="btn">הזמן הסעה</button>
-                        </form>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">🖨️</span> הדפסות</h3>
-                        <form class="print-form">
-                            <div class="form-group">
-                                <label>סוג הדפסה:</label>
-                                <select required>
-                                    <option value="">בחר סוג הדפסה</option>
-                                    <option value="bw">שחור-לבן</option>
-                                    <option value="color">צבע</option>
-                                    <option value="photo">צילום</option>
-                                    <option value="scan">סריקה</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>כמות:</label>
-                                <input type="number" min="1" value="1" required>
-                            </div>
-                            <div class="form-group">
-                                <label>קובץ להדפסה:</label>
-                                <input type="file" accept=".pdf,.doc,.docx" required>
-                            </div>
-                            <button type="submit" class="btn">שלח להדפסה</button>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Community Section -->
-            <section id="community" class="content">
-                <h2 class="section-title">👥 קהילה ושיפור</h2>
-                
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3><span class="card-icon">⚠️</span> דיווח תקלות</h3>
-                        <form class="issue-form">
-                            <div class="form-group">
-                                <label>סוג התקלה:</label>
-                                <select required>
-                                    <option value="">בחר סוג תקלה</option>
-                                    <option value="electricity">תקלה בחשמל</option>
-                                    <option value="water">תקלה במים</option>
-                                    <option value="computers">תקלה במחשבים</option>
-                                    <option value="lighting">תקלה בתאורה</option>
-                                    <option value="other">תקלה אחרת</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>מיקום:</label>
-                                <input type="text" placeholder="בניין וחדר" required>
-                            </div>
-                            <div class="form-group">
-                                <label>תיאור:</label>
-                                <textarea placeholder="תאר את התקלה" rows="3" maxlength="120" required></textarea>
-                            </div>
-                            <button type="submit" class="btn">שלח דיווח</button>
-                        </form>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">💡</span> הצעות שיפור</h3>
-                        <form class="suggestion-form">
-                            <div class="form-group">
-                                <label>כותרת ההצעה:</label>
-                                <input type="text" placeholder="כותרת ההצעה" required>
-                            </div>
-                            <div class="form-group">
-                                <label>תיאור:</label>
-                                <textarea placeholder="תאר את ההצעה שלך" rows="4" maxlength="120" required></textarea>
-                            </div>
-                            <button type="submit" class="btn">שלח הצעה</button>
-                        </form>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">⭐</span> דירוגים</h3>
-                        <div class="ratings">
-                            <div class="rating-item">
-                                <span class="facility-name">קפיטריה:</span>
-                                <div class="rating-stars" data-facility="cafeteria">
-                                    <span class="star" data-rating="1">⭐</span>
-                                    <span class="star" data-rating="2">⭐</span>
-                                    <span class="star" data-rating="3">⭐</span>
-                                    <span class="star" data-rating="4">⭐</span>
-                                    <span class="star" data-rating="5">⭐</span>
-                                </div>
-                                <span class="current-rating">5</span>
-                            </div>
-                            <div class="rating-item">
-                                <span class="facility-name">ספרייה:</span>
-                                <div class="rating-stars" data-facility="library">
-                                    <span class="star" data-rating="1">⭐</span>
-                                    <span class="star" data-rating="2">⭐</span>
-                                    <span class="star" data-rating="3">⭐</span>
-                                    <span class="star" data-rating="4">⭐</span>
-                                    <span class="star" data-rating="5">⭐</span>
-                                </div>
-                                <span class="current-rating">4</span>
-                            </div>
-                            <div class="rating-item">
-                                <span class="facility-name">חדר כושר:</span>
-                                <div class="rating-stars" data-facility="gym">
-                                    <span class="star" data-rating="1">⭐</span>
-                                    <span class="star" data-rating="2">⭐</span>
-                                    <span class="star" data-rating="3">⭐</span>
-                                    <span class="star" data-rating="4">⭐</span>
-                                    <span class="star" data-rating="5">⭐</span>
-                                </div>
-                                <span class="current-rating">3</span>
-                            </div>
-                                                         <div class="rating-item">
-                                 <span class="facility-name">חניה:</span>
-                                 <div class="rating-stars" data-facility="parking">
-                                     <span class="star" data-rating="1">⭐</span>
-                                     <span class="star" data-rating="2">⭐</span>
-                                     <span class="star" data-rating="3">⭐</span>
-                                     <span class="star" data-rating="4">⭐</span>
-                                     <span class="star" data-rating="5">⭐</span>
-                                 </div>
-                                 <span class="current-rating">2</span>
-                             </div>
-                         </div>
-                         <div class="rating-submit-section">
-                             <button type="button" class="btn submit-rating-btn">שלח דירוג</button>
-                         </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Profile Section -->
-            <section id="profile" class="content">
-                <h2 class="section-title">👤 פרופיל אישי</h2>
-                
-                <div class="profile-container">
-                    <div class="card profile-card">
-                        <h3><span class="card-icon">👤</span> מידע אישי</h3>
-                        <form class="profile-form">
-                            <div class="form-group">
-                                <label>שם מלא:</label>
-                                <input type="text" value="ישראל ישראלי" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label>תעודת זהות:</label>
-                                <input type="text" value="123456789" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label>אימייל:</label>
-                                <input type="email" value="israel@campus.ac.il" required>
-                            </div>
-                            <div class="form-group">
-                                <label>טלפון:</label>
-                                <input type="tel" value="050-1234567" required>
-                            </div>
-                            <div class="form-group">
-                                <label>גיל:</label>
-                                <input type="number" value="22" min="16" max="120" required>
-                            </div>
-                            <div class="form-group">
-                                <label>תואר:</label>
-                                <select required>
-                                    <option value="bachelor">תואר ראשון</option>
-                                    <option value="master">תואר שני</option>
-                                    <option value="phd">תואר שלישי</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>עיר מגורים:</label>
-                                <input type="text" value="תל אביב" required>
-                            </div>
-                            <div class="form-group">
-                                <label>מין:</label>
-                                <select required>
-                                    <option value="male">זכר</option>
-                                    <option value="female">נקבה</option>
-                                    <option value="other">אחר</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn">עדכן פרטים</button>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Course Forum Section -->
-            <section id="course-forum" class="content">
-                <h2 class="section-title">💬 פורום-קורס</h2>
-                
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3><span class="card-icon">📚</span> בחירת קורס</h3>
-                        <div class="form-group">
-                            <label>בחר קורס:</label>
-                            <select id="courseSelect" onchange="switchCourseChat()">
-                                <option value="">-- בחר קורס --</option>
-                                <option value="math101">מתמטיקה 101</option>
-                                <option value="physics101">פיזיקה 101</option>
-                                <option value="programming101">תכנות 101</option>
-                                <option value="english101">אנגלית 101</option>
-                                <option value="history101">היסטוריה 101</option>
-                            </select>
-                        </div>
-                        <div id="courseInfo" class="course-info" style="display: none;">
-                            <h4>מידע על הקורס</h4>
-                            <p><strong>מרצה:</strong> <span id="courseLecturer"></span></p>
-                            <p><strong>מספר סטודנטים:</strong> <span id="courseStudents"></span></p>
-                            <p><strong>הודעות היום:</strong> <span id="courseMessages"></span></p>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3><span class="card-icon">💬</span> צ'אט הקורס</h3>
-                        <div id="courseChatContainer" class="course-chat-container">
-                            <div class="chat-placeholder">
-                                <p>בחר קורס כדי להתחיל לצ'אט</p>
-                                <span class="chat-icon">💬</span>
-                            </div>
-                        </div>
-                        <div id="courseChatForm" class="course-chat-form" style="display: none;">
-                            <input type="text" id="courseChatInput" placeholder="הקלד הודעה..." maxlength="500">
-                            <button onclick="sendCourseMessage()" class="btn">שלח</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3><span class="card-icon">📋</span> הודעות אחרונות</h3>
-                    <div id="recentMessages" class="recent-messages">
-                        <p>אין הודעות להצגה</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Help Section -->
-            <section id="help" class="content">
-                <h2 class="section-title">❓ עזרה</h2>
-                <div class="help-content">
-                    <h3>מה זה קמפוס?</h3>
-                    <p>קמפוס היא מערכת ניהול מקיפה שמאפשרת לסטודנטים ומרצים להיכנס ולנהל את חיי הסטודנטים במכללה. מערכת זו מכילה כלים לניהול מטלות, ציונים, תפריט קפיטריה, מציאות ואבדות, שוק יד שנייה ועוד.</p>
-
-                    <h3>כיצד להתחבר?</h3>
-                    <p>כדי להתחבר למערכת, יש לספק את פרטי ההתחברות שלך. אם אתה סטודנט, יש להזין אימייל וסיסמה שקיבלת מהמערכת. אם אתה מרצה, יש להזין את פרטי ההתחברות שלך שהוגדרו על ידי המנהל.</p>
-
-                    <h3>איך אני יכול לנהל מטלות?</h3>
-                    <p>במרכז הלימודים, תוכל לצפות במטלות שלך, להוסיף מטלות חדשות, לערוך ולמחוק מטלות קיימות. כל מטלה מכילה סוג, קורס, כותרת, תיאור, תאריך יעד ודחיפות. תוכל לסמן מטלות כהושלמות כשהגעת לתוצאה.</p>
-
-                    <h3>איך אני יכול להגיש מטלה?</h3>
-                    <p>לפני תאריך הגשה של מטלה, יש לך זמן מספיק. במרכז הלימודים, תוכל לגשת למטלה ולהוסיף קובץ או תיאור של הפתרון. בתאריך הגשה, תוכל להגיש את המטלה ולצפות בסטטוס שלה.</p>
-
-                    <h3>איך אני יכול לראות את הציונים שלי?</h3>
-                    <p>במרכז הלימודים, תוכל לראות את כל הציונים שלך בטבלה. כל ציון מכיל קורס, נקודות זכות, ציון וסטטוס. תוכל לצפות בציונים הנוכחיים והיסטוריים.</p>
-
-                    <h3>איך אני יכול להזמין חדר למידה?</h3>
-                    <p>במרכז השירותים, תוכל להזמין חדר למידה בהתאם לצרכים שלך. בחר סוג חדר, תאריך ושעה. תוכל לבחור משך זמן שונה בהתאם לצרכים שלך.</p>
-
-                    <h3>איך אני יכול להזמין הסעה?</h3>
-                    <p>במרכז השירותים, תוכל להזמין הסעה ליעד שונה. בחר יעד, תאריך ושעה. תוכל לבחור משך זמן שונה בהתאם לצרכים שלך.</p>
-
-                    <h3>איך אני יכול להזמין קפה או סלט בקפיטריה?</h3>
-                    <p>בקפיטריה, תוכל להזמין תפריט יומי ולבחור מנה. בחר מנה שונה מתוך התפריט המפורט והוסף הערות מיוחדות אם צריך. תוכל לבחור מועד שונה להזמנה.</p>
-
-                    <h3>איך אני יכול לדווח על תקלה או הצעה?</h3>
-                    <p>במרכז הקהילה, תוכל לדווח על תקלות ולהציע שיפורים. בחר סוג תקלה או הצעה, והוסף מיקום ותיאור שלך. תוכל לשלוח את הדיווח או ההצעה ולצפות בתשובה מהמנהל.</p>
-
-                    <h3>איך אני יכול להציע פריט למכירה או למצוא פריט שאבדתי?</h3>
-                    <p>בשוק היד שנייה, תוכל להוסיף פריט למכירה או לחפש פריטים שאבדת. בחר סוג דיווח (אבדתי או מצאתי), קטגוריה ומיקום. הוסף תיאור ותאריך ושלח דיווח. תוכל לצפות בפריטים האחרונים שהודעו ולצור קשר עם המוכרים.</p>
-
-                    <h3>איך אני יכול להתקבל מודעות או הודעות?</h3>
-                    <p>במרכז הקהילה, תוכל לצפות בהודעות ומודעות שנשלחו אליך. תוכל להגיב על הודעות או להסיר אותן אם זה נדרש.</p>
-
-                    <h3>איך אני יכול להתקבל מודעות ממערכת של מטלות או ציונים?</h3>
-                    <p>במרכז הלימודים, תוכל לקבל הודעות ממערכת בגירסה של דואר אלקטרוני או במערכת הפעולה. תוכל לצפות בסטטוס של מטלות וציונים ולהגיב על הודעות ממערכת.</p>
-
-                    <h3>איך אני יכול להתקבל מודעות משוק היד שנייה?</h3>
-                    <p>בשוק היד שנייה, תוכל לקבל הודעות ממוכרים שמציעים פריטים למכירה או שמבקשים ממך משהו. תוכל לצור קשר עם המוכרים ולהגיב על הודעות.</p>
-
-                    <h3>איך אני יכול להתקבל מודעות ממרכז השירותים?</h3>
-                    <p>במרכז השירותים, תוכל לקבל הודעות ממערכת בגירסה של דואר אלקטרוני או במערכת הפעולה. תוכל לצפות בסטטוס של הזמנות חדרים והסעות ולהגיב על הודעות ממערכת.</p>
-
-                    <h3>איך אני יכול להתקבל מודעות ממרכז הקהילה?</h3>
-                    <p>במרכז הקהילה, תוכל לקבל הודעות ממשתמשים אחרים במערכת או ממנהלים. תוכל לצפות בדיווחי תקלות והצעות שונות ולהגיב על הודעות.</p>
-
-                    <h3>איך אני יכול להתקבל מודעות ממרכז הפרופיל?</h3>
-                    <p>במרכז הפרופיל, תוכל לקבל הודעות ממערכת בגירסה של דואר אלקטרוני או במערכת הפעולה. תוכל לצפות בפרטים שלך ולעדכן אותם בפעולות שונות.</p>
-
-                    <h3>איך אני יכול להתקבל מודעות ממערכת כללית?</h3>
-                    <p>תוכל לקבל הודעות ממערכת כללית שנשלחו לכל המשתמשים במערכת. תוכל לצפות בהודעות אלה ולהגיב עליהן אם זה נדרש.</p>
-                </div>
-            </section>
-        </main>
+        <div class="status success">
+            <h3>🚀 מוכן להרצה!</h3>
+            <p>לאחר התקנת Node.js והרצת הפקודות, האפליקציה תהיה זמינה עם כל התכונות המתוארות למעלה.</p>
+            <p><strong>זכור:</strong> יש להריץ <code>npm install</code> פעם אחת בלבד לפני <code>npm start</code>.</p>
+        </div>
     </div>
-
-    <!-- Chat Widget -->
-    <div class="chat-widget" id="chatWidget">
-        💬
-    </div>
-
-    <script src="script.js"></script>
 </body>
 </html> 

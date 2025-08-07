@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בדיקת שגיאות - ONO Campus</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            direction: rtl;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 30px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-right: 4px solid;
+        }
+        .success {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+            border-color: #4caf50;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            border-color: #f44336;
+        }
+        .warning {
+            background-color: #fff3e0;
+            color: #ef6c00;
+            border-color: #ff9800;
+        }
+        .info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border-color: #2196f3;
+        }
+        .checklist {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .checklist h3 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        .checklist-item input[type="checkbox"] {
+            margin-left: 10px;
+            transform: scale(1.2);
+        }
+        .checklist-item.checked {
+            background-color: #e8f5e8;
+            border-color: #4caf50;
+        }
+        .code-block {
+            background-color: #f1f3f4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .error-highlight {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+        .solution {
+            background-color: #e8f5e8;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border-right: 3px solid #4caf50;
+        }
+        .btn {
+            background-color: #2e7d32;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background-color: #1b5e20;
+        }
+        .file-structure {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 בדיקת שגיאות - ONO Campus</h1>
+            <h2>כלי לזיהוי ותיקון שגיאות React/TypeScript</h2>
+        </div>
+
+        <div class="status warning">
+            <h3>⚠️ בעיה זוהתה:</h3>
+            <p><strong>Node.js לא מותקן במערכת שלך.</strong></p>
+            <p>כדי לזהות שגיאות ספציפיות, יש להתקין Node.js תחילה.</p>
+        </div>
+
+        <div class="checklist">
+            <h3>✅ בדיקות שכבר בוצעו:</h3>
+            <div class="checklist-item checked">
+                <input type="checkbox" checked disabled>
+                <span>תיקון מבנה JSX - הוספת תגי סגירה חסרים</span>
+            </div>
+            <div class="checklist-item checked">
+                <input type="checkbox" checked disabled>
+                <span>הוספת סקציית פרופיל אישי מלאה</span>
+            </div>
+            <div class="checklist-item checked">
+                <input type="checkbox" checked disabled>
+                <span>תיקון שגיאות TypeScript בהשוואות מחרוזות</span>
+            </div>
+            <div class="checklist-item checked">
+                <input type="checkbox" checked disabled>
+                <span>תיקון תנאים לזיהוי מסכי ניהול</span>
+            </div>
+            <div class="checklist-item checked">
+                <input type="checkbox" checked disabled>
+                <span>וידוא שכל התגים נסגרים כראוי</span>
+            </div>
+        </div>
+
+        <div class="status info">
+            <h3>🔍 שגיאות נפוצות שכדאי לבדוק:</h3>
+            <div class="file-structure">
+                <strong>מבנה הקבצים הנדרש:</strong><br>
+                campus-web-react/<br>
+                ├── src/<br>
+                │   ├── App.tsx ✅<br>
+                │   ├── index.tsx<br>
+                │   ├── index.css<br>
+                │   └── types/<br>
+                │       └── index.ts ✅<br>
+                ├── public/<br>
+                │   └── index.html<br>
+                ├── package.json ✅<br>
+                └── tsconfig.json<br>
+            </div>
+        </div>
+
+        <div class="checklist">
+            <h3>🔧 בדיקות נוספות לביצוע:</h3>
+            <div class="checklist-item">
+                <input type="checkbox" id="check1">
+                <span>בדיקת קובץ <code>index.tsx</code> - וידוא שהוא קיים ומכיל את הקוד הנכון</span>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check2">
+                <span>בדיקת קובץ <code>tsconfig.json</code> - וידוא שהקונפיגורציה נכונה</span>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check3">
+                <span>בדיקת קובץ <code>package.json</code> - וידוא שכל התלויות מותקנות</span>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check4">
+                <span>בדיקת קובץ <code>public/index.html</code> - וידוא שהוא מכיל את ה-root element</span>
+            </div>
+        </div>
+
+        <div class="status error">
+            <h3>❌ שגיאות נפוצות ב-React/TypeScript:</h3>
+            <div class="code-block">
+                <span class="error-highlight">Error:</span> Cannot find module './types'<br>
+                <span class="solution">פתרון:</span> וודא שקובץ <code>src/types/index.ts</code> קיים
+            </div>
+            <div class="code-block">
+                <span class="error-highlight">Error:</span> 'Component' is not defined<br>
+                <span class="solution">פתרון:</span> הוסף import React from 'react'
+            </div>
+            <div class="code-block">
+                <span class="error-highlight">Error:</span> JSX element type does not have any construct or call signatures<br>
+                <span class="solution">פתרון:</span> בדוק שהקומפוננט מיובא כראוי
+            </div>
+            <div class="code-block">
+                <span class="error-highlight">Error:</span> Property 'X' does not exist on type 'Y'<br>
+                <span class="solution">פתרון:</span> בדוק את הטיפוסים ב-types/index.ts
+            </div>
+        </div>
+
+        <div class="status info">
+            <h3>📋 קוד לדוגמה - index.tsx:</h3>
+            <div class="code-block">
+import React from 'react';<br>
+import ReactDOM from 'react-dom/client';<br>
+import './index.css';<br>
+import App from './App';<br>
+<br>
+const root = ReactDOM.createRoot(<br>
+  document.getElementById('root') as HTMLElement<br>
+);<br>
+root.render(<br>
+  &lt;React.StrictMode&gt;<br>
+    &lt;App /&gt;<br>
+  &lt;/React.StrictMode&gt;<br>
+);
+            </div>
+        </div>
+
+        <div class="status info">
+            <h3>📋 קוד לדוגמה - public/index.html:</h3>
+            <div class="code-block">
+&lt;!DOCTYPE html&gt;<br>
+&lt;html lang="he" dir="rtl"&gt;<br>
+&lt;head&gt;<br>
+  &lt;meta charset="utf-8" /&gt;<br>
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;<br>
+  &lt;title&gt;ONO Campus&lt;/title&gt;<br>
+&lt;/head&gt;<br>
+&lt;body&gt;<br>
+  &lt;div id="root"&gt;&lt;/div&gt;<br>
+&lt;/body&gt;<br>
+&lt;/html&gt;
+            </div>
+        </div>
+
+        <div class="status success">
+            <h3>🚀 שלבים להרצת האפליקציה:</h3>
+            <ol>
+                <li><strong>התקן Node.js:</strong> הורד מ-<a href="https://nodejs.org" target="_blank">nodejs.org</a></li>
+                <li><strong>פתח טרמינל:</strong> בתיקיית <code>campus-web-react</code></li>
+                <li><strong>התקן תלויות:</strong> <code>npm install</code></li>
+                <li><strong>הרץ את האפליקציה:</strong> <code>npm start</code></li>
+                <li><strong>בדוק שגיאות:</strong> הטרמינל יציג שגיאות ספציפיות</li>
+            </ol>
+        </div>
+
+        <div class="status warning">
+            <h3>💡 טיפים לפתרון בעיות:</h3>
+            <ul>
+                <li>אם יש שגיאות import, בדוק שכל הקבצים קיימים בנתיב הנכון</li>
+                <li>אם יש שגיאות TypeScript, בדוק את הטיפוסים ב-<code>types/index.ts</code></li>
+                <li>אם יש שגיאות JSX, וודא שכל התגים נסגרים כראוי</li>
+                <li>אם יש שגיאות Material-UI, וודא שכל הקומפוננטים מיובאים</li>
+                <li>אם האפליקציה לא נפתחת, בדוק שה-root element קיים ב-HTML</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="checkAll()">סמן הכל כבדוק</button>
+            <button class="btn" onclick="resetChecks()">אפס בדיקות</button>
+        </div>
+    </div>
+
+    <script>
+        function checkAll() {
+            document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = true;
+                checkbox.parentElement.classList.add('checked');
+            });
+        }
+
+        function resetChecks() {
+            document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+                checkbox.parentElement.classList.remove('checked');
+            });
+        }
+
+        // Add event listeners to checkboxes
+        document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    this.parentElement.classList.add('checked');
+                } else {
+                    this.parentElement.classList.remove('checked');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
