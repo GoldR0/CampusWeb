@@ -4,6 +4,7 @@ import {
   Container,
   Card,
   CardContent,
+  CardMedia,
   Paper,
   Chip,
   Avatar,
@@ -99,7 +100,12 @@ import {
   AccessTime as TimeIcon,
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
-  Add as AddIcon
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Book as BookIcon,
+  Assignment as AssignmentIcon,
+  ExpandMore as ExpandMoreIcon
 } from '@mui/icons-material';
 import { 
   User, 
@@ -833,39 +839,139 @@ function App() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* App Bar */}
-      <AppBar position="static" sx={{ backgroundColor: '#2e7d32' }}>
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={() => setDrawerOpen(true)}
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            ONO - מערכת ניהול קמפוס
-          </Typography>
-          
-          {isLoggedIn ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="body2">
-                שלום, {currentUser?.name}
-              </Typography>
-              <IconButton color="inherit" onClick={handleLogout}>
-                <LogoutIcon />
-              </IconButton>
-            </Box>
-          ) : (
-            <Button 
-              color="inherit" 
-              startIcon={<LoginIcon />}
-              onClick={() => setLoginDialogOpen(true)}
+      <AppBar position="static" sx={{ backgroundColor: '#2e7d32', boxShadow: 3 }}>
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
+          {/* Left Section - Menu and Title */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={() => setDrawerOpen(true)}
+              sx={{ mr: 2 }}
             >
-              התחברות
-            </Button>
-          )}
+              <MenuIcon />
+            </IconButton>
+            
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                cursor: 'pointer',
+                '&:hover': { opacity: 0.8 }
+              }}
+              onClick={() => setActiveSection('home')}
+            >
+              <Box
+                component="img"
+                src="/onologo.png"
+                alt="ONO Logo"
+                sx={{ 
+                  height: 40, 
+                  width: 'auto', 
+                  mr: 2,
+                  filter: 'brightness(0) invert(1)'
+                }}
+              />
+              <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+                ONO - מערכת ניהול קמפוס
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Center Section - Breadcrumbs */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography 
+                variant="body2" 
+                color="inherit" 
+                sx={{ 
+                  opacity: 0.7, 
+                  cursor: 'pointer',
+                  '&:hover': { opacity: 1 }
+                }}
+                onClick={() => setActiveSection('home')}
+              >
+                עמוד בית
+              </Typography>
+              
+              {activeSection !== 'home' && (
+                <>
+                  <Typography variant="body2" color="inherit" sx={{ opacity: 0.5 }}>
+                    /
+                  </Typography>
+                  <Typography variant="body2" color="inherit" sx={{ opacity: 0.9, fontWeight: 'medium' }}>
+                    {activeSection === 'profile' && 'פרופיל אישי'}
+                    {activeSection === 'learning' && 'מרכז הלימודים'}
+                    {activeSection === 'cafeteria' && 'קפיטריה'}
+                    {activeSection === 'lost-found' && 'מציאות ואבדות'}
+                    {activeSection === 'marketplace' && 'שוק יד שנייה'}
+                    {activeSection === 'services' && 'שירותים בקמפוס'}
+                    {activeSection === 'community' && 'קהילה'}
+                    {activeSection === 'forum' && 'פורום קורס'}
+                    {activeSection === 'help' && 'עזרה'}
+                    {activeSection === 'lost-found-management' && 'ניהול מציאות ואבדות'}
+                    {activeSection === 'marketplace-management' && 'ניהול שוק יד שנייה'}
+                    {activeSection === 'services-management' && 'ניהול שירותים'}
+                    {activeSection === 'forum-management' && 'ניהול פורום'}
+                    {activeSection === 'cafeteria-management' && 'ניהול קפיטריה'}
+                    {activeSection === 'community-management' && 'ניהול קהילה'}
+                    {activeSection === 'help-management' && 'ניהול עזרה'}
+                  </Typography>
+                </>
+              )}
+            </Box>
+          </Box>
+          
+          {/* Right Section - User Info and Actions */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {/* Quick Stats for Management Screens */}
+            {activeSection.includes('management') && (
+              <Box sx={{ display: { xs: 'none', lg: 'flex' }, gap: 1 }}>
+                <Chip 
+                  label={`${getCurrentSectionCount()} פריטים`} 
+                  size="small" 
+                  sx={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }}
+                />
+              </Box>
+            )}
+            
+            {/* User Section */}
+            {isLoggedIn ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    שלום, {currentUser?.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                    {currentUser?.role || 'משתמש'}
+                  </Typography>
+                </Box>
+                
+                <IconButton 
+                  color="inherit" 
+                  onClick={handleLogout}
+                  sx={{ 
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    '&:hover': { backgroundColor: 'rgba(255,255,255,0.2)' }
+                  }}
+                >
+                  <LogoutIcon />
+                </IconButton>
+              </Box>
+            ) : (
+              <Button 
+                color="inherit" 
+                startIcon={<LoginIcon />}
+                onClick={() => setLoginDialogOpen(true)}
+                sx={{ 
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  '&:hover': { backgroundColor: 'rgba(255,255,255,0.2)' }
+                }}
+              >
+                התחברות
+              </Button>
+            )}
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -1868,11 +1974,582 @@ function App() {
                 </CardContent>
               </Card>
             </Box>
+
+            {/* Event Images Gallery */}
+            <Paper sx={{ p: 3, mb: 4 }}>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold', color: '#2e7d32', textAlign: 'center' }}>
+                📸 אירועים נוספים
+              </Typography>
+              
+              <Box sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+                gap: 2 
+              }}>
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image="/loc1.png"
+                    alt="אירוע 1"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image="/loc2.png"
+                    alt="אירוע 2"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image="/loc3.png"
+                    alt="אירוע 3"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image="/loc4.png"
+                    alt="אירוע 4"
+                  />
+                </Card>
+              </Box>
+            </Paper>
+
+        )}
+
+        {/* Learning Center Section */}
+        {activeSection === 'learning' && (
+          <Box>
+            {/* Task Board Section */}
+            <Paper sx={{ p: 3, mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                <DeleteIcon sx={{ mr: 1, color: '#2e7d32' }} />
+                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                  לוח מטלות
+                </Typography>
+              </Box>
+              
+              {/* Task Filters */}
+              <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
+                <Button variant="contained" size="small" sx={{ backgroundColor: '#2e7d32' }}>
+                  הכל
+                </Button>
+                <Button variant="outlined" size="small">
+                  הושלם
+                </Button>
+                <Button variant="outlined" size="small">
+                  דחוי
+                </Button>
+                <Button variant="outlined" size="small">
+                  ממתין
+                </Button>
+              </Box>
+              
+              {/* Task Summary Cards */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(3, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2, mb: 3 }}>
+                <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                  <Typography variant="h4" color="primary">
+                    6
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    סה"כ מטלות
+                  </Typography>
+                </Paper>
+                <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#fff3e0' }}>
+                  <Typography variant="h4" color="warning.main">
+                    2
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    דחויות
+                  </Typography>
+                </Paper>
+                <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                  <Typography variant="h4" color="success.main">
+                    1
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    הושלמו
+                  </Typography>
+                </Paper>
+              </Box>
+              
+              {/* Tasks Table */}
+              <TableContainer component={Paper} sx={{ backgroundColor: 'white' }}>
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                      <TableCell sx={{ fontWeight: 'bold' }}>סוג מטלה</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>קורס</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>כותרת</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>תאריך יעד</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>דחיפות</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>סטטוס</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>מבחן</TableCell>
+                      <TableCell>מתמטיקה 1</TableCell>
+                      <TableCell>מבחן אמצע</TableCell>
+                      <TableCell>15/12/2024</TableCell>
+                      <TableCell>
+                        <Chip label="גבוה" color="error" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label="בביצוע" color="info" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            ערוך
+                          </Button>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            מחק
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell></TableCell>
+                      <TableCell>פרויקט סופי</TableCell>
+                      <TableCell></TableCell>
+                      <TableCell>18/12/2024</TableCell>
+                      <TableCell>
+                        <Chip label="בינוני" color="warning" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label="ממתין" color="default" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            ערוך
+                          </Button>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            מחק
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>שיעורי בית</TableCell>
+                      <TableCell>פיזיקה 1</TableCell>
+                      <TableCell>תרגילי כוחות</TableCell>
+                      <TableCell>20/12/2024</TableCell>
+                      <TableCell>
+                        <Chip label="בינוני" color="warning" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label="ממתין" color="default" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            ערוך
+                          </Button>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            מחק
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>בוחן</TableCell>
+                      <TableCell>מתמטיקה 1</TableCell>
+                      <TableCell>בוחן קצר - נגזרות</TableCell>
+                      <TableCell>22/12/2024</TableCell>
+                      <TableCell>
+                        <Chip label="נמוך" color="success" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label="הושלם" color="success" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            ערוך
+                          </Button>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            מחק
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>מטלה</TableCell>
+                      <TableCell>תכנות</TableCell>
+                      <TableCell>קריאת מאמר</TableCell>
+                      <TableCell>25/12/2024</TableCell>
+                      <TableCell>
+                        <Chip label="בינוני" color="warning" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label="ממתין" color="default" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            ערוך
+                          </Button>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            מחק
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>ניסוי</TableCell>
+                      <TableCell>פיזיקה 1</TableCell>
+                      <TableCell>הצגת ניסוי</TableCell>
+                      <TableCell>28/12/2024</TableCell>
+                      <TableCell>
+                        <Chip label="גבוה" color="error" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label="ממתין" color="default" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            ערוך
+                          </Button>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            מחק
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+
+            {/* Task Management Section */}
+            <Paper sx={{ p: 3, mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                <EditIcon sx={{ mr: 1, color: '#2e7d32' }} />
+                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                  ניהול מטלות
+                </Typography>
+              </Box>
+              
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
+                <FormControl fullWidth>
+                  <InputLabel>סוג מטלה</InputLabel>
+                  <Select label="סוג מטלה">
+                    <MenuItem value="exam">מבחן</MenuItem>
+                    <MenuItem value="assignment">מטלה</MenuItem>
+                    <MenuItem value="homework">שיעורי בית</MenuItem>
+                    <MenuItem value="quiz">בוחן</MenuItem>
+                    <MenuItem value="project">פרויקט</MenuItem>
+                    <MenuItem value="experiment">ניסוי</MenuItem>
+                  </Select>
+                </FormControl>
+                
+                <FormControl fullWidth>
+                  <InputLabel>קורס</InputLabel>
+                  <Select label="קורס">
+                    <MenuItem value="math1">מתמטיקה 1</MenuItem>
+                    <MenuItem value="physics1">פיזיקה 1</MenuItem>
+                    <MenuItem value="programming">תכנות</MenuItem>
+                    <MenuItem value="final-project">פרויקט סופי</MenuItem>
+                  </Select>
+                </FormControl>
+                
+                <TextField
+                  fullWidth
+                  label="כותרת המטלה"
+                  placeholder="הכנס כותרת מטלה"
+                />
+                
+                <TextField
+                  fullWidth
+                  label="תאריך יעד"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                />
+                
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  label="תיאור"
+                  placeholder="תיאור המטלה"
+                  sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}
+                />
+                
+                <Button
+                  variant="contained"
+                  sx={{ 
+                    backgroundColor: '#2e7d32',
+                    gridColumn: { xs: '1', md: '1 / -1' }
+                  }}
+                >
+                  הוסף מטלה
+                </Button>
+              </Box>
+            </Paper>
+
+            {/* Academic Progress Section */}
+            <Paper sx={{ p: 3, mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                <BookIcon sx={{ mr: 1, color: '#2e7d32' }} />
+                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                  התקדמות אקדמית
+                </Typography>
+              </Box>
+              
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(3, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2, mb: 3 }}>
+                <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                  <Typography variant="h4" color="primary">
+                    3
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    קורסים פעילים
+                  </Typography>
+                </Paper>
+                <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                  <Typography variant="h4" color="primary">
+                    88.3
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    ממוצע ציונים
+                  </Typography>
+                </Paper>
+                <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                  <Typography variant="h4" color="primary">
+                    16
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    סה"כ נקודות זכות
+                  </Typography>
+                </Paper>
+              </Box>
+              
+              {/* Course Details Table */}
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <AssignmentIcon sx={{ mr: 1, color: '#2e7d32' }} />
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                  פירוט קורסים וציונים
+                </Typography>
+              </Box>
+              
+              <TableContainer component={Paper} sx={{ backgroundColor: 'white' }}>
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                      <TableCell sx={{ fontWeight: 'bold' }}>קורס</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>נקודות זכות</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>ציון</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>סטטוס</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>מתמטיקה 1</TableCell>
+                      <TableCell>6</TableCell>
+                      <TableCell>85</TableCell>
+                      <TableCell>
+                        <Chip label="הושלם" color="success" size="small" />
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>פיזיקה 1</TableCell>
+                      <TableCell>6</TableCell>
+                      <TableCell>92</TableCell>
+                      <TableCell>
+                        <Chip label="הושלם" color="success" size="small" />
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>תכנות</TableCell>
+                      <TableCell>4</TableCell>
+                      <TableCell>88</TableCell>
+                      <TableCell>
+                        <Chip label="הושלם" color="success" size="small" />
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+
+            {/* My Courses Section */}
+            <Paper sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <SchoolIcon sx={{ mr: 1, color: '#2e7d32' }} />
+                  <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                    הקורסים שלי
+                  </Typography>
+                </Box>
+                <IconButton>
+                  <ExpandMoreIcon />
+                </IconButton>
+              </Box>
+              
+                             {/* Course Images Grid */}
+               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(4, 1fr)', lg: 'repeat(6, 1fr)' }, gap: 2 }}>
+                 <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                   <CardMedia
+                     component="img"
+                     height="120"
+                     image="/1.png"
+                     alt="Course 1"
+                   />
+                   <CardContent sx={{ p: 1, textAlign: 'center' }}>
+                     <Typography variant="caption">מתמטיקה 1</Typography>
+                   </CardContent>
+                 </Card>
+                 
+                 <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                   <CardMedia
+                     component="img"
+                     height="120"
+                     image="/2.png"
+                     alt="Course 2"
+                   />
+                   <CardContent sx={{ p: 1, textAlign: 'center' }}>
+                     <Typography variant="caption">פיזיקה 1</Typography>
+                   </CardContent>
+                 </Card>
+                 
+                 <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                   <CardMedia
+                     component="img"
+                     height="120"
+                     image="/3.png"
+                     alt="Course 3"
+                   />
+                   <CardContent sx={{ p: 1, textAlign: 'center' }}>
+                     <Typography variant="caption">תכנות</Typography>
+                   </CardContent>
+                 </Card>
+                 
+                 <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                   <CardMedia
+                     component="img"
+                     height="120"
+                     image="/4.png"
+                     alt="Course 4"
+                   />
+                   <CardContent sx={{ p: 1, textAlign: 'center' }}>
+                     <Typography variant="caption">כימיה</Typography>
+                   </CardContent>
+                 </Card>
+                 
+                 <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                   <CardMedia
+                     component="img"
+                     height="120"
+                     image="/5.png"
+                     alt="Course 5"
+                   />
+                   <CardContent sx={{ p: 1, textAlign: 'center' }}>
+                     <Typography variant="caption">ביולוגיה</Typography>
+                   </CardContent>
+                 </Card>
+                 
+                 <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                   <CardMedia
+                     component="img"
+                     height="120"
+                     image="/6.png"
+                     alt="Course 6"
+                   />
+                   <CardContent sx={{ p: 1, textAlign: 'center' }}>
+                     <Typography variant="caption">סטטיסטיקה</Typography>
+                   </CardContent>
+                 </Card>
+                 
+                 <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                   <CardMedia
+                     component="img"
+                     height="120"
+                     image="/7.png"
+                     alt="Course 7"
+                   />
+                   <CardContent sx={{ p: 1, textAlign: 'center' }}>
+                     <Typography variant="caption">אנגלית</Typography>
+                   </CardContent>
+                 </Card>
+                 
+                 <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                   <CardMedia
+                     component="img"
+                     height="120"
+                     image="/8.png"
+                     alt="Course 8"
+                   />
+                   <CardContent sx={{ p: 1, textAlign: 'center' }}>
+                     <Typography variant="caption">היסטוריה</Typography>
+                   </CardContent>
+                 </Card>
+                 
+                 <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                   <CardMedia
+                     component="img"
+                     height="120"
+                     image="/9.png"
+                     alt="Course 9"
+                   />
+                   <CardContent sx={{ p: 1, textAlign: 'center' }}>
+                     <Typography variant="caption">גיאוגרפיה</Typography>
+                   </CardContent>
+                 </Card>
+                 
+                 <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                   <CardMedia
+                     component="img"
+                     height="120"
+                     image="/10.png"
+                     alt="Course 10"
+                   />
+                   <CardContent sx={{ p: 1, textAlign: 'center' }}>
+                     <Typography variant="caption">פסיכולוגיה</Typography>
+                   </CardContent>
+                 </Card>
+                 
+                 <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                   <CardMedia
+                     component="img"
+                     height="120"
+                     image="/11.png"
+                     alt="Course 11"
+                   />
+                   <CardContent sx={{ p: 1, textAlign: 'center' }}>
+                     <Typography variant="caption">סוציולוגיה</Typography>
+                   </CardContent>
+                 </Card>
+                 
+                 <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                   <CardMedia
+                     component="img"
+                     height="120"
+                     image="/12.png"
+                     alt="Course 12"
+                   />
+                   <CardContent sx={{ p: 1, textAlign: 'center' }}>
+                     <Typography variant="caption">פילוסופיה</Typography>
+                   </CardContent>
+                 </Card>
+               </Box>
+            </Paper>
           </Box>
         )}
 
-        {/* Lost & Found Section */}
-        {activeSection === 'lost-found' && (
+        {/* Learning Center Section */}
+        {activeSection === 'learning' && (
           <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="h4">מציאות ואבדות</Typography>
@@ -1885,7 +2562,76 @@ function App() {
               </Button>
             </Box>
             
-            <Grid container spacing={3}>
+            {/* Search and Filter */}
+            <Paper sx={{ p: 2, mb: 2 }}>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <TextField
+                  placeholder="חיפוש לפי כותרת או מיקום..."
+                  size="small"
+                  sx={{ minWidth: 300 }}
+                />
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>סוג</InputLabel>
+                  <Select label="סוג">
+                    <MenuItem value="all">הכל</MenuItem>
+                    <MenuItem value="lost">אבד</MenuItem>
+                    <MenuItem value="found">נמצא</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>סטטוס</InputLabel>
+                  <Select label="סטטוס">
+                    <MenuItem value="all">הכל</MenuItem>
+                    <MenuItem value="open">פתוח</MenuItem>
+                    <MenuItem value="claimed">נטען</MenuItem>
+                    <MenuItem value="closed">סגור</MenuItem>
+                  </Select>
+                </FormControl>
+                <Button variant="outlined" size="small">נקה סינון</Button>
+              </Box>
+            </Paper>
+            
+            {/* Statistics */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 3 }}>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="primary">
+                  {lostFoundItems.length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  סה"כ פריטים
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="error">
+                  {lostFoundItems.filter(item => item.type === 'lost').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פריטים אבודים
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="success.main">
+                  {lostFoundItems.filter(item => item.type === 'found').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פריטים שנמצאו
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="warning.main">
+                  {lostFoundItems.filter(item => item.status === 'open').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פריטים פתוחים
+                </Typography>
+              </Paper>
+            </Box>
+            
+            <Box sx={{ 
+              display: 'grid', 
+              gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+              gap: 3 
+            }}>
               {lostFoundItems.map((item) => (
                 <Grid item xs={12} md={6} lg={4} key={item.id}>
                   <Card>
@@ -2172,6 +2918,235 @@ function App() {
                 </Button>
               </Paper>
             )}
+            
+            {/* Cafeteria Images Gallery */}
+            <Paper sx={{ p: 3, mb: 4 }}>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold', color: '#2e7d32', textAlign: 'center' }}>
+                📸 גלריית תמונות קפיטריה
+              </Typography>
+              
+              <Box sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(4, 1fr)', lg: 'repeat(6, 1fr)' },
+                gap: 2 
+              }}>
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a1.png"
+                    alt="תמונה 1"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a2.png"
+                    alt="תמונה 2"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a3.png"
+                    alt="תמונה 3"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a4.png"
+                    alt="תמונה 4"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a5.png"
+                    alt="תמונה 5"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a6.png"
+                    alt="תמונה 6"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a7.png"
+                    alt="תמונה 7"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a8.png"
+                    alt="תמונה 8"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a9.png"
+                    alt="תמונה 9"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a10.png"
+                    alt="תמונה 10"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a11.png"
+                    alt="תמונה 11"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a12.png"
+                    alt="תמונה 12"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a17.png"
+                    alt="תמונה 17"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a18.png"
+                    alt="תמונה 18"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a19.png"
+                    alt="תמונה 19"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a20.png"
+                    alt="תמונה 20"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a21.png"
+                    alt="תמונה 21"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a22.png"
+                    alt="תמונה 22"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a23.png"
+                    alt="תמונה 23"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a24.png"
+                    alt="תמונה 24"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a13.png"
+                    alt="תמונה 13"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a14.png"
+                    alt="תמונה 14"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a15.png"
+                    alt="תמונה 15"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a16.png"
+                    alt="תמונה 16"
+                  />
+                </Card>
+              </Box>
+            </Paper>
           </Box>
         )}
 
