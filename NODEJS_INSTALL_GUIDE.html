@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מדריך התקנת Node.js - ONO Campus</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            direction: rtl;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 30px;
+        }
+        .step {
+            background-color: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+        .warning {
+            background-color: #fff3e0;
+            color: #ef6c00;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-right: 4px solid #ff9800;
+        }
+        .success {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-right: 4px solid #4caf50;
+        }
+        .btn {
+            background-color: #2e7d32;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 10px 5px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .btn:hover {
+            background-color: #1b5e20;
+        }
+        .code-block {
+            background-color: #f1f3f4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .screenshot {
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            margin: 10px 0;
+            max-width: 100%;
+        }
+        .note {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border-right: 3px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📥 מדריך התקנת Node.js</h1>
+            <h2>התקנה ידנית ב-Windows</h2>
+        </div>
+
+        <div class="warning">
+            <h3>⚠️ בעיה זוהתה:</h3>
+            <p><strong>Node.js לא מותקן במערכת שלך.</strong></p>
+            <p>זה הסיבה ש-npm לא עובד. בואו נתקין אותו עכשיו!</p>
+        </div>
+
+        <div class="step">
+            <h3>שלב 1: הורדת Node.js</h3>
+            <ol>
+                <li>לך לאתר הרשמי של Node.js: <a href="https://nodejs.org" target="_blank" class="btn">nodejs.org</a></li>
+                <li>בדף הראשי תראה שתי גרסאות:
+                    <ul>
+                        <li><strong>LTS (מומלץ)</strong> - גרסה יציבה וארוכת טווח</li>
+                        <li><strong>Current</strong> - הגרסה העדכנית ביותר</li>
+                    </ul>
+                </li>
+                <li><strong>לחץ על הכפתור הירוק של LTS</strong> (מומלץ)</li>
+                <li>הקובץ יורד אוטומטית (בערך 20MB)</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>שלב 2: התקנת Node.js</h3>
+            <ol>
+                <li>מצא את הקובץ שהורדת (בדרך כלל בתיקיית Downloads)</li>
+                <li>הקובץ ייקרא משהו כמו: <code>node-v22.18.0-x64.msi</code></li>
+                <li><strong>לחץ פעמיים על הקובץ</strong> כדי להתחיל את ההתקנה</li>
+                <li>אם מופיעה הודעת אבטחה, לחץ "Yes" או "הפעל"</li>
+                <li>בחלון ההתקנה:
+                    <ul>
+                        <li>לחץ "Next" בכל השלבים</li>
+                        <li>וודא שהאפשרות "Add to PATH" מסומנת</li>
+                        <li>השאר את כל ההגדרות ברירת המחדל</li>
+                    </ul>
+                </li>
+                <li>לחץ "Install" והמתן לסיום ההתקנה</li>
+                <li>לחץ "Finish"</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>שלב 3: אימות ההתקנה</h3>
+            <p>לאחר ההתקנה, <strong>סגור את הטרמינל הנוכחי ופתח טרמינל חדש</strong>.</p>
+            <p>הרץ את הפקודות הבאות:</p>
+            <div class="code-block">
+                node --version<br>
+                npm --version
+            </div>
+            <p>אם הכל תקין, תראה משהו כמו:</p>
+            <div class="code-block">
+                v22.18.0<br>
+                10.2.4
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>שלב 4: הרצת האפליקציה</h3>
+            <p>עכשיו שאתה יכול להשתמש ב-npm, הרץ את הפקודות הבאות:</p>
+            <div class="code-block">
+                cd campus-web-react<br>
+                npm install<br>
+                npm start
+            </div>
+            <p>האפליקציה תיפתח אוטומטית בדפדפן ב: <code>http://localhost:3000</code></p>
+        </div>
+
+        <div class="note">
+            <h3>💡 טיפים חשובים:</h3>
+            <ul>
+                <li><strong>וודא שהאפשרות "Add to PATH" מסומנת</strong> בזמן ההתקנה</li>
+                <li><strong>סגור ופתח טרמינל חדש</strong> לאחר ההתקנה</li>
+                <li>אם עדיין לא עובד, נסה <strong>הפעלה מחדש של המחשב</strong></li>
+                <li>אם יש בעיות, בדוק שהורדת את הגרסה הנכונה (64-bit)</li>
+            </ul>
+        </div>
+
+        <div class="success">
+            <h3>🎯 מה קורה אחרי ההתקנה:</h3>
+            <ul>
+                <li>תוכל להריץ <code>node</code> ו-<code>npm</code> מכל מקום</li>
+                <li>תוכל להתקין חבילות עם <code>npm install</code></li>
+                <li>תוכל להריץ פרויקטי React עם <code>npm start</code></li>
+                <li>האפליקציה שלך תהיה זמינה ב-<code>localhost:3000</code></li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <h3>🔧 אם עדיין יש בעיות:</h3>
+            <ol>
+                <li><strong>הפעל מחדש את המחשב</strong> - לפעמים זה נדרש</li>
+                <li><strong>בדוק את משתנה הסביבה PATH:</strong>
+                    <ul>
+                        <li>לחץ Win+R, הקלד <code>sysdm.cpl</code></li>
+                        <li>לך לטאב "Advanced"</li>
+                        <li>לחץ "Environment Variables"</li>
+                        <li>בדוק שב-PATH יש: <code>C:\Program Files\nodejs\</code></li>
+                    </ul>
+                </li>
+                <li><strong>נסה להתקין גרסה אחרת</strong> של Node.js</li>
+                <li><strong>בדוק שהורדת את הגרסה הנכונה</strong> (64-bit ולא 32-bit)</li>
+            </ol>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="https://nodejs.org" target="_blank" class="btn">📥 הורד Node.js עכשיו</a>
+            <a href="FINAL_STATUS.html" class="btn">📋 חזור לסטטוס</a>
+        </div>
+
+        <div class="success" style="text-align: center; margin-top: 30px;">
+            <h3>🚀 אחרי שתתקין Node.js:</h3>
+            <p><strong>האפליקציה שלך תהיה מוכנה להרצה!</strong></p>
+            <p>כל השגיאות כבר תוקנו, רק Node.js חסר.</p>
+        </div>
+    </div>
+</body>
+</html>
