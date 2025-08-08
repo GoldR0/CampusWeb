@@ -3414,7 +3414,7 @@ function App() {
         {activeSection === 'help' && (
           <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h4">עזרה</Typography>
+              <Typography variant="h4">עזרה ותמיכה</Typography>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
@@ -3424,55 +3424,241 @@ function App() {
               </Button>
             </Box>
             
-            <Box sx={{ 
-              display: 'grid', 
-              gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
-              gap: 3 
-            }}>
-              {helpTickets.map((ticket) => (
-                <Card key={ticket.id}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            {/* FAQ Section */}
+            <Paper sx={{ p: 4, mb: 3 }}>
+              <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#2e7d32', textAlign: 'center' }}>
+                שאלות נפוצות (FAQ)
+              </Typography>
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {/* מה זה קמפוס */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #2e7d32' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32', mb: 2 }}>
+                    מה זה קמפוס?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    קמפוס היא מערכת ניהול מקיפה שמאפשרת לסטודנטים ומרצים להיכנס ולנהל את חיי הסטודנטים במכללה. מערכת זו מכילה כלים לניהול מטלות, ציונים, תפריט קפיטריה, מציאות ואבדות, שוק יד שנייה ועוד.
+                  </Typography>
+                </Paper>
+
+                {/* כיצד להתחבר */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #1976d2' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+                    כיצד להתחבר?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    כדי להתחבר למערכת, יש לספק את פרטי ההתחברות שלך. אם אתה סטודנט, יש להזין אימייל וסיסמה שקיבלת מהמערכת. אם אתה מרצה, יש להזין את פרטי ההתחברות שלך שהוגדרו על ידי המנהל.
+                  </Typography>
+                </Paper>
+
+                {/* ניהול מטלות */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #ed6c02' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#ed6c02', mb: 2 }}>
+                    איך אני יכול לנהל מטלות?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הלימודים, תוכל לצפות במטלות שלך, להוסיף מטלות חדשות, לערוך ולמחוק מטלות קיימות. כל מטלה מכילה סוג, קורס, כותרת, תיאור, תאריך יעד ודחיפות. תוכל לסמן מטלות כהושלמות כשהגעת לתוצאה.
+                  </Typography>
+                </Paper>
+
+                {/* הגשת מטלה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #9c27b0' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#9c27b0', mb: 2 }}>
+                    איך אני יכול להגיש מטלה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    לפני תאריך הגשה של מטלה, יש לך זמן מספיק. במרכז הלימודים, תוכל לגשת למטלה ולהוסיף קובץ או תיאור של הפתרון. בתאריך הגשה, תוכל להגיש את המטלה ולצפות בסטטוס שלה.
+                  </Typography>
+                </Paper>
+
+                {/* ציונים */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #d32f2f' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d32f2f', mb: 2 }}>
+                    איך אני יכול לראות את הציונים שלי?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הלימודים, תוכל לראות את כל הציונים שלך בטבלה. כל ציון מכיל קורס, נקודות זכות, ציון וסטטוס. תוכל לצפות בציונים הנוכחיים והיסטוריים.
+                  </Typography>
+                </Paper>
+
+                {/* הזמנת חדר */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #2e7d32' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32', mb: 2 }}>
+                    איך אני יכול להזמין חדר למידה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז השירותים, תוכל להזמין חדר למידה בהתאם לצרכים שלך. בחר סוג חדר, תאריך ושעה. תוכל לבחור משך זמן שונה בהתאם לצרכים שלך.
+                  </Typography>
+                </Paper>
+
+                {/* הזמנת הסעה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #1976d2' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+                    איך אני יכול להזמין הסעה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז השירותים, תוכל להזמין הסעה ליעד שונה. בחר יעד, תאריך ושעה. תוכל לבחור משך זמן שונה בהתאם לצרכים שלך.
+                  </Typography>
+                </Paper>
+
+                {/* קפיטריה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #ed6c02' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#ed6c02', mb: 2 }}>
+                    איך אני יכול להזמין קפה או סלט בקפיטריה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    בקפיטריה, תוכל להזמין תפריט יומי ולבחור מנה. בחר מנה שונה מתוך התפריט המפורט והוסף הערות מיוחדות אם צריך. תוכל לבחור מועד שונה להזמנה.
+                  </Typography>
+                </Paper>
+
+                {/* דיווח תקלה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #9c27b0' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#9c27b0', mb: 2 }}>
+                    איך אני יכול לדווח על תקלה או הצעה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הקהילה, תוכל לדווח על תקלות ולהציע שיפורים. בחר סוג תקלה או הצעה, והוסף מיקום ותיאור שלך. תוכל לשלוח את הדיווח או ההצעה ולצפות בתשובה מהמנהל.
+                  </Typography>
+                </Paper>
+
+                {/* שוק יד שנייה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #d32f2f' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d32f2f', mb: 2 }}>
+                    איך אני יכול להציע פריט למכירה או למצוא פריט שאבדתי?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    בשוק היד שנייה, תוכל להוסיף פריט למכירה או לחפש פריטים שאבדת. בחר סוג דיווח (אבדתי או מצאתי), קטגוריה ומיקום. הוסף תיאור ותאריך ושלח דיווח. תוכל לצפות בפריטים האחרונים שהודעו ולצור קשר עם המוכרים.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות ומודעות */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #2e7d32' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32', mb: 2 }}>
+                    איך אני יכול לקבל מודעות או הודעות?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הקהילה, תוכל לצפות בהודעות ומודעות שנשלחו אליך. תוכל להגיב על הודעות או להסיר אותן אם זה נדרש.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות ממערכת */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #1976d2' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+                    איך אני יכול לקבל מודעות ממערכת של מטלות או ציונים?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הלימודים, תוכל לקבל הודעות ממערכת בגירסה של דואר אלקטרוני או במערכת הפעולה. תוכל לצפות בסטטוס של מטלות וציונים ולהגיב על הודעות ממערכת.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות משוק יד שנייה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #ed6c02' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#ed6c02', mb: 2 }}>
+                    איך אני יכול לקבל מודעות משוק היד שנייה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    בשוק היד שנייה, תוכל לקבל הודעות ממוכרים שמציעים פריטים למכירה או שמבקשים ממך משהו. תוכל לצור קשר עם המוכרים ולהגיב על הודעות.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות ממרכז השירותים */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #9c27b0' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#9c27b0', mb: 2 }}>
+                    איך אני יכול לקבל מודעות ממרכז השירותים?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז השירותים, תוכל לקבל הודעות ממערכת בגירסה של דואר אלקטרוני או במערכת הפעולה. תוכל לצפות בסטטוס של הזמנות חדרים והסעות ולהגיב על הודעות ממערכת.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות ממרכז הקהילה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #d32f2f' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d32f2f', mb: 2 }}>
+                    איך אני יכול לקבל מודעות ממרכז הקהילה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הקהילה, תוכל לקבל הודעות ממשתמשים אחרים במערכת או ממנהלים. תוכל לצפות בדיווחי תקלות והצעות שונות ולהגיב על הודעות.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות ממרכז הפרופיל */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #2e7d32' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32', mb: 2 }}>
+                    איך אני יכול לקבל מודעות ממרכז הפרופיל?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הפרופיל, תוכל לקבל הודעות ממערכת בגירסה של דואר אלקטרוני או במערכת הפעולה. תוכל לצפות בפרטים שלך ולעדכן אותם בפעולות שונות.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות ממערכת כללית */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #1976d2' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+                    איך אני יכול לקבל מודעות ממערכת כללית?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    תוכל לקבל הודעות ממערכת כללית שנשלחו לכל המשתמשים במערכת. תוכל לצפות בהודעות אלה ולהגיב עליהן אם זה נדרש.
+                  </Typography>
+                </Paper>
+              </Box>
+            </Paper>
+
+            {/* Help Tickets Section */}
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#2e7d32' }}>
+                כרטיסי עזרה
+              </Typography>
+              
+              <Box sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+                gap: 3 
+              }}>
+                {helpTickets.map((ticket) => (
+                  <Card key={ticket.id}>
+                    <CardContent>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                        <Chip 
+                          label={ticket.category} 
+                          color="primary"
+                        />
+                        <Chip 
+                          label={ticket.priority} 
+                          color={ticket.priority === 'urgent' ? 'error' : ticket.priority === 'high' ? 'warning' : ticket.priority === 'medium' ? 'info' : 'success'}
+                        />
+                      </Box>
+                      <Typography variant="h6" gutterBottom>{ticket.title}</Typography>
+                      <Typography variant="body2" color="text.secondary" paragraph>{ticket.description}</Typography>
+                      <Typography variant="body2"><strong>מבקש:</strong> {ticket.requesterName}</Typography>
+                      <Typography variant="body2"><strong>טלפון:</strong> {ticket.requesterPhone}</Typography>
+                      <Typography variant="body2"><strong>אימייל:</strong> {ticket.requesterEmail}</Typography>
+                      <Typography variant="body2"><strong>תאריך יצירה:</strong> {ticket.dateCreated}</Typography>
                       <Chip 
-                        label={ticket.category} 
-                        color="primary"
+                        label={ticket.status === 'open' ? 'פתוח' : ticket.status === 'in-progress' ? 'בטיפול' : ticket.status === 'resolved' ? 'נפתר' : 'סגור'} 
+                        color={ticket.status === 'open' ? 'warning' : ticket.status === 'in-progress' ? 'info' : ticket.status === 'resolved' ? 'success' : 'default'}
+                        sx={{ mt: 1 }}
                       />
-                      <Chip 
-                        label={ticket.priority} 
-                        color={ticket.priority === 'urgent' ? 'error' : ticket.priority === 'high' ? 'warning' : ticket.priority === 'medium' ? 'info' : 'success'}
-                      />
-                    </Box>
-                    <Typography variant="h6" gutterBottom>{ticket.title}</Typography>
-                    <Typography variant="body2" color="text.secondary" paragraph>{ticket.description}</Typography>
-                    <Typography variant="body2"><strong>מבקש:</strong> {ticket.requesterName}</Typography>
-                    <Typography variant="body2"><strong>טלפון:</strong> {ticket.requesterPhone}</Typography>
-                    <Typography variant="body2"><strong>אימייל:</strong> {ticket.requesterEmail}</Typography>
-                    <Typography variant="body2"><strong>תאריך יצירה:</strong> {ticket.dateCreated}</Typography>
-                    <Chip 
-                      label={ticket.status === 'open' ? 'פתוח' : ticket.status === 'in-progress' ? 'בטיפול' : ticket.status === 'resolved' ? 'נפתר' : 'סגור'} 
-                      color={ticket.status === 'open' ? 'warning' : ticket.status === 'in-progress' ? 'info' : ticket.status === 'resolved' ? 'success' : 'default'}
-                      sx={{ mt: 1 }}
-                    />
-                  </CardContent>
-                </Card>
-              ))}
-            </Box>
-            
-            {helpTickets.length === 0 && (
-              <Paper sx={{ p: 4, textAlign: 'center' }}>
-                <Typography variant="h6" color="text.secondary">
-                  אין כרטיסי עזרה
-                </Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => setHelpTicketDialogOpen(true)}
-                  sx={{ mt: 2 }}
-                >
-                  פתח כרטיס עזרה ראשון
-                </Button>
-              </Paper>
-            )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+              
+              {helpTickets.length === 0 && (
+                <Paper sx={{ p: 4, textAlign: 'center' }}>
+                  <Typography variant="h6" color="text.secondary">
+                    אין כרטיסי עזרה
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => setHelpTicketDialogOpen(true)}
+                    sx={{ mt: 2 }}
+                  >
+                    פתח כרטיס עזרה ראשון
+                  </Button>
+                </Paper>
+              )}
+            </Paper>
           </Box>
         )}
 
