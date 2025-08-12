@@ -2,22 +2,12 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  IconButton,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Card,
   CardContent,
   CardMedia,
   Paper,
   Chip,
+<<<<<<< HEAD
   Dialog,
   DialogTitle,
   DialogContent,
@@ -54,6 +44,13 @@ import {
   Login as LoginIcon,
   Logout as LogoutIcon,
   Menu as MenuIcon,
+=======
+  Alert,
+  Snackbar,
+  Typography
+} from '@mui/material';
+import {
+>>>>>>> roycopy
   CalendarToday as CalendarIcon,
   LocationOn as LocationIcon,
   AccessTime as TimeIcon,
@@ -66,6 +63,7 @@ import {
   Assignment as AssignmentIcon,
   ExpandMore as ExpandMoreIcon
 } from '@mui/icons-material';
+<<<<<<< HEAD
 import { 
   User, 
   Task, 
@@ -111,6 +109,12 @@ const loadFromLocalStorage = (key: string, defaultValue: any = []) => {
     return defaultValue;
   }
 };
+=======
+import { User, Task, Event, Facility } from './types';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import StudentsPage from './pages/StudentsPage';
+>>>>>>> roycopy
 
 // Demo data
 const demoUsers: Record<string, User> = {
@@ -214,9 +218,6 @@ const demoTasks: Task[] = [
 
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   
@@ -332,8 +333,6 @@ function App() {
     const user = demoUsers[email];
     if (user && password === '123456') {
       setCurrentUser(user);
-      setIsLoggedIn(true);
-      setLoginDialogOpen(false);
       showNotification('התחברת בהצלחה!', 'success');
     } else {
       showNotification('שם משתמש או סיסמה שגויים', 'error');
@@ -342,7 +341,6 @@ function App() {
 
   const handleLogout = () => {
     setCurrentUser(null);
-    setIsLoggedIn(false);
     showNotification('התנתקת בהצלחה', 'success');
   };
 
@@ -350,6 +348,7 @@ function App() {
     setNotification({ message, type });
   };
 
+<<<<<<< HEAD
   // Validation functions
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -695,6 +694,9 @@ function App() {
     { id: 'community-management', label: 'ניהול קהילה', icon: <GroupIcon /> },
     { id: 'help-management', label: 'ניהול עזרה', icon: <HelpIcon /> }
   ];
+=======
+
+>>>>>>> roycopy
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -929,8 +931,17 @@ function App() {
     }
   };
 
+  // Custom color theme
+  const customColors = {
+    primary: 'rgb(179, 209, 53)',
+    primaryDark: 'rgb(159, 189, 33)',
+    primaryLight: 'rgb(199, 229, 73)',
+    textOnPrimary: 'white'
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+<<<<<<< HEAD
       {/* App Bar */}
       <AppBar position="static" sx={{ backgroundColor: '#2e7d32', boxShadow: 3 }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -1620,6 +1631,16 @@ function App() {
           </Box>
         </Box>
       </Drawer>
+=======
+      {/* Header Component */}
+      <Header
+        currentUser={currentUser}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+        onNavigate={setActiveSection}
+        currentSection={activeSection}
+      />
+>>>>>>> roycopy
 
       {/* Main Content */}
       <Container maxWidth="xl" sx={{ flexGrow: 1, py: 3 }}>
@@ -1773,46 +1794,21 @@ function App() {
                 p: 4, 
                 mb: 3, 
                 textAlign: 'center',
-                background: 'linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)',
+                background: 'linear-gradient(135deg, rgb(179, 209, 53) 0%, rgb(159, 189, 33) 100%)',
                 color: 'white'
               }}
             >
               <Typography variant="h4" gutterBottom>
                 ברוכים הבאים למערכת המקיפה לניהול חיי הסטודנטים בקמפוס
               </Typography>
-              {isLoggedIn && (
+              {currentUser && (
                 <Typography variant="h6">
-                  שלום {currentUser?.name}! היום יש לך {demoTasks.filter(t => t.priority === 'urgent').length} מבחנים ו-{demoTasks.filter(t => t.type === 'assignment').length} מטלות להגשה
+                  שלום {currentUser.name}! היום יש לך {demoTasks.filter(t => t.priority === 'urgent').length} מבחנים ו-{demoTasks.filter(t => t.type === 'assignment').length} מטלות להגשה
                 </Typography>
               )}
             </Paper>
 
-            {/* Navigation Grid */}
-            <Box sx={{ 
-              display: 'grid', 
-              gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(6, 1fr)' },
-              gap: 2, 
-              mb: 4 
-            }}>
-              {navigationItems.slice(1, 7).map((item) => (
-                <Card 
-                  key={item.id}
-                  sx={{ 
-                    height: '100%',
-                    cursor: 'pointer',
-                    '&:hover': { transform: 'translateY(-2px)', boxShadow: 3 }
-                  }}
-                  onClick={() => setActiveSection(item.id)}
-                >
-                  <CardContent sx={{ textAlign: 'center', p: 2 }}>
-                    {item.icon}
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      {item.label}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              ))}
-            </Box>
+
 
             {/* Secondary Navigation - Quick Access */}
             <Paper sx={{ p: 3, mb: 4 }}>
@@ -2001,7 +1997,7 @@ function App() {
               gap: 3 
             }}>
               {/* Events Card */}
-              <Card>
+              <Card sx={{ border: `2px solid ${customColors.primary}` }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <CalendarIcon sx={{ mr: 1 }} />
@@ -2038,7 +2034,7 @@ function App() {
               </Card>
 
               {/* Facilities Card */}
-              <Card>
+              <Card sx={{ border: `2px solid ${customColors.primary}` }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <LocationIcon sx={{ mr: 1 }} />
@@ -2061,7 +2057,7 @@ function App() {
               </Card>
 
               {/* Tasks Card */}
-              <Card>
+              <Card sx={{ border: `2px solid ${customColors.primary}` }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <CheckCircleIcon sx={{ mr: 1 }} />
@@ -2144,6 +2140,7 @@ function App() {
           </Box>
         )}
 
+<<<<<<< HEAD
         {/* Profile Section */}
         {activeSection === 'profile' && (
           <Box>
@@ -4271,8 +4268,31 @@ function App() {
         {/* Other sections */}
         {!['home', 'profile', 'learning', 'lost-found', 'marketplace', 'services', 'forum', 'cafeteria', 'community', 'help', 'lost-found-management', 'marketplace-management', 'services-management', 'forum-management', 'cafeteria-management', 'community-management', 'help-management'].includes(activeSection) && (
           <Paper sx={{ p: 3, textAlign: 'center' }}>
+=======
+        {/* Students Page */}
+        {activeSection === 'students' && (
+          <StudentsPage />
+        )}
+        
+        {/* Other sections can be added here */}
+        {activeSection !== 'home' && activeSection !== 'students' && (
+          <Paper sx={{ 
+            p: 3, 
+            textAlign: 'center',
+            border: `2px solid ${customColors.primary}`,
+            backgroundColor: customColors.primaryLight + '10'
+          }}>
+>>>>>>> roycopy
             <Typography variant="h5">
-              {navigationItems.find(item => item.id === activeSection)?.label}
+              {activeSection === 'profile' && 'פרופיל אישי'}
+              {activeSection === 'learning' && 'מרכז הלימודים'}
+              {activeSection === 'cafeteria' && 'קפיטריה'}
+              {activeSection === 'lost-found' && 'מציאות ואבדות'}
+              {activeSection === 'marketplace' && 'שוק יד שנייה'}
+              {activeSection === 'services' && 'שירותים בקמפוס'}
+              {activeSection === 'community' && 'קהילה'}
+              {activeSection === 'forum' && 'פורום קורס'}
+              {activeSection === 'help' && 'עזרה'}
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
               תוכן זה יפותח בהמשך...
@@ -4442,55 +4462,10 @@ function App() {
         )}
       </Container>
 
-      {/* Login Dialog */}
-      <Dialog open={loginDialogOpen} onClose={() => setLoginDialogOpen(false)}>
-        <DialogTitle>התחברות למערכת</DialogTitle>
-        <DialogContent>
-          <Box sx={{ pt: 1 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              חשבונות דמו זמינים:
-            </Typography>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2">
-                <strong>סטודנט:</strong> student@campus.ac.il / 123456
-              </Typography>
-              <Typography variant="body2">
-                <strong>מרצה:</strong> lecturer@campus.ac.il / 123456
-              </Typography>
-            </Box>
-            <TextField
-              fullWidth
-              label="אימייל"
-              variant="outlined"
-              margin="normal"
-              id="login-email"
-            />
-            <TextField
-              fullWidth
-              label="סיסמה"
-              type="password"
-              variant="outlined"
-              margin="normal"
-              id="login-password"
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setLoginDialogOpen(false)}>ביטול</Button>
-          <Button 
-            variant="contained" 
-            onClick={() => {
-              const email = (document.getElementById('login-email') as HTMLInputElement)?.value;
-              const password = (document.getElementById('login-password') as HTMLInputElement)?.value;
-              if (email && password) {
-                handleLogin(email, password);
-              }
-            }}
-          >
-            התחבר
-          </Button>
-        </DialogActions>
-      </Dialog>
+
+
+      {/* Footer Component */}
+      <Footer />
 
       {/* Lost & Found Form Dialog */}
       <Dialog open={lostFoundDialogOpen} onClose={() => setLostFoundDialogOpen(false)} maxWidth="md" fullWidth>
