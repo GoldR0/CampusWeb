@@ -7,7 +7,11 @@ import {
   CardMedia,
   Paper,
   Chip,
+<<<<<<< HEAD
   Avatar,
+=======
+<<<<<<< HEAD
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
   Dialog,
   DialogTitle,
   DialogContent,
@@ -17,6 +21,37 @@ import {
   InputLabel,
   Select,
   MenuItem,
+<<<<<<< HEAD
+=======
+  Alert,
+  Snackbar,
+  InputAdornment,
+  FormControlLabel,
+  Checkbox,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  TablePagination
+} from '@mui/material';
+import {
+  Home as HomeIcon,
+  School as SchoolIcon,
+  Restaurant as RestaurantIcon,
+  Search as SearchIcon,
+  ShoppingCart as ShoppingCartIcon,
+  Build as BuildIcon,
+  Group as GroupIcon,
+  Forum as ForumIcon,
+  Help as HelpIcon,
+  Person as PersonIcon,
+  Login as LoginIcon,
+  Logout as LogoutIcon,
+  Menu as MenuIcon,
+=======
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
   Alert,
   Snackbar,
   Grid,
@@ -80,6 +115,7 @@ import {
   CardHeader
 } from '@mui/material';
 import {
+<<<<<<< HEAD
   Home as HomeIcon,
   School as SchoolIcon,
   Event as EventIcon,
@@ -95,6 +131,9 @@ import {
   Logout as LogoutIcon,
   Menu as MenuIcon,
   Close as CloseIcon,
+=======
+>>>>>>> roycopy
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
   CalendarToday as CalendarIcon,
   LocationOn as LocationIcon,
   AccessTime as TimeIcon,
@@ -107,6 +146,10 @@ import {
   Assignment as AssignmentIcon,
   ExpandMore as ExpandMoreIcon
 } from '@mui/icons-material';
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
 import { 
   User, 
   Task, 
@@ -116,10 +159,15 @@ import {
   MarketplaceItem,
   ServiceRequest,
   ForumPost,
+<<<<<<< HEAD
   ForumReply,
   CafeteriaOrder,
   CafeteriaOrderItem,
   CafeteriaMenuItem,
+=======
+  CafeteriaOrder,
+  CafeteriaOrderItem,
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
   CommunityEvent,
   HelpTicket
 } from './types';
@@ -154,6 +202,15 @@ const loadFromLocalStorage = (key: string, defaultValue: any = []) => {
     return defaultValue;
   }
 };
+<<<<<<< HEAD
+=======
+=======
+import { User, Task, Event, Facility } from './types';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import StudentsPage from './pages/StudentsPage';
+>>>>>>> roycopy
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
 
 // Demo data
 const demoUsers: Record<string, User> = {
@@ -387,6 +444,10 @@ function App() {
     setNotification({ message, type });
   };
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
   // Validation functions
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -394,7 +455,11 @@ function App() {
   };
 
   const validatePhone = (phone: string): boolean => {
+<<<<<<< HEAD
     const phoneRegex = /^[\d\s\-\+\(\)]+$/;
+=======
+    const phoneRegex = /^[\d\s\-+()]+$/;
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
     return phoneRegex.test(phone) && phone.length >= 9;
   };
 
@@ -732,6 +797,12 @@ function App() {
     { id: 'community-management', label: 'ניהול קהילה', icon: <GroupIcon /> },
     { id: 'help-management', label: 'ניהול עזרה', icon: <HelpIcon /> }
   ];
+<<<<<<< HEAD
+=======
+=======
+
+>>>>>>> roycopy
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -742,12 +813,227 @@ function App() {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent': return 'error';
-      case 'medium': return 'warning';
-      case 'low': return 'success';
-      default: return 'default';
+  // Delete functions
+  const handleDeleteLostFound = (id: string) => {
+    const updatedItems = lostFoundItems.filter(item => item.id !== id);
+    setLostFoundItems(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.LOST_FOUND, updatedItems);
+    showNotification('הפריט נמחק בהצלחה', 'success');
+  };
+
+  const handleDeleteMarketplace = (id: string) => {
+    const updatedItems = marketplaceItems.filter(item => item.id !== id);
+    setMarketplaceItems(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.MARKETPLACE, updatedItems);
+    showNotification('הפריט נמחק בהצלחה', 'success');
+  };
+
+  const handleDeleteServiceRequest = (id: string) => {
+    const updatedItems = serviceRequests.filter(item => item.id !== id);
+    setServiceRequests(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.SERVICE_REQUESTS, updatedItems);
+    showNotification('הבקשה נמחקה בהצלחה', 'success');
+  };
+
+  const handleDeleteForumPost = (id: string) => {
+    const updatedItems = forumPosts.filter(item => item.id !== id);
+    setForumPosts(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.FORUM_POSTS, updatedItems);
+    showNotification('הפוסט נמחק בהצלחה', 'success');
+  };
+
+  const handleDeleteCafeteriaOrder = (id: string) => {
+    const updatedItems = cafeteriaOrders.filter(item => item.id !== id);
+    setCafeteriaOrders(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.CAFETERIA_ORDERS, updatedItems);
+    showNotification('ההזמנה נמחקה בהצלחה', 'success');
+  };
+
+  const handleDeleteCommunityEvent = (id: string) => {
+    const updatedItems = communityEvents.filter(item => item.id !== id);
+    setCommunityEvents(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.COMMUNITY_EVENTS, updatedItems);
+    showNotification('האירוע נמחק בהצלחה', 'success');
+  };
+
+  const handleDeleteHelpTicket = (id: string) => {
+    const updatedItems = helpTickets.filter(item => item.id !== id);
+    setHelpTickets(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.HELP_TICKETS, updatedItems);
+    showNotification('כרטיס העזרה נמחק בהצלחה', 'success');
+  };
+
+  // Status update functions
+  const handleUpdateLostFoundStatus = (id: string, newStatus: 'open' | 'claimed' | 'closed') => {
+    const updatedItems = lostFoundItems.map(item => 
+      item.id === id ? { ...item, status: newStatus } : item
+    );
+    setLostFoundItems(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.LOST_FOUND, updatedItems);
+    showNotification('סטטוס הפריט עודכן בהצלחה', 'success');
+  };
+
+  const handleUpdateMarketplaceStatus = (id: string, newStatus: 'available' | 'sold' | 'reserved') => {
+    const updatedItems = marketplaceItems.map(item => 
+      item.id === id ? { ...item, status: newStatus } : item
+    );
+    setMarketplaceItems(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.MARKETPLACE, updatedItems);
+    showNotification('סטטוס הפריט עודכן בהצלחה', 'success');
+  };
+
+  const handleUpdateServiceRequestStatus = (id: string, newStatus: 'pending' | 'in-progress' | 'completed' | 'cancelled') => {
+    const updatedItems = serviceRequests.map(item => 
+      item.id === id ? { ...item, status: newStatus } : item
+    );
+    setServiceRequests(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.SERVICE_REQUESTS, updatedItems);
+    showNotification('סטטוס הבקשה עודכן בהצלחה', 'success');
+  };
+
+  const handleUpdateForumPostStatus = (id: string, newStatus: 'active' | 'closed' | 'deleted') => {
+    const updatedItems = forumPosts.map(item => 
+      item.id === id ? { ...item, status: newStatus } : item
+    );
+    setForumPosts(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.FORUM_POSTS, updatedItems);
+    showNotification('סטטוס הפוסט עודכן בהצלחה', 'success');
+  };
+
+  const handleUpdateCafeteriaOrderStatus = (id: string, newStatus: 'pending' | 'preparing' | 'ready' | 'completed' | 'cancelled') => {
+    const updatedItems = cafeteriaOrders.map(item => 
+      item.id === id ? { ...item, status: newStatus } : item
+    );
+    setCafeteriaOrders(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.CAFETERIA_ORDERS, updatedItems);
+    showNotification('סטטוס ההזמנה עודכן בהצלחה', 'success');
+  };
+
+  const handleUpdateCommunityEventStatus = (id: string, newStatus: 'upcoming' | 'ongoing' | 'completed' | 'cancelled') => {
+    const updatedItems = communityEvents.map(item => 
+      item.id === id ? { ...item, status: newStatus } : item
+    );
+    setCommunityEvents(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.COMMUNITY_EVENTS, updatedItems);
+    showNotification('סטטוס האירוע עודכן בהצלחה', 'success');
+  };
+
+  const handleUpdateHelpTicketStatus = (id: string, newStatus: 'open' | 'in-progress' | 'resolved' | 'closed') => {
+    const updatedItems = helpTickets.map(item => 
+      item.id === id ? { ...item, status: newStatus } : item
+    );
+    setHelpTickets(updatedItems);
+    saveToLocalStorage(STORAGE_KEYS.HELP_TICKETS, updatedItems);
+    showNotification('סטטוס כרטיס העזרה עודכן בהצלחה', 'success');
+  };
+
+  // Status Update Dialogs
+  const [statusUpdateDialogOpen, setStatusUpdateDialogOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const statusOptions = [
+    { value: 'open', label: 'פתוח' },
+    { value: 'claimed', label: 'נטען' },
+    { value: 'closed', label: 'סגור' }
+  ];
+
+  const handleStatusUpdate = () => {
+    // Implement status update logic
+    console.log('Status updated:', selectedStatus);
+    setStatusUpdateDialogOpen(false);
+  };
+
+  // Confirmation Dialog
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState('');
+
+  const handleConfirmDelete = () => {
+    // Implement delete logic
+    console.log('Item deleted:', selectedItemId);
+    setConfirmDialogOpen(false);
+  };
+
+  // Get current section count for management screens
+  const getCurrentSectionCount = () => {
+    switch (activeSection) {
+      case 'lost-found-management':
+        return lostFoundItems.length;
+      case 'marketplace-management':
+        return marketplaceItems.length;
+      case 'services-management':
+        return serviceRequests.length;
+      case 'forum-management':
+        return forumPosts.length;
+      case 'cafeteria-management':
+        return cafeteriaOrders.length;
+      case 'community-management':
+        return communityEvents.length;
+      case 'help-management':
+        return helpTickets.length;
+      default:
+        return 0;
+    }
+  };
+
+  const getActiveItemsCount = () => {
+    switch (activeSection) {
+      case 'lost-found-management':
+        return lostFoundItems.filter(item => item.status === 'open').length;
+      case 'marketplace-management':
+        return marketplaceItems.filter(item => item.status === 'available').length;
+      case 'services-management':
+        return serviceRequests.filter(item => item.status === 'pending').length;
+      case 'forum-management':
+        return forumPosts.filter(item => item.status === 'active').length;
+      case 'cafeteria-management':
+        return cafeteriaOrders.filter(item => item.status === 'pending').length;
+      case 'community-management':
+        return communityEvents.filter(item => item.status === 'upcoming').length;
+      case 'help-management':
+        return helpTickets.filter(item => item.status === 'open').length;
+      default:
+        return 0;
+    }
+  };
+
+  const getPendingItemsCount = () => {
+    switch (activeSection) {
+      case 'lost-found-management':
+        return lostFoundItems.filter(item => item.status === 'claimed').length;
+      case 'marketplace-management':
+        return marketplaceItems.filter(item => item.status === 'sold').length;
+      case 'services-management':
+        return serviceRequests.filter(item => item.status === 'in-progress').length;
+      case 'forum-management':
+        return forumPosts.filter(item => item.status === 'closed').length;
+      case 'cafeteria-management':
+        return cafeteriaOrders.filter(item => item.status === 'preparing').length;
+      case 'community-management':
+        return communityEvents.filter(item => item.status === 'ongoing').length;
+      case 'help-management':
+        return helpTickets.filter(item => item.status === 'in-progress').length;
+      default:
+        return 0;
+    }
+  };
+
+  const getCompletedItemsCount = () => {
+    switch (activeSection) {
+      case 'lost-found-management':
+        return lostFoundItems.filter(item => item.status === 'closed').length;
+      case 'marketplace-management':
+        return marketplaceItems.filter(item => item.status === 'sold').length;
+      case 'services-management':
+        return serviceRequests.filter(item => item.status === 'completed').length;
+      case 'forum-management':
+        return forumPosts.filter(item => item.status === 'closed').length;
+      case 'cafeteria-management':
+        return cafeteriaOrders.filter(item => item.status === 'ready').length;
+      case 'community-management':
+        return communityEvents.filter(item => item.status === 'completed').length;
+      case 'help-management':
+        return helpTickets.filter(item => item.status === 'resolved').length;
+      default:
+        return 0;
     }
   };
 
@@ -838,6 +1124,10 @@ function App() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
       {/* App Bar */}
       <AppBar position="static" sx={{ backgroundColor: '#2e7d32', boxShadow: 3 }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -1527,6 +1817,19 @@ function App() {
           </Box>
         </Box>
       </Drawer>
+<<<<<<< HEAD
+=======
+=======
+      {/* Header Component */}
+      <Header
+        currentUser={currentUser}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+        onNavigate={setActiveSection}
+        currentSection={activeSection}
+      />
+>>>>>>> roycopy
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
 
       {/* Main Content */}
       <Container maxWidth="xl" sx={{ flexGrow: 1, py: 3 }}>
@@ -2026,6 +2329,10 @@ function App() {
           </Box>
         )}
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
         {/* Profile Section */}
         {activeSection === 'profile' && (
           <Box>
@@ -2116,6 +2423,7 @@ function App() {
               )}
             </Paper>
           </Box>
+<<<<<<< HEAD
         )}
 
         {/* Learning Center Section */}
@@ -3977,6 +4285,2060 @@ function App() {
         {/* Other sections */}
         {!['home', 'profile', 'learning', 'lost-found', 'marketplace', 'services', 'forum', 'cafeteria', 'community', 'help', 'lost-found-management', 'marketplace-management', 'services-management', 'forum-management', 'cafeteria-management', 'community-management', 'help-management'].includes(activeSection) && (
           <Paper sx={{ p: 3, textAlign: 'center' }}>
+=======
+        )}
+
+        {/* Learning Center Section */}
+        {activeSection === 'learning' && (
+          <Box>
+            {/* Task Board Section */}
+            <Paper sx={{ p: 3, mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                <DeleteIcon sx={{ mr: 1, color: '#2e7d32' }} />
+                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                  לוח מטלות
+                </Typography>
+              </Box>
+              
+              {/* Task Filters */}
+              <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
+                <Button variant="contained" size="small" sx={{ backgroundColor: '#2e7d32' }}>
+                  הכל
+                </Button>
+                <Button variant="outlined" size="small">
+                  הושלם
+                </Button>
+                <Button variant="outlined" size="small">
+                  דחוי
+                </Button>
+                <Button variant="outlined" size="small">
+                  ממתין
+                </Button>
+              </Box>
+              
+              {/* Task Summary Cards */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(3, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2, mb: 3 }}>
+                <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                  <Typography variant="h4" color="primary">
+                    6
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    סה"כ מטלות
+                  </Typography>
+                </Paper>
+                <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#fff3e0' }}>
+                  <Typography variant="h4" color="warning.main">
+                    2
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    דחויות
+                  </Typography>
+                </Paper>
+                <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                  <Typography variant="h4" color="success.main">
+                    1
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    הושלמו
+                  </Typography>
+                </Paper>
+              </Box>
+              
+              {/* Tasks Table */}
+              <TableContainer component={Paper} sx={{ backgroundColor: 'white' }}>
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                      <TableCell sx={{ fontWeight: 'bold' }}>סוג מטלה</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>קורס</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>כותרת</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>תאריך יעד</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>דחיפות</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>סטטוס</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>מבחן</TableCell>
+                      <TableCell>מתמטיקה 1</TableCell>
+                      <TableCell>מבחן אמצע</TableCell>
+                      <TableCell>15/12/2024</TableCell>
+                      <TableCell>
+                        <Chip label="גבוה" color="error" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label="בביצוע" color="info" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            ערוך
+                          </Button>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            מחק
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell></TableCell>
+                      <TableCell>פרויקט סופי</TableCell>
+                      <TableCell></TableCell>
+                      <TableCell>18/12/2024</TableCell>
+                      <TableCell>
+                        <Chip label="בינוני" color="warning" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label="ממתין" color="default" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            ערוך
+                          </Button>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            מחק
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>שיעורי בית</TableCell>
+                      <TableCell>פיזיקה 1</TableCell>
+                      <TableCell>תרגילי כוחות</TableCell>
+                      <TableCell>20/12/2024</TableCell>
+                      <TableCell>
+                        <Chip label="בינוני" color="warning" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label="ממתין" color="default" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            ערוך
+                          </Button>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            מחק
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>בוחן</TableCell>
+                      <TableCell>מתמטיקה 1</TableCell>
+                      <TableCell>בוחן קצר - נגזרות</TableCell>
+                      <TableCell>22/12/2024</TableCell>
+                      <TableCell>
+                        <Chip label="נמוך" color="success" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label="הושלם" color="success" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            ערוך
+                          </Button>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            מחק
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>מטלה</TableCell>
+                      <TableCell>תכנות</TableCell>
+                      <TableCell>קריאת מאמר</TableCell>
+                      <TableCell>25/12/2024</TableCell>
+                      <TableCell>
+                        <Chip label="בינוני" color="warning" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label="ממתין" color="default" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            ערוך
+                          </Button>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            מחק
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>ניסוי</TableCell>
+                      <TableCell>פיזיקה 1</TableCell>
+                      <TableCell>הצגת ניסוי</TableCell>
+                      <TableCell>28/12/2024</TableCell>
+                      <TableCell>
+                        <Chip label="גבוה" color="error" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label="ממתין" color="default" size="small" />
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            ערוך
+                          </Button>
+                          <Button size="small" variant="contained" sx={{ backgroundColor: '#2e7d32', minWidth: 'auto' }}>
+                            מחק
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+
+            {/* Task Management Section */}
+            <Paper sx={{ p: 3, mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                <EditIcon sx={{ mr: 1, color: '#2e7d32' }} />
+                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                  ניהול מטלות
+                </Typography>
+              </Box>
+              
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
+                <FormControl fullWidth>
+                  <InputLabel>סוג מטלה</InputLabel>
+                  <Select label="סוג מטלה">
+                    <MenuItem value="exam">מבחן</MenuItem>
+                    <MenuItem value="assignment">מטלה</MenuItem>
+                    <MenuItem value="homework">שיעורי בית</MenuItem>
+                    <MenuItem value="quiz">בוחן</MenuItem>
+                    <MenuItem value="project">פרויקט</MenuItem>
+                    <MenuItem value="experiment">ניסוי</MenuItem>
+                  </Select>
+                </FormControl>
+                
+                <FormControl fullWidth>
+                  <InputLabel>קורס</InputLabel>
+                  <Select label="קורס">
+                    <MenuItem value="math1">מתמטיקה 1</MenuItem>
+                    <MenuItem value="physics1">פיזיקה 1</MenuItem>
+                    <MenuItem value="programming">תכנות</MenuItem>
+                    <MenuItem value="final-project">פרויקט סופי</MenuItem>
+                  </Select>
+                </FormControl>
+                
+                <TextField
+                  fullWidth
+                  label="כותרת המטלה"
+                  placeholder="הכנס כותרת מטלה"
+                />
+                
+                <TextField
+                  fullWidth
+                  label="תאריך יעד"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                />
+                
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  label="תיאור"
+                  placeholder="תיאור המטלה"
+                  sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}
+                />
+                
+                <Button
+                  variant="contained"
+                  sx={{ 
+                    backgroundColor: '#2e7d32',
+                    gridColumn: { xs: '1', md: '1 / -1' }
+                  }}
+                >
+                  הוסף מטלה
+                </Button>
+              </Box>
+            </Paper>
+
+            {/* Academic Progress Section */}
+            <Paper sx={{ p: 3, mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                <BookIcon sx={{ mr: 1, color: '#2e7d32' }} />
+                <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                  התקדמות אקדמית
+                </Typography>
+              </Box>
+              
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(3, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2, mb: 3 }}>
+                <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                  <Typography variant="h4" color="primary">
+                    3
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    קורסים פעילים
+                  </Typography>
+                </Paper>
+                <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                  <Typography variant="h4" color="primary">
+                    88.3
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    ממוצע ציונים
+                  </Typography>
+                </Paper>
+                <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                  <Typography variant="h4" color="primary">
+                    16
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    סה"כ נקודות זכות
+                  </Typography>
+                </Paper>
+              </Box>
+              
+              {/* Course Details Table */}
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <AssignmentIcon sx={{ mr: 1, color: '#2e7d32' }} />
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                  פירוט קורסים וציונים
+                </Typography>
+              </Box>
+              
+              <TableContainer component={Paper} sx={{ backgroundColor: 'white' }}>
+                <Table>
+                  <TableHead>
+                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                      <TableCell sx={{ fontWeight: 'bold' }}>קורס</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>נקודות זכות</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>ציון</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>סטטוס</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>מתמטיקה 1</TableCell>
+                      <TableCell>6</TableCell>
+                      <TableCell>85</TableCell>
+                      <TableCell>
+                        <Chip label="הושלם" color="success" size="small" />
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>פיזיקה 1</TableCell>
+                      <TableCell>6</TableCell>
+                      <TableCell>92</TableCell>
+                      <TableCell>
+                        <Chip label="הושלם" color="success" size="small" />
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>תכנות</TableCell>
+                      <TableCell>4</TableCell>
+                      <TableCell>88</TableCell>
+                      <TableCell>
+                        <Chip label="הושלם" color="success" size="small" />
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+
+            {/* My Courses Section */}
+            <Paper sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <SchoolIcon sx={{ mr: 1, color: '#2e7d32' }} />
+                  <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                    הקורסים שלי
+                  </Typography>
+                </Box>
+                <IconButton>
+                  <ExpandMoreIcon />
+                </IconButton>
+              </Box>
+              
+              {/* Course List */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Paper 
+                  sx={{ 
+                    p: 2, 
+                    cursor: 'pointer', 
+                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    borderLeft: '4px solid #2e7d32'
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                    מתמטיקה 1
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    מרצה: ד"ר יוסי כהן | נקודות זכות: 6 | מערכת: א' 10:00-12:00, ג' 14:00-16:00
+                  </Typography>
+                </Paper>
+                
+                <Paper 
+                  sx={{ 
+                    p: 2, 
+                    cursor: 'pointer', 
+                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    borderLeft: '4px solid #1976d2'
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+                    פיזיקה 1
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    מרצה: פרופ' שרה לוי | נקודות זכות: 5 | מערכת: ב' 09:00-11:00, ד' 13:00-15:00
+                  </Typography>
+                </Paper>
+                
+                <Paper 
+                  sx={{ 
+                    p: 2, 
+                    cursor: 'pointer', 
+                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    borderLeft: '4px solid #ed6c02'
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#ed6c02' }}>
+                    תכנות מתקדם
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    מרצה: ד"ר דוד ישראלי | נקודות זכות: 4 | מערכת: א' 14:00-16:00, ה' 10:00-12:00
+                  </Typography>
+                </Paper>
+                
+                <Paper 
+                  sx={{ 
+                    p: 2, 
+                    cursor: 'pointer', 
+                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    borderLeft: '4px solid #9c27b0'
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#9c27b0' }}>
+                    כימיה כללית
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    מרצה: ד"ר רות כהן | נקודות זכות: 5 | מערכת: ב' 12:00-14:00, ד' 09:00-11:00
+                  </Typography>
+                </Paper>
+                
+                <Paper 
+                  sx={{ 
+                    p: 2, 
+                    cursor: 'pointer', 
+                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    borderLeft: '4px solid #2e7d32'
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                    ביולוגיה תאית
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    מרצה: פרופ' משה גולדברג | נקודות זכות: 4 | מערכת: ג' 10:00-12:00, ו' 09:00-11:00
+                  </Typography>
+                </Paper>
+                
+                <Paper 
+                  sx={{ 
+                    p: 2, 
+                    cursor: 'pointer', 
+                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    borderLeft: '4px solid #d32f2f'
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d32f2f' }}>
+                    סטטיסטיקה והסתברות
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    מרצה: ד"ר אנה פטרוב | נקודות זכות: 3 | מערכת: א' 16:00-18:00, ד' 16:00-18:00
+                  </Typography>
+                </Paper>
+                
+                <Paper 
+                  sx={{ 
+                    p: 2, 
+                    cursor: 'pointer', 
+                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    borderLeft: '4px solid #1976d2'
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+                    אנגלית אקדמית
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    מרצה: גב' לינדה סמית | נקודות זכות: 2 | מערכת: ב' 16:00-18:00, ה' 14:00-16:00
+                  </Typography>
+                </Paper>
+                
+                <Paper 
+                  sx={{ 
+                    p: 2, 
+                    cursor: 'pointer', 
+                    '&:hover': { backgroundColor: '#f5f5f5' },
+                    borderLeft: '4px solid #ed6c02'
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#ed6c02' }}>
+                    היסטוריה של המדע
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    מרצה: ד"ר יעל ברק | נקודות זכות: 3 | מערכת: ג' 14:00-16:00, ו' 12:00-14:00
+                  </Typography>
+                </Paper>
+              </Box>
+            </Paper>
+          </Box>
+        )}
+
+        {/* Lost & Found Section */}
+        {activeSection === 'lost-found' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">מציאות ואבדות</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setLostFoundDialogOpen(true)}
+              >
+                הוסף פריט חדש
+              </Button>
+            </Box>
+            
+            {/* Search and Filter */}
+            <Paper sx={{ p: 2, mb: 2 }}>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <TextField
+                  placeholder="חיפוש לפי כותרת או מיקום..."
+                  size="small"
+                  sx={{ minWidth: 300 }}
+                />
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>סוג</InputLabel>
+                  <Select label="סוג">
+                    <MenuItem value="all">הכל</MenuItem>
+                    <MenuItem value="lost">אבד</MenuItem>
+                    <MenuItem value="found">נמצא</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>סטטוס</InputLabel>
+                  <Select label="סטטוס">
+                    <MenuItem value="all">הכל</MenuItem>
+                    <MenuItem value="open">פתוח</MenuItem>
+                    <MenuItem value="claimed">נטען</MenuItem>
+                    <MenuItem value="closed">סגור</MenuItem>
+                  </Select>
+                </FormControl>
+                <Button variant="outlined" size="small">נקה סינון</Button>
+              </Box>
+            </Paper>
+            
+            {/* Statistics */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 3 }}>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="primary">
+                  {lostFoundItems.length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  סה"כ פריטים
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="error">
+                  {lostFoundItems.filter(item => item.type === 'lost').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פריטים אבודים
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="success.main">
+                  {lostFoundItems.filter(item => item.type === 'found').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פריטים שנמצאו
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="warning.main">
+                  {lostFoundItems.filter(item => item.status === 'open').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פריטים פתוחים
+                </Typography>
+              </Paper>
+            </Box>
+            
+            <Box sx={{ 
+              display: 'grid', 
+              gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+              gap: 3 
+            }}>
+              {lostFoundItems.map((item) => (
+                <Card key={item.id}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Chip 
+                        label={item.type === 'lost' ? 'אבד' : 'נמצא'} 
+                        color={item.type === 'lost' ? 'error' : 'success'}
+                      />
+                      <Chip 
+                        label={item.status === 'open' ? 'פתוח' : item.status === 'claimed' ? 'נטען' : 'סגור'} 
+                        color={item.status === 'open' ? 'primary' : item.status === 'claimed' ? 'warning' : 'default'}
+                      />
+                    </Box>
+                    <Typography variant="h6" gutterBottom>{item.title}</Typography>
+                    <Typography variant="body2" color="text.secondary" paragraph>{item.description}</Typography>
+                    <Typography variant="body2"><strong>מיקום:</strong> {item.location}</Typography>
+                    <Typography variant="body2"><strong>תאריך:</strong> {item.date}</Typography>
+                    <Typography variant="body2"><strong>איש קשר:</strong> {item.contactName}</Typography>
+                    <Typography variant="body2"><strong>טלפון:</strong> {item.contactPhone}</Typography>
+                    <Typography variant="body2"><strong>אימייל:</strong> {item.contactEmail}</Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
+            
+            {lostFoundItems.length === 0 && (
+              <Paper sx={{ p: 4, textAlign: 'center' }}>
+                <Typography variant="h6" color="text.secondary">
+                  אין פריטים להצגה
+                </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setLostFoundDialogOpen(true)}
+                  sx={{ mt: 2 }}
+                >
+                  הוסף פריט ראשון
+                </Button>
+              </Paper>
+            )}
+          </Box>
+        )}
+
+        {/* Marketplace Section */}
+        {activeSection === 'marketplace' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">שוק יד שנייה</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setMarketplaceDialogOpen(true)}
+              >
+                הוסף פריט למכירה
+              </Button>
+            </Box>
+            
+            <Box sx={{ 
+              display: 'grid', 
+              gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+              gap: 3 
+            }}>
+              {marketplaceItems.map((item) => (
+                <Card key={item.id}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Chip 
+                        label={item.status === 'available' ? 'זמין' : item.status === 'sold' ? 'נמכר' : 'שמור'} 
+                        color={item.status === 'available' ? 'success' : item.status === 'sold' ? 'error' : 'warning'}
+                      />
+                      <Typography variant="h6" color="primary">₪{item.price}</Typography>
+                    </Box>
+                    <Typography variant="h6" gutterBottom>{item.title}</Typography>
+                    <Typography variant="body2" color="text.secondary" paragraph>{item.description}</Typography>
+                    <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                      <Chip label={item.category} size="small" />
+                      <Chip label={item.condition} size="small" />
+                    </Box>
+                    <Typography variant="body2"><strong>מוכר:</strong> {item.sellerName}</Typography>
+                    <Typography variant="body2"><strong>טלפון:</strong> {item.sellerPhone}</Typography>
+                    <Typography variant="body2"><strong>אימייל:</strong> {item.sellerEmail}</Typography>
+                    <Typography variant="body2"><strong>תאריך פרסום:</strong> {item.datePosted}</Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
+            
+            {marketplaceItems.length === 0 && (
+              <Paper sx={{ p: 4, textAlign: 'center' }}>
+                <Typography variant="h6" color="text.secondary">
+                  אין פריטים למכירה
+                </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setMarketplaceDialogOpen(true)}
+                  sx={{ mt: 2 }}
+                >
+                  הוסף פריט ראשון
+                </Button>
+              </Paper>
+            )}
+          </Box>
+        )}
+
+        {/* Services Section */}
+        {activeSection === 'services' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">שירותים בקמפוס</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setServiceRequestDialogOpen(true)}
+              >
+                בקש שירות
+              </Button>
+            </Box>
+            
+            <Box sx={{ 
+              display: 'grid', 
+              gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+              gap: 3 
+            }}>
+              {serviceRequests.map((request) => (
+                <Card key={request.id}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Chip 
+                        label={request.type} 
+                        color="primary"
+                      />
+                      <Chip 
+                        label={request.priority} 
+                        color={request.priority === 'urgent' ? 'error' : request.priority === 'high' ? 'warning' : 'success'}
+                      />
+                    </Box>
+                    <Typography variant="h6" gutterBottom>{request.title}</Typography>
+                    <Typography variant="body2" color="text.secondary" paragraph>{request.description}</Typography>
+                    <Typography variant="body2"><strong>מיקום:</strong> {request.location}</Typography>
+                    <Typography variant="body2"><strong>מבקש:</strong> {request.requesterName}</Typography>
+                    <Typography variant="body2"><strong>טלפון:</strong> {request.requesterPhone}</Typography>
+                    <Typography variant="body2"><strong>אימייל:</strong> {request.requesterEmail}</Typography>
+                    <Typography variant="body2"><strong>תאריך בקשה:</strong> {request.dateRequested}</Typography>
+                    <Chip 
+                      label={request.status === 'pending' ? 'ממתין' : request.status === 'in-progress' ? 'בטיפול' : request.status === 'completed' ? 'הושלם' : 'בוטל'} 
+                      color={request.status === 'pending' ? 'warning' : request.status === 'in-progress' ? 'info' : request.status === 'completed' ? 'success' : 'default'}
+                      sx={{ mt: 1 }}
+                    />
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
+            
+            {serviceRequests.length === 0 && (
+              <Paper sx={{ p: 4, textAlign: 'center' }}>
+                <Typography variant="h6" color="text.secondary">
+                  אין בקשות שירות
+                </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setServiceRequestDialogOpen(true)}
+                  sx={{ mt: 2 }}
+                >
+                  בקש שירות ראשון
+                </Button>
+              </Paper>
+            )}
+          </Box>
+        )}
+
+        {/* Forum Section */}
+        {activeSection === 'forum' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">פורום קורס</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setForumPostDialogOpen(true)}
+              >
+                צור פוסט חדש
+              </Button>
+            </Box>
+            
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {forumPosts.map((post) => (
+                <Card key={post.id}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6">{post.title}</Typography>
+                      <Chip 
+                        label={post.status === 'active' ? 'פעיל' : post.status === 'closed' ? 'סגור' : 'נמחק'} 
+                        color={post.status === 'active' ? 'success' : post.status === 'closed' ? 'warning' : 'default'}
+                      />
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" paragraph>{post.content}</Typography>
+                    <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                      {post.tags.map((tag, index) => (
+                        <Chip key={index} label={tag} size="small" />
+                      ))}
+                    </Box>
+                    <Typography variant="body2"><strong>מחבר:</strong> {post.authorName}</Typography>
+                    <Typography variant="body2"><strong>תאריך:</strong> {post.datePosted}</Typography>
+                    <Typography variant="body2"><strong>תגובות:</strong> {post.replies.length}</Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
+            
+            {forumPosts.length === 0 && (
+              <Paper sx={{ p: 4, textAlign: 'center' }}>
+                <Typography variant="h6" color="text.secondary">
+                  אין פוסטים בפורום
+                </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setForumPostDialogOpen(true)}
+                  sx={{ mt: 2 }}
+                >
+                  צור פוסט ראשון
+                </Button>
+              </Paper>
+            )}
+          </Box>
+        )}
+
+        {/* Cafeteria Section */}
+        {activeSection === 'cafeteria' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">קפיטריה</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setCafeteriaOrderDialogOpen(true)}
+              >
+                הזמן אוכל
+              </Button>
+            </Box>
+            
+            <Box sx={{ 
+              display: 'grid', 
+              gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+              gap: 3 
+            }}>
+              {cafeteriaOrders.map((order) => (
+                <Card key={order.id}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Typography variant="h6">הזמנה #{order.id.slice(-6)}</Typography>
+                      <Chip 
+                        label={order.status === 'pending' ? 'ממתין' : order.status === 'preparing' ? 'בהכנה' : order.status === 'ready' ? 'מוכן' : order.status === 'completed' ? 'הושלם' : 'בוטל'} 
+                        color={order.status === 'pending' ? 'warning' : order.status === 'preparing' ? 'info' : order.status === 'ready' ? 'success' : order.status === 'completed' ? 'default' : 'error'}
+                      />
+                    </Box>
+                    <Typography variant="body2"><strong>לקוח:</strong> {order.customerName}</Typography>
+                    <Typography variant="body2"><strong>טלפון:</strong> {order.customerPhone}</Typography>
+                    <Typography variant="body2"><strong>אימייל:</strong> {order.customerEmail}</Typography>
+                    <Typography variant="body2"><strong>פריטים:</strong> {order.items.length}</Typography>
+                    <Typography variant="body2"><strong>סה"כ:</strong> ₪{order.totalPrice}</Typography>
+                    <Typography variant="body2"><strong>זמן איסוף:</strong> {order.pickupTime}</Typography>
+                    <Typography variant="body2"><strong>תאריך הזמנה:</strong> {order.orderDate}</Typography>
+                    {order.specialInstructions && (
+                      <Typography variant="body2"><strong>הערות:</strong> {order.specialInstructions}</Typography>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
+            
+            {cafeteriaOrders.length === 0 && (
+              <Paper sx={{ p: 4, textAlign: 'center' }}>
+                <Typography variant="h6" color="text.secondary">
+                  אין הזמנות
+                </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setCafeteriaOrderDialogOpen(true)}
+                  sx={{ mt: 2 }}
+                >
+                  הזמן אוכל ראשון
+                </Button>
+              </Paper>
+            )}
+            
+            {/* Cafeteria Images Gallery */}
+            <Paper sx={{ p: 3, mb: 4 }}>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold', color: '#2e7d32', textAlign: 'center' }}>
+                📸 גלריית תמונות קפיטריה
+              </Typography>
+              
+              <Box sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(4, 1fr)', lg: 'repeat(6, 1fr)' },
+                gap: 2 
+              }}>
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a1.png"
+                    alt="תמונה 1"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a2.png"
+                    alt="תמונה 2"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a3.png"
+                    alt="תמונה 3"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a4.png"
+                    alt="תמונה 4"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a5.png"
+                    alt="תמונה 5"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a6.png"
+                    alt="תמונה 6"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a7.png"
+                    alt="תמונה 7"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a8.png"
+                    alt="תמונה 8"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a9.png"
+                    alt="תמונה 9"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a10.png"
+                    alt="תמונה 10"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a11.png"
+                    alt="תמונה 11"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a12.png"
+                    alt="תמונה 12"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a17.png"
+                    alt="תמונה 17"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a18.png"
+                    alt="תמונה 18"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a19.png"
+                    alt="תמונה 19"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a20.png"
+                    alt="תמונה 20"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a21.png"
+                    alt="תמונה 21"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a22.png"
+                    alt="תמונה 22"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a23.png"
+                    alt="תמונה 23"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a24.png"
+                    alt="תמונה 24"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a13.png"
+                    alt="תמונה 13"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a14.png"
+                    alt="תמונה 14"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a15.png"
+                    alt="תמונה 15"
+                  />
+                </Card>
+                
+                <Card sx={{ cursor: 'pointer', '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s' } }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image="/a16.png"
+                    alt="תמונה 16"
+                  />
+                </Card>
+              </Box>
+            </Paper>
+          </Box>
+        )}
+
+        {/* Community Section */}
+        {activeSection === 'community' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">קהילה</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setCommunityEventDialogOpen(true)}
+              >
+                צור אירוע חדש
+              </Button>
+            </Box>
+            
+            <Box sx={{ 
+              display: 'grid', 
+              gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+              gap: 3 
+            }}>
+              {communityEvents.map((event) => (
+                <Card key={event.id}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Chip 
+                        label={event.category} 
+                        color="primary"
+                      />
+                      <Chip 
+                        label={event.status === 'upcoming' ? 'קרוב' : event.status === 'ongoing' ? 'מתקיים' : event.status === 'completed' ? 'הושלם' : 'בוטל'} 
+                        color={event.status === 'upcoming' ? 'success' : event.status === 'ongoing' ? 'info' : event.status === 'completed' ? 'default' : 'error'}
+                      />
+                    </Box>
+                    <Typography variant="h6" gutterBottom>{event.title}</Typography>
+                    <Typography variant="body2" color="text.secondary" paragraph>{event.description}</Typography>
+                    <Typography variant="body2"><strong>תאריך:</strong> {event.date}</Typography>
+                    <Typography variant="body2"><strong>שעה:</strong> {event.time}</Typography>
+                    <Typography variant="body2"><strong>מיקום:</strong> {event.location}</Typography>
+                    <Typography variant="body2"><strong>מארגן:</strong> {event.organizerName}</Typography>
+                    <Typography variant="body2"><strong>משתתפים:</strong> {event.currentParticipants}/{event.maxParticipants}</Typography>
+                    <Typography variant="body2"><strong>טלפון:</strong> {event.organizerPhone}</Typography>
+                    <Typography variant="body2"><strong>אימייל:</strong> {event.organizerEmail}</Typography>
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
+            
+            {communityEvents.length === 0 && (
+              <Paper sx={{ p: 4, textAlign: 'center' }}>
+                <Typography variant="h6" color="text.secondary">
+                  אין אירועים קהילתיים
+                </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setCommunityEventDialogOpen(true)}
+                  sx={{ mt: 2 }}
+                >
+                  צור אירוע ראשון
+                </Button>
+              </Paper>
+            )}
+          </Box>
+        )}
+
+        {/* Help Section */}
+        {activeSection === 'help' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">עזרה ותמיכה</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setHelpTicketDialogOpen(true)}
+              >
+                פתח כרטיס עזרה
+              </Button>
+            </Box>
+            
+            {/* FAQ Section */}
+            <Paper sx={{ p: 4, mb: 3 }}>
+              <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#2e7d32', textAlign: 'center' }}>
+                שאלות נפוצות (FAQ)
+              </Typography>
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {/* מה זה קמפוס */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #2e7d32' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32', mb: 2 }}>
+                    מה זה קמפוס?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    קמפוס היא מערכת ניהול מקיפה שמאפשרת לסטודנטים ומרצים להיכנס ולנהל את חיי הסטודנטים במכללה. מערכת זו מכילה כלים לניהול מטלות, ציונים, תפריט קפיטריה, מציאות ואבדות, שוק יד שנייה ועוד.
+                  </Typography>
+                </Paper>
+
+                {/* כיצד להתחבר */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #1976d2' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+                    כיצד להתחבר?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    כדי להתחבר למערכת, יש לספק את פרטי ההתחברות שלך. אם אתה סטודנט, יש להזין אימייל וסיסמה שקיבלת מהמערכת. אם אתה מרצה, יש להזין את פרטי ההתחברות שלך שהוגדרו על ידי המנהל.
+                  </Typography>
+                </Paper>
+
+                {/* ניהול מטלות */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #ed6c02' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#ed6c02', mb: 2 }}>
+                    איך אני יכול לנהל מטלות?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הלימודים, תוכל לצפות במטלות שלך, להוסיף מטלות חדשות, לערוך ולמחוק מטלות קיימות. כל מטלה מכילה סוג, קורס, כותרת, תיאור, תאריך יעד ודחיפות. תוכל לסמן מטלות כהושלמות כשהגעת לתוצאה.
+                  </Typography>
+                </Paper>
+
+                {/* הגשת מטלה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #9c27b0' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#9c27b0', mb: 2 }}>
+                    איך אני יכול להגיש מטלה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    לפני תאריך הגשה של מטלה, יש לך זמן מספיק. במרכז הלימודים, תוכל לגשת למטלה ולהוסיף קובץ או תיאור של הפתרון. בתאריך הגשה, תוכל להגיש את המטלה ולצפות בסטטוס שלה.
+                  </Typography>
+                </Paper>
+
+                {/* ציונים */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #d32f2f' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d32f2f', mb: 2 }}>
+                    איך אני יכול לראות את הציונים שלי?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הלימודים, תוכל לראות את כל הציונים שלך בטבלה. כל ציון מכיל קורס, נקודות זכות, ציון וסטטוס. תוכל לצפות בציונים הנוכחיים והיסטוריים.
+                  </Typography>
+                </Paper>
+
+                {/* הזמנת חדר */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #2e7d32' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32', mb: 2 }}>
+                    איך אני יכול להזמין חדר למידה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז השירותים, תוכל להזמין חדר למידה בהתאם לצרכים שלך. בחר סוג חדר, תאריך ושעה. תוכל לבחור משך זמן שונה בהתאם לצרכים שלך.
+                  </Typography>
+                </Paper>
+
+                {/* הזמנת הסעה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #1976d2' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+                    איך אני יכול להזמין הסעה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז השירותים, תוכל להזמין הסעה ליעד שונה. בחר יעד, תאריך ושעה. תוכל לבחור משך זמן שונה בהתאם לצרכים שלך.
+                  </Typography>
+                </Paper>
+
+                {/* קפיטריה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #ed6c02' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#ed6c02', mb: 2 }}>
+                    איך אני יכול להזמין קפה או סלט בקפיטריה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    בקפיטריה, תוכל להזמין תפריט יומי ולבחור מנה. בחר מנה שונה מתוך התפריט המפורט והוסף הערות מיוחדות אם צריך. תוכל לבחור מועד שונה להזמנה.
+                  </Typography>
+                </Paper>
+
+                {/* דיווח תקלה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #9c27b0' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#9c27b0', mb: 2 }}>
+                    איך אני יכול לדווח על תקלה או הצעה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הקהילה, תוכל לדווח על תקלות ולהציע שיפורים. בחר סוג תקלה או הצעה, והוסף מיקום ותיאור שלך. תוכל לשלוח את הדיווח או ההצעה ולצפות בתשובה מהמנהל.
+                  </Typography>
+                </Paper>
+
+                {/* שוק יד שנייה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #d32f2f' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d32f2f', mb: 2 }}>
+                    איך אני יכול להציע פריט למכירה או למצוא פריט שאבדתי?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    בשוק היד שנייה, תוכל להוסיף פריט למכירה או לחפש פריטים שאבדת. בחר סוג דיווח (אבדתי או מצאתי), קטגוריה ומיקום. הוסף תיאור ותאריך ושלח דיווח. תוכל לצפות בפריטים האחרונים שהודעו ולצור קשר עם המוכרים.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות ומודעות */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #2e7d32' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32', mb: 2 }}>
+                    איך אני יכול לקבל מודעות או הודעות?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הקהילה, תוכל לצפות בהודעות ומודעות שנשלחו אליך. תוכל להגיב על הודעות או להסיר אותן אם זה נדרש.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות ממערכת */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #1976d2' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+                    איך אני יכול לקבל מודעות ממערכת של מטלות או ציונים?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הלימודים, תוכל לקבל הודעות ממערכת בגירסה של דואר אלקטרוני או במערכת הפעולה. תוכל לצפות בסטטוס של מטלות וציונים ולהגיב על הודעות ממערכת.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות משוק יד שנייה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #ed6c02' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#ed6c02', mb: 2 }}>
+                    איך אני יכול לקבל מודעות משוק היד שנייה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    בשוק היד שנייה, תוכל לקבל הודעות ממוכרים שמציעים פריטים למכירה או שמבקשים ממך משהו. תוכל לצור קשר עם המוכרים ולהגיב על הודעות.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות ממרכז השירותים */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #9c27b0' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#9c27b0', mb: 2 }}>
+                    איך אני יכול לקבל מודעות ממרכז השירותים?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז השירותים, תוכל לקבל הודעות ממערכת בגירסה של דואר אלקטרוני או במערכת הפעולה. תוכל לצפות בסטטוס של הזמנות חדרים והסעות ולהגיב על הודעות ממערכת.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות ממרכז הקהילה */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #d32f2f' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d32f2f', mb: 2 }}>
+                    איך אני יכול לקבל מודעות ממרכז הקהילה?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הקהילה, תוכל לקבל הודעות ממשתמשים אחרים במערכת או ממנהלים. תוכל לצפות בדיווחי תקלות והצעות שונות ולהגיב על הודעות.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות ממרכז הפרופיל */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #2e7d32' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2e7d32', mb: 2 }}>
+                    איך אני יכול לקבל מודעות ממרכז הפרופיל?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    במרכז הפרופיל, תוכל לקבל הודעות ממערכת בגירסה של דואר אלקטרוני או במערכת הפעולה. תוכל לצפות בפרטים שלך ולעדכן אותם בפעולות שונות.
+                  </Typography>
+                </Paper>
+
+                {/* הודעות ממערכת כללית */}
+                <Paper sx={{ p: 3, backgroundColor: '#f8f9fa', borderLeft: '4px solid #1976d2' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+                    איך אני יכול לקבל מודעות ממערכת כללית?
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                    תוכל לקבל הודעות ממערכת כללית שנשלחו לכל המשתמשים במערכת. תוכל לצפות בהודעות אלה ולהגיב עליהן אם זה נדרש.
+                  </Typography>
+                </Paper>
+              </Box>
+            </Paper>
+
+            {/* Help Tickets Section */}
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#2e7d32' }}>
+                כרטיסי עזרה
+              </Typography>
+              
+              <Box sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+                gap: 3 
+              }}>
+                {helpTickets.map((ticket) => (
+                  <Card key={ticket.id}>
+                    <CardContent>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                        <Chip 
+                          label={ticket.category} 
+                          color="primary"
+                        />
+                        <Chip 
+                          label={ticket.priority} 
+                          color={ticket.priority === 'urgent' ? 'error' : ticket.priority === 'high' ? 'warning' : ticket.priority === 'medium' ? 'info' : 'success'}
+                        />
+                      </Box>
+                      <Typography variant="h6" gutterBottom>{ticket.title}</Typography>
+                      <Typography variant="body2" color="text.secondary" paragraph>{ticket.description}</Typography>
+                      <Typography variant="body2"><strong>מבקש:</strong> {ticket.requesterName}</Typography>
+                      <Typography variant="body2"><strong>טלפון:</strong> {ticket.requesterPhone}</Typography>
+                      <Typography variant="body2"><strong>אימייל:</strong> {ticket.requesterEmail}</Typography>
+                      <Typography variant="body2"><strong>תאריך יצירה:</strong> {ticket.dateCreated}</Typography>
+                      <Chip 
+                        label={ticket.status === 'open' ? 'פתוח' : ticket.status === 'in-progress' ? 'בטיפול' : ticket.status === 'resolved' ? 'נפתר' : 'סגור'} 
+                        color={ticket.status === 'open' ? 'warning' : ticket.status === 'in-progress' ? 'info' : ticket.status === 'resolved' ? 'success' : 'default'}
+                        sx={{ mt: 1 }}
+                      />
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+              
+              {helpTickets.length === 0 && (
+                <Paper sx={{ p: 4, textAlign: 'center' }}>
+                  <Typography variant="h6" color="text.secondary">
+                    אין כרטיסי עזרה
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => setHelpTicketDialogOpen(true)}
+                    sx={{ mt: 2 }}
+                  >
+                    פתח כרטיס עזרה ראשון
+                  </Button>
+                </Paper>
+              )}
+            </Paper>
+          </Box>
+        )}
+
+        {/* Management Screens */}
+        {activeSection === 'lost-found-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול מציאות ואבדות</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setLostFoundDialogOpen(true)}
+              >
+                הוסף פריט חדש
+              </Button>
+            </Box>
+            
+            {/* Search and Filter */}
+            <Paper sx={{ p: 2, mb: 2 }}>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <TextField
+                  placeholder="חיפוש לפי כותרת או מיקום..."
+                  size="small"
+                  sx={{ minWidth: 300 }}
+                />
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>סוג</InputLabel>
+                  <Select label="סוג">
+                    <MenuItem value="all">הכל</MenuItem>
+                    <MenuItem value="lost">אבד</MenuItem>
+                    <MenuItem value="found">נמצא</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>סטטוס</InputLabel>
+                  <Select label="סטטוס">
+                    <MenuItem value="all">הכל</MenuItem>
+                    <MenuItem value="open">פתוח</MenuItem>
+                    <MenuItem value="claimed">נטען</MenuItem>
+                    <MenuItem value="closed">סגור</MenuItem>
+                  </Select>
+                </FormControl>
+                <Button variant="outlined" size="small">נקה סינון</Button>
+              </Box>
+            </Paper>
+            
+            {/* Statistics */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 3 }}>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="primary">
+                  {lostFoundItems.length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  סה"כ פריטים
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="error">
+                  {lostFoundItems.filter(item => item.type === 'lost').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פריטים אבודים
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="success.main">
+                  {lostFoundItems.filter(item => item.type === 'found').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פריטים שנמצאו
+                </Typography>
+              </Paper>
+              <Paper sx={{ p: 2, textAlign: 'center' }}>
+                <Typography variant="h4" color="warning.main">
+                  {lostFoundItems.filter(item => item.status === 'open').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  פריטים פתוחים
+                </Typography>
+              </Paper>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>סוג</TableCell>
+                      <TableCell>כותרת</TableCell>
+                      <TableCell>מיקום</TableCell>
+                      <TableCell>תאריך</TableCell>
+                      <TableCell>איש קשר</TableCell>
+                      <TableCell>טלפון</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {lostFoundItems.map((item) => (
+                      <TableRow key={item.id} hover>
+                        <TableCell>
+                          <Chip 
+                            label={item.type === 'lost' ? 'אבד' : 'נמצא'} 
+                            color={item.type === 'lost' ? 'error' : 'success'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>{item.title}</TableCell>
+                        <TableCell>{item.location}</TableCell>
+                        <TableCell>{item.date}</TableCell>
+                        <TableCell>{item.contactName}</TableCell>
+                        <TableCell>{item.contactPhone}</TableCell>
+                        <TableCell>{item.contactEmail}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={item.status === 'open' ? 'פתוח' : item.status === 'claimed' ? 'נטען' : 'סגור'} 
+                            color={item.status === 'open' ? 'primary' : item.status === 'claimed' ? 'warning' : 'default'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteLostFound(item.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={lostFoundItems.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {activeSection === 'marketplace-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול שוק יד שנייה</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setMarketplaceDialogOpen(true)}
+              >
+                הוסף פריט חדש
+              </Button>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>כותרת</TableCell>
+                      <TableCell>קטגוריה</TableCell>
+                      <TableCell>מצב</TableCell>
+                      <TableCell>מחיר</TableCell>
+                      <TableCell>מוכר</TableCell>
+                      <TableCell>טלפון</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>תאריך פרסום</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {marketplaceItems.map((item) => (
+                      <TableRow key={item.id} hover>
+                        <TableCell>{item.title}</TableCell>
+                        <TableCell>
+                          <Chip label={item.category} size="small" />
+                        </TableCell>
+                        <TableCell>
+                          <Chip label={item.condition} size="small" />
+                        </TableCell>
+                        <TableCell>₪{item.price}</TableCell>
+                        <TableCell>{item.sellerName}</TableCell>
+                        <TableCell>{item.sellerPhone}</TableCell>
+                        <TableCell>{item.sellerEmail}</TableCell>
+                        <TableCell>{item.datePosted}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={item.status === 'available' ? 'זמין' : item.status === 'sold' ? 'נמכר' : 'שמור'} 
+                            color={item.status === 'available' ? 'success' : item.status === 'sold' ? 'error' : 'warning'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteMarketplace(item.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={marketplaceItems.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {activeSection === 'services-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול שירותים</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setServiceRequestDialogOpen(true)}
+              >
+                הוסף בקשה חדשה
+              </Button>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>סוג שירות</TableCell>
+                      <TableCell>כותרת</TableCell>
+                      <TableCell>מיקום</TableCell>
+                      <TableCell>עדיפות</TableCell>
+                      <TableCell>מבקש</TableCell>
+                      <TableCell>טלפון</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>תאריך בקשה</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {serviceRequests.map((request) => (
+                      <TableRow key={request.id} hover>
+                        <TableCell>
+                          <Chip label={request.type} size="small" />
+                        </TableCell>
+                        <TableCell>{request.title}</TableCell>
+                        <TableCell>{request.location}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={request.priority} 
+                            color={request.priority === 'urgent' ? 'error' : request.priority === 'high' ? 'warning' : 'success'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>{request.requesterName}</TableCell>
+                        <TableCell>{request.requesterPhone}</TableCell>
+                        <TableCell>{request.requesterEmail}</TableCell>
+                        <TableCell>{request.dateRequested}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={request.status === 'pending' ? 'ממתין' : request.status === 'in-progress' ? 'בטיפול' : request.status === 'completed' ? 'הושלם' : 'בוטל'} 
+                            color={request.status === 'pending' ? 'warning' : request.status === 'in-progress' ? 'info' : request.status === 'completed' ? 'success' : 'default'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteServiceRequest(request.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={serviceRequests.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {activeSection === 'forum-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול פורום</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setForumPostDialogOpen(true)}
+              >
+                צור פוסט חדש
+              </Button>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>קורס</TableCell>
+                      <TableCell>כותרת</TableCell>
+                      <TableCell>מחבר</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>תאריך פרסום</TableCell>
+                      <TableCell>תגובות</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {forumPosts.map((post) => (
+                      <TableRow key={post.id} hover>
+                        <TableCell>{post.courseId}</TableCell>
+                        <TableCell>{post.title}</TableCell>
+                        <TableCell>{post.authorName}</TableCell>
+                        <TableCell>{post.authorEmail}</TableCell>
+                        <TableCell>{post.datePosted}</TableCell>
+                        <TableCell>{post.replies.length}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={post.status === 'active' ? 'פעיל' : post.status === 'closed' ? 'סגור' : 'נמחק'} 
+                            color={post.status === 'active' ? 'success' : post.status === 'closed' ? 'warning' : 'default'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteForumPost(post.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={forumPosts.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {activeSection === 'cafeteria-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול קפיטריה</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setCafeteriaOrderDialogOpen(true)}
+              >
+                הוסף הזמנה חדשה
+              </Button>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>מספר הזמנה</TableCell>
+                      <TableCell>לקוח</TableCell>
+                      <TableCell>טלפון</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>פריטים</TableCell>
+                      <TableCell>סה"כ</TableCell>
+                      <TableCell>זמן איסוף</TableCell>
+                      <TableCell>תאריך הזמנה</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {cafeteriaOrders.map((order) => (
+                      <TableRow key={order.id} hover>
+                        <TableCell>#{order.id.slice(-6)}</TableCell>
+                        <TableCell>{order.customerName}</TableCell>
+                        <TableCell>{order.customerPhone}</TableCell>
+                        <TableCell>{order.customerEmail}</TableCell>
+                        <TableCell>{order.items.length}</TableCell>
+                        <TableCell>₪{order.totalPrice}</TableCell>
+                        <TableCell>{order.pickupTime}</TableCell>
+                        <TableCell>{order.orderDate}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={order.status === 'pending' ? 'ממתין' : order.status === 'preparing' ? 'בהכנה' : order.status === 'ready' ? 'מוכן' : order.status === 'completed' ? 'הושלם' : 'בוטל'} 
+                            color={order.status === 'pending' ? 'warning' : order.status === 'preparing' ? 'info' : order.status === 'ready' ? 'success' : order.status === 'completed' ? 'default' : 'error'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteCafeteriaOrder(order.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={cafeteriaOrders.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {activeSection === 'community-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול קהילה</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setCommunityEventDialogOpen(true)}
+              >
+                צור אירוע חדש
+              </Button>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>כותרת</TableCell>
+                      <TableCell>קטגוריה</TableCell>
+                      <TableCell>תאריך</TableCell>
+                      <TableCell>שעה</TableCell>
+                      <TableCell>מיקום</TableCell>
+                      <TableCell>מארגן</TableCell>
+                      <TableCell>טלפון</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>משתתפים</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {communityEvents.map((event) => (
+                      <TableRow key={event.id} hover>
+                        <TableCell>{event.title}</TableCell>
+                        <TableCell>
+                          <Chip label={event.category} size="small" />
+                        </TableCell>
+                        <TableCell>{event.date}</TableCell>
+                        <TableCell>{event.time}</TableCell>
+                        <TableCell>{event.location}</TableCell>
+                        <TableCell>{event.organizerName}</TableCell>
+                        <TableCell>{event.organizerPhone}</TableCell>
+                        <TableCell>{event.organizerEmail}</TableCell>
+                        <TableCell>{event.currentParticipants}/{event.maxParticipants}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={event.status === 'upcoming' ? 'קרוב' : event.status === 'ongoing' ? 'מתקיים' : event.status === 'completed' ? 'הושלם' : 'בוטל'} 
+                            color={event.status === 'upcoming' ? 'success' : event.status === 'ongoing' ? 'info' : event.status === 'completed' ? 'default' : 'error'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteCommunityEvent(event.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={communityEvents.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {activeSection === 'help-management' && (
+          <Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h4">ניהול עזרה</Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setHelpTicketDialogOpen(true)}
+              >
+                פתח כרטיס חדש
+              </Button>
+            </Box>
+            
+            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+              <TableContainer sx={{ maxHeight: 600 }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>קטגוריה</TableCell>
+                      <TableCell>כותרת</TableCell>
+                      <TableCell>עדיפות</TableCell>
+                      <TableCell>מבקש</TableCell>
+                      <TableCell>טלפון</TableCell>
+                      <TableCell>אימייל</TableCell>
+                      <TableCell>תאריך יצירה</TableCell>
+                      <TableCell>סטטוס</TableCell>
+                      <TableCell>פעולות</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {helpTickets.map((ticket) => (
+                      <TableRow key={ticket.id} hover>
+                        <TableCell>
+                          <Chip label={ticket.category} size="small" />
+                        </TableCell>
+                        <TableCell>{ticket.title}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={ticket.priority} 
+                            color={ticket.priority === 'urgent' ? 'error' : ticket.priority === 'high' ? 'warning' : ticket.priority === 'medium' ? 'info' : 'success'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>{ticket.requesterName}</TableCell>
+                        <TableCell>{ticket.requesterPhone}</TableCell>
+                        <TableCell>{ticket.requesterEmail}</TableCell>
+                        <TableCell>{ticket.dateCreated}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={ticket.status === 'open' ? 'פתוח' : ticket.status === 'in-progress' ? 'בטיפול' : ticket.status === 'resolved' ? 'נפתר' : 'סגור'} 
+                            color={ticket.status === 'open' ? 'warning' : ticket.status === 'in-progress' ? 'info' : ticket.status === 'resolved' ? 'success' : 'default'}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button size="small" variant="outlined">ערוך</Button>
+                            <Button size="small" variant="outlined" color="error" onClick={() => handleDeleteHelpTicket(ticket.id)}>מחק</Button>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={helpTickets.length}
+                rowsPerPage={10}
+                page={0}
+                onPageChange={() => {}}
+                onRowsPerPageChange={() => {}}
+                labelRowsPerPage="שורות בעמוד:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} מתוך ${count}`}
+              />
+            </Paper>
+          </Box>
+        )}
+
+        {/* Other sections */}
+        {!['home', 'profile', 'learning', 'lost-found', 'marketplace', 'services', 'forum', 'cafeteria', 'community', 'help', 'lost-found-management', 'marketplace-management', 'services-management', 'forum-management', 'cafeteria-management', 'community-management', 'help-management'].includes(activeSection) && (
+          <Paper sx={{ p: 3, textAlign: 'center' }}>
+=======
+        {/* Students Page */}
+        {activeSection === 'students' && (
+          <StudentsPage />
+        )}
+        
+        {/* Other sections can be added here */}
+        {activeSection !== 'home' && activeSection !== 'students' && (
+          <Paper sx={{ 
+            p: 3, 
+            textAlign: 'center',
+            border: `2px solid ${customColors.primary}`,
+            backgroundColor: customColors.primaryLight + '10'
+          }}>
+>>>>>>> roycopy
+>>>>>>> 3e6f1a88d2f471b450c39f78340ab4a41ca956ce
             <Typography variant="h5">
               {activeSection === 'profile' && 'פרופיל אישי'}
               {activeSection === 'learning' && 'מרכז הלימודים'}
@@ -4878,6 +7240,657 @@ function App() {
               />
             </Grid>
           </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setHelpTicketDialogOpen(false)}>ביטול</Button>
+          <Button variant="contained" onClick={handleHelpTicketSubmit}>שלח כרטיס</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Lost & Found Form Dialog */}
+      <Dialog open={lostFoundDialogOpen} onClose={() => setLostFoundDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>הוסף פריט למציאות ואבדות</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <Box>
+              <FormControl fullWidth>
+                <InputLabel>סוג</InputLabel>
+                <Select
+                  value={lostFoundForm.type}
+                  onChange={(e) => setLostFoundForm({...lostFoundForm, type: e.target.value as 'lost' | 'found'})}
+                >
+                  <MenuItem value="lost">אבד</MenuItem>
+                  <MenuItem value="found">נמצא</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="כותרת"
+                value={lostFoundForm.title}
+                onChange={(e) => setLostFoundForm({...lostFoundForm, title: e.target.value})}
+                error={!!formErrors.title}
+                helperText={formErrors.title}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="תיאור"
+                multiline
+                rows={3}
+                value={lostFoundForm.description}
+                onChange={(e) => setLostFoundForm({...lostFoundForm, description: e.target.value})}
+                error={!!formErrors.description}
+                helperText={formErrors.description}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="מיקום"
+                value={lostFoundForm.location}
+                onChange={(e) => setLostFoundForm({...lostFoundForm, location: e.target.value})}
+                error={!!formErrors.location}
+                helperText={formErrors.location}
+              />
+              <TextField
+                fullWidth
+                label="תאריך"
+                type="date"
+                value={lostFoundForm.date}
+                onChange={(e) => setLostFoundForm({...lostFoundForm, date: e.target.value})}
+                error={!!formErrors.date}
+                helperText={formErrors.date}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="שם איש קשר"
+                value={lostFoundForm.contactName}
+                onChange={(e) => setLostFoundForm({...lostFoundForm, contactName: e.target.value})}
+                error={!!formErrors.contactName}
+                helperText={formErrors.contactName}
+              />
+              <TextField
+                fullWidth
+                label="טלפון"
+                value={lostFoundForm.contactPhone}
+                onChange={(e) => setLostFoundForm({...lostFoundForm, contactPhone: e.target.value})}
+                error={!!formErrors.contactPhone}
+                helperText={formErrors.contactPhone}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="אימייל"
+                type="email"
+                value={lostFoundForm.contactEmail}
+                onChange={(e) => setLostFoundForm({...lostFoundForm, contactEmail: e.target.value})}
+                error={!!formErrors.contactEmail}
+                helperText={formErrors.contactEmail}
+              />
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setLostFoundDialogOpen(false)}>ביטול</Button>
+          <Button variant="contained" onClick={handleLostFoundSubmit}>שמור</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Marketplace Form Dialog */}
+      <Dialog open={marketplaceDialogOpen} onClose={() => setMarketplaceDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>הוסף פריט למכירה</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <Box>
+              <TextField
+                fullWidth
+                label="כותרת"
+                value={marketplaceForm.title}
+                onChange={(e) => setMarketplaceForm({...marketplaceForm, title: e.target.value})}
+                error={!!formErrors.title}
+                helperText={formErrors.title}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="תיאור"
+                multiline
+                rows={3}
+                value={marketplaceForm.description}
+                onChange={(e) => setMarketplaceForm({...marketplaceForm, description: e.target.value})}
+                error={!!formErrors.description}
+                helperText={formErrors.description}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="מחיר"
+                type="number"
+                value={marketplaceForm.price}
+                onChange={(e) => setMarketplaceForm({...marketplaceForm, price: e.target.value})}
+                error={!!formErrors.price}
+                helperText={formErrors.price}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">₪</InputAdornment>,
+                }}
+              />
+              <FormControl fullWidth>
+                <InputLabel>קטגוריה</InputLabel>
+                <Select
+                  value={marketplaceForm.category}
+                  onChange={(e) => setMarketplaceForm({...marketplaceForm, category: e.target.value as any})}
+                >
+                  <MenuItem value="books">ספרים</MenuItem>
+                  <MenuItem value="electronics">אלקטרוניקה</MenuItem>
+                  <MenuItem value="furniture">רהיטים</MenuItem>
+                  <MenuItem value="clothing">בגדים</MenuItem>
+                  <MenuItem value="other">אחר</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>מצב</InputLabel>
+                <Select
+                  value={marketplaceForm.condition}
+                  onChange={(e) => setMarketplaceForm({...marketplaceForm, condition: e.target.value as any})}
+                >
+                  <MenuItem value="new">חדש</MenuItem>
+                  <MenuItem value="like-new">כמו חדש</MenuItem>
+                  <MenuItem value="good">טוב</MenuItem>
+                  <MenuItem value="fair">סביר</MenuItem>
+                  <MenuItem value="poor">גרוע</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                fullWidth
+                label="שם המוכר"
+                value={marketplaceForm.sellerName}
+                onChange={(e) => setMarketplaceForm({...marketplaceForm, sellerName: e.target.value})}
+                error={!!formErrors.sellerName}
+                helperText={formErrors.sellerName}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="טלפון"
+                value={marketplaceForm.sellerPhone}
+                onChange={(e) => setMarketplaceForm({...marketplaceForm, sellerPhone: e.target.value})}
+                error={!!formErrors.sellerPhone}
+                helperText={formErrors.sellerPhone}
+              />
+              <TextField
+                fullWidth
+                label="אימייל"
+                type="email"
+                value={marketplaceForm.sellerEmail}
+                onChange={(e) => setMarketplaceForm({...marketplaceForm, sellerEmail: e.target.value})}
+                error={!!formErrors.sellerEmail}
+                helperText={formErrors.sellerEmail}
+              />
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setMarketplaceDialogOpen(false)}>ביטול</Button>
+          <Button variant="contained" onClick={handleMarketplaceSubmit}>שמור</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Service Request Form Dialog */}
+      <Dialog open={serviceRequestDialogOpen} onClose={() => setServiceRequestDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>בקש שירות</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>סוג שירות</InputLabel>
+                <Select
+                  value={serviceRequestForm.type}
+                  onChange={(e) => setServiceRequestForm({...serviceRequestForm, type: e.target.value as any})}
+                >
+                  <MenuItem value="maintenance">תחזוקה</MenuItem>
+                  <MenuItem value="cleaning">ניקוי</MenuItem>
+                  <MenuItem value="security">אבטחה</MenuItem>
+                  <MenuItem value="technical">טכני</MenuItem>
+                  <MenuItem value="other">אחר</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel>עדיפות</InputLabel>
+                <Select
+                  value={serviceRequestForm.priority}
+                  onChange={(e) => setServiceRequestForm({...serviceRequestForm, priority: e.target.value as any})}
+                >
+                  <MenuItem value="low">נמוכה</MenuItem>
+                  <MenuItem value="medium">בינונית</MenuItem>
+                  <MenuItem value="high">גבוהה</MenuItem>
+                  <MenuItem value="urgent">דחופה</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="כותרת"
+                value={serviceRequestForm.title}
+                onChange={(e) => setServiceRequestForm({...serviceRequestForm, title: e.target.value})}
+                error={!!formErrors.title}
+                helperText={formErrors.title}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="תיאור"
+                multiline
+                rows={3}
+                value={serviceRequestForm.description}
+                onChange={(e) => setServiceRequestForm({...serviceRequestForm, description: e.target.value})}
+                error={!!formErrors.description}
+                helperText={formErrors.description}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="מיקום"
+                value={serviceRequestForm.location}
+                onChange={(e) => setServiceRequestForm({...serviceRequestForm, location: e.target.value})}
+                error={!!formErrors.location}
+                helperText={formErrors.location}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="שם המבקש"
+                value={serviceRequestForm.requesterName}
+                onChange={(e) => setServiceRequestForm({...serviceRequestForm, requesterName: e.target.value})}
+                error={!!formErrors.requesterName}
+                helperText={formErrors.requesterName}
+              />
+              <TextField
+                fullWidth
+                label="טלפון"
+                value={serviceRequestForm.requesterPhone}
+                onChange={(e) => setServiceRequestForm({...serviceRequestForm, requesterPhone: e.target.value})}
+                error={!!formErrors.requesterPhone}
+                helperText={formErrors.requesterPhone}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="אימייל"
+                type="email"
+                value={serviceRequestForm.requesterEmail}
+                onChange={(e) => setServiceRequestForm({...serviceRequestForm, requesterEmail: e.target.value})}
+                error={!!formErrors.requesterEmail}
+                helperText={formErrors.requesterEmail}
+              />
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setServiceRequestDialogOpen(false)}>ביטול</Button>
+          <Button variant="contained" onClick={handleServiceRequestSubmit}>שלח בקשה</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Forum Post Form Dialog */}
+      <Dialog open={forumPostDialogOpen} onClose={() => setForumPostDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>צור פוסט חדש</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <Box>
+              <TextField
+                fullWidth
+                label="קורס"
+                value={forumPostForm.courseId}
+                onChange={(e) => setForumPostForm({...forumPostForm, courseId: e.target.value})}
+                error={!!formErrors.courseId}
+                helperText={formErrors.courseId}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="כותרת"
+                value={forumPostForm.title}
+                onChange={(e) => setForumPostForm({...forumPostForm, title: e.target.value})}
+                error={!!formErrors.title}
+                helperText={formErrors.title}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="תוכן"
+                multiline
+                rows={4}
+                value={forumPostForm.content}
+                onChange={(e) => setForumPostForm({...forumPostForm, content: e.target.value})}
+                error={!!formErrors.content}
+                helperText={formErrors.content}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="שם המחבר"
+                value={forumPostForm.authorName}
+                onChange={(e) => setForumPostForm({...forumPostForm, authorName: e.target.value})}
+                error={!!formErrors.authorName}
+                helperText={formErrors.authorName}
+              />
+              <TextField
+                fullWidth
+                label="אימייל"
+                type="email"
+                value={forumPostForm.authorEmail}
+                onChange={(e) => setForumPostForm({...forumPostForm, authorEmail: e.target.value})}
+                error={!!formErrors.authorEmail}
+                helperText={formErrors.authorEmail}
+              />
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setForumPostDialogOpen(false)}>ביטול</Button>
+          <Button variant="contained" onClick={handleForumPostSubmit}>פרסם</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Cafeteria Order Form Dialog */}
+      <Dialog open={cafeteriaOrderDialogOpen} onClose={() => setCafeteriaOrderDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>הזמן אוכל</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="שם הלקוח"
+                value={cafeteriaOrderForm.customerName}
+                onChange={(e) => setCafeteriaOrderForm({...cafeteriaOrderForm, customerName: e.target.value})}
+                error={!!formErrors.customerName}
+                helperText={formErrors.customerName}
+              />
+              <TextField
+                fullWidth
+                label="טלפון"
+                value={cafeteriaOrderForm.customerPhone}
+                onChange={(e) => setCafeteriaOrderForm({...cafeteriaOrderForm, customerPhone: e.target.value})}
+                error={!!formErrors.customerPhone}
+                helperText={formErrors.customerPhone}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="אימייל"
+                type="email"
+                value={cafeteriaOrderForm.customerEmail}
+                onChange={(e) => setCafeteriaOrderForm({...cafeteriaOrderForm, customerEmail: e.target.value})}
+                error={!!formErrors.customerEmail}
+                helperText={formErrors.customerEmail}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="זמן איסוף"
+                type="time"
+                value={cafeteriaOrderForm.pickupTime}
+                onChange={(e) => setCafeteriaOrderForm({...cafeteriaOrderForm, pickupTime: e.target.value})}
+                error={!!formErrors.pickupTime}
+                helperText={formErrors.pickupTime}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="הערות מיוחדות"
+                multiline
+                rows={2}
+                value={cafeteriaOrderForm.specialInstructions}
+                onChange={(e) => setCafeteriaOrderForm({...cafeteriaOrderForm, specialInstructions: e.target.value})}
+              />
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCafeteriaOrderDialogOpen(false)}>ביטול</Button>
+          <Button variant="contained" onClick={handleCafeteriaOrderSubmit}>שלח הזמנה</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Community Event Form Dialog */}
+      <Dialog open={communityEventDialogOpen} onClose={() => setCommunityEventDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>צור אירוע קהילתי</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <Box>
+              <TextField
+                fullWidth
+                label="כותרת"
+                value={communityEventForm.title}
+                onChange={(e) => setCommunityEventForm({...communityEventForm, title: e.target.value})}
+                error={!!formErrors.title}
+                helperText={formErrors.title}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="תיאור"
+                multiline
+                rows={3}
+                value={communityEventForm.description}
+                onChange={(e) => setCommunityEventForm({...communityEventForm, description: e.target.value})}
+                error={!!formErrors.description}
+                helperText={formErrors.description}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="תאריך"
+                type="date"
+                value={communityEventForm.date}
+                onChange={(e) => setCommunityEventForm({...communityEventForm, date: e.target.value})}
+                error={!!formErrors.date}
+                helperText={formErrors.date}
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                fullWidth
+                label="שעה"
+                type="time"
+                value={communityEventForm.time}
+                onChange={(e) => setCommunityEventForm({...communityEventForm, time: e.target.value})}
+                error={!!formErrors.time}
+                helperText={formErrors.time}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="מיקום"
+                value={communityEventForm.location}
+                onChange={(e) => setCommunityEventForm({...communityEventForm, location: e.target.value})}
+                error={!!formErrors.location}
+                helperText={formErrors.location}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>קטגוריה</InputLabel>
+                <Select
+                  value={communityEventForm.category}
+                  onChange={(e) => setCommunityEventForm({...communityEventForm, category: e.target.value as any})}
+                >
+                  <MenuItem value="social">חברתי</MenuItem>
+                  <MenuItem value="academic">אקדמי</MenuItem>
+                  <MenuItem value="sports">ספורט</MenuItem>
+                  <MenuItem value="cultural">תרבותי</MenuItem>
+                  <MenuItem value="other">אחר</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                fullWidth
+                label="מספר משתתפים מקסימלי"
+                type="number"
+                value={communityEventForm.maxParticipants}
+                onChange={(e) => setCommunityEventForm({...communityEventForm, maxParticipants: e.target.value})}
+                error={!!formErrors.maxParticipants}
+                helperText={formErrors.maxParticipants}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="שם המארגן"
+                value={communityEventForm.organizerName}
+                onChange={(e) => setCommunityEventForm({...communityEventForm, organizerName: e.target.value})}
+                error={!!formErrors.organizerName}
+                helperText={formErrors.organizerName}
+              />
+              <TextField
+                fullWidth
+                label="טלפון"
+                value={communityEventForm.organizerPhone}
+                onChange={(e) => setCommunityEventForm({...communityEventForm, organizerPhone: e.target.value})}
+                error={!!formErrors.organizerPhone}
+                helperText={formErrors.organizerPhone}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="אימייל"
+                type="email"
+                value={communityEventForm.organizerEmail}
+                onChange={(e) => setCommunityEventForm({...communityEventForm, organizerEmail: e.target.value})}
+                error={!!formErrors.organizerEmail}
+                helperText={formErrors.organizerEmail}
+              />
+            </Box>
+            <Box>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={communityEventForm.registrationRequired}
+                    onChange={(e) => setCommunityEventForm({...communityEventForm, registrationRequired: e.target.checked})}
+                  />
+                }
+                label="נדרשת הרשמה מוקדמת"
+              />
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCommunityEventDialogOpen(false)}>ביטול</Button>
+          <Button variant="contained" onClick={handleCommunityEventSubmit}>צור אירוע</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Help Ticket Form Dialog */}
+      <Dialog open={helpTicketDialogOpen} onClose={() => setHelpTicketDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>פתח כרטיס עזרה</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>קטגוריה</InputLabel>
+                <Select
+                  value={helpTicketForm.category}
+                  onChange={(e) => setHelpTicketForm({...helpTicketForm, category: e.target.value as any})}
+                >
+                  <MenuItem value="technical">טכני</MenuItem>
+                  <MenuItem value="academic">אקדמי</MenuItem>
+                  <MenuItem value="administrative">מנהלי</MenuItem>
+                  <MenuItem value="financial">כספי</MenuItem>
+                  <MenuItem value="other">אחר</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel>עדיפות</InputLabel>
+                <Select
+                  value={helpTicketForm.priority}
+                  onChange={(e) => setHelpTicketForm({...helpTicketForm, priority: e.target.value as any})}
+                >
+                  <MenuItem value="low">נמוכה</MenuItem>
+                  <MenuItem value="medium">בינונית</MenuItem>
+                  <MenuItem value="high">גבוהה</MenuItem>
+                  <MenuItem value="urgent">דחופה</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="כותרת"
+                value={helpTicketForm.title}
+                onChange={(e) => setHelpTicketForm({...helpTicketForm, title: e.target.value})}
+                error={!!formErrors.title}
+                helperText={formErrors.title}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="תיאור הבעיה"
+                multiline
+                rows={4}
+                value={helpTicketForm.description}
+                onChange={(e) => setHelpTicketForm({...helpTicketForm, description: e.target.value})}
+                error={!!formErrors.description}
+                helperText={formErrors.description}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                fullWidth
+                label="שם המבקש"
+                value={helpTicketForm.requesterName}
+                onChange={(e) => setHelpTicketForm({...helpTicketForm, requesterName: e.target.value})}
+                error={!!formErrors.requesterName}
+                helperText={formErrors.requesterName}
+              />
+              <TextField
+                fullWidth
+                label="טלפון"
+                value={helpTicketForm.requesterPhone}
+                onChange={(e) => setHelpTicketForm({...helpTicketForm, requesterPhone: e.target.value})}
+                error={!!formErrors.requesterPhone}
+                helperText={formErrors.requesterPhone}
+              />
+            </Box>
+            <Box>
+              <TextField
+                fullWidth
+                label="אימייל"
+                type="email"
+                value={helpTicketForm.requesterEmail}
+                onChange={(e) => setHelpTicketForm({...helpTicketForm, requesterEmail: e.target.value})}
+                error={!!formErrors.requesterEmail}
+                helperText={formErrors.requesterEmail}
+              />
+            </Box>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setHelpTicketDialogOpen(false)}>ביטול</Button>
