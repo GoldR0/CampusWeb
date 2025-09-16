@@ -5,7 +5,6 @@ import { User } from '../../types';
 import WelcomeBanner from './WelcomeBanner';
 import TasksCard from './TasksCard';
 import EventsCard from './EventsCard';
-import DebugInfo from '../DebugInfo';
 import { demoEvents } from '../../data/demoData';
 import { getAllStudents } from '../../data/studentsData';
 
@@ -219,9 +218,6 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
 
   return (
     <Box>
-      {/* Debug Info - Temporary */}
-      <DebugInfo currentUser={currentUser} />
-
       {/* Welcome Banner */}
       <WelcomeBanner currentUser={currentUser} />
 

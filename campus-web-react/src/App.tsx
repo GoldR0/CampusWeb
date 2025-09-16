@@ -16,6 +16,7 @@ import ProfilePage from './components/ProfilePage';
 import HelpPage from './components/HelpPage';
 import LearningCenterPage from './components/LearningCenterPage';
 import ForumPage from './components/ForumPage';
+import DebugInfo from './components/DebugInfo';
 import { useAuth } from './hooks/useAuth';
 import { useNotifications } from './hooks/useNotifications';
 import { User } from './types';
@@ -56,6 +57,7 @@ function App() {
       <Container maxWidth="xl" sx={{ flexGrow: 1, py: 3 }}>
         <Routes>
           <Route path="/" element={<Dashboard currentUser={currentUser} />} />
+          <Route path="/debug" element={<DebugInfo currentUser={currentUser} />} />
           <Route path="/students" element={<StudentsPage currentUser={currentUser} />} />
           <Route path="/students/:id/edit" element={<StudentsPage currentUser={currentUser} />} />
           <Route path="/forms" element={<FormsPage currentUser={currentUser} />} />
