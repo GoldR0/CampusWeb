@@ -1,6 +1,6 @@
 import { Student } from "../types/Student";
 import { firestore } from "./config";
-import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
+import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData, query, where } from "firebase/firestore";
 
 const studentConverter = {
     toFirestore: (student: Student): DocumentData => student,
@@ -36,6 +36,38 @@ export async function updateStudent(student: Student): Promise<void> {
 export async function deleteStudent(id: string): Promise<void> {
     const docRef = doc(studentsCollection, id);
     await deleteDoc(docRef);
+}
+
+export async function getStudentByEmail(email: string): Promise<Student | null> {
+    const q = query(studentsCollection, where("email", "==", email));
+    const querySnapshot = await getDocs(q);
+    const students = querySnapshot.docs.map((doc) => doc.data());
+    return students.length > 0 ? students[0] : null;
+}
+
+export async function getStudentsByDepartment(department: string): Promise<Student[]> {
+    const q = query(studentsCollection, where("department", "==", department));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getStudentsByYear(year: number): Promise<Student[]> {
+    const q = query(studentsCollection, where("year", "==", year));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getStudentsByStatus(status: Student['status']): Promise<Student[]> {
+    const q = query(studentsCollection, where("status", "==", status));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getStudentByStudentNumber(studentNumber: string): Promise<Student | null> {
+    const q = query(studentsCollection, where("studentNumber", "==", studentNumber));
+    const querySnapshot = await getDocs(q);
+    const students = querySnapshot.docs.map((doc) => doc.data());
+    return students.length > 0 ? students[0] : null;
 }
 
 // Test function to verify Firestore connection
