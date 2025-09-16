@@ -37,3 +37,16 @@ export async function deleteStudent(id: string): Promise<void> {
     const docRef = doc(studentsCollection, id);
     await deleteDoc(docRef);
 }
+
+// Test function to verify Firestore connection
+export async function testFirestoreConnection(): Promise<boolean> {
+    try {
+        // Try to read from the students collection
+        const querySnapshot = await getDocs(studentsCollection);
+        console.log("✅ Firestore connection successful! Found", querySnapshot.docs.length, "documents in students collection");
+        return true;
+    } catch (error) {
+        console.error("❌ Firestore connection failed:", error);
+        return false;
+    }
+}
