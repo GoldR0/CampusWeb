@@ -1,10 +1,13 @@
 import { Facility } from "../types";
 import { firestore } from "./config";
-import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData, query, where } from "firebase/firestore";
+import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData, query, where, orderBy } from "firebase/firestore";
 
 const facilityConverter = {
     toFirestore: (facility: Facility): DocumentData => facility,
-    fromFirestore: (snapshot: QueryDocumentSnapshot): Facility => snapshot.data() as Facility
+    fromFirestore: (snapshot: QueryDocumentSnapshot): Facility => ({
+        ...snapshot.data() as Facility,
+        id: snapshot.id
+    })
 };
 
 const facilitiesCollection = collection(firestore, "facilities").withConverter(facilityConverter);
@@ -44,9 +47,46 @@ export async function getFacilitiesByStatus(status: Facility['status']): Promise
     return querySnapshot.docs.map((doc) => doc.data());
 }
 
-export async function updateFacilityRating(id: string, newRating: number): Promise<void> {
-    const docRef = doc(facilitiesCollection, id);
-    const facility = await getFacilityById(id);
+export async function getOpenFacilities(): Promise<Facility[]> {
+    const q = query(facilitiesCollection, where("status", "==", "open"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getClosedFacilities(): Promise<Facility[]> {
+    const q = query(facilitiesCollection, where("status", "==", "closed"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getBusyFacilities(): Promise<Facility[]> {
+    const q = query(facilitiesCollection, where("status", "==", "busy"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getFacilitiesByRating(minRating: number): Promise<Facility[]> {
+    const q = query(
+        facilitiesCollection,
+        where("averageRating", ">=", minRating),
+        orderBy("averageRating", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getTopRatedFacilities(limit: number = 5): Promise<Facility[]> {
+    const q = query(
+        facilitiesCollection,
+        orderBy("averageRating", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.slice(0, limit).map((doc) => doc.data());
+}
+
+export async function updateFacilityRating(facilityId: string, newRating: number): Promise<void> {
+    const docRef = doc(facilitiesCollection, facilityId);
+    const facility = await getFacilityById(facilityId);
     
     if (facility) {
         const totalRatings = (facility.totalRatings || 0) + 1;
@@ -56,19 +96,20 @@ export async function updateFacilityRating(id: string, newRating: number): Promi
         await updateDoc(docRef, {
             rating: newRating,
             totalRatings: totalRatings,
-            averageRating: newAverage
+            averageRating: Math.round(newAverage * 10) / 10 // Round to 1 decimal place
         });
     }
 }
 
-// Test function to verify Facilities collection
+// Test function to verify Firestore connection
 export async function testFacilitiesCollection(): Promise<boolean> {
     try {
+        // Try to read from the facilities collection
         const querySnapshot = await getDocs(facilitiesCollection);
-        console.log("✅ Facilities collection accessible! Found", querySnapshot.docs.length, "facilities");
+        console.log("✅ Facilities collection connection successful! Found", querySnapshot.docs.length, "documents in facilities collection");
         return true;
     } catch (error) {
-        console.error("❌ Facilities collection error:", error);
+        console.error("❌ Facilities collection connection failed:", error);
         return false;
     }
 }

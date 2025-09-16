@@ -5,7 +5,7 @@ import { CalendarToday as CalendarIcon, AccessTime as TimeIcon, MeetingRoom as R
 import { demoEvents } from '../../data/demoData';
 
 interface Event {
-  eventId: string;
+  id: string;
   title: string;
   description: string;
   date: string;
@@ -34,7 +34,7 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
         } else {
           // If no saved events, use demo events
           setEvents(demoEvents.map(demoEvent => ({
-            eventId: demoEvent.id,
+            id: demoEvent.id,
             title: demoEvent.title,
             description: demoEvent.description,
             date: demoEvent.date,
@@ -48,7 +48,7 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
         // Error loading events from localStorage
         // Fallback to demo events
         setEvents(demoEvents.map(demoEvent => ({
-          eventId: demoEvent.id,
+          id: demoEvent.id,
           title: demoEvent.title,
           description: demoEvent.description,
           date: demoEvent.date,
@@ -116,7 +116,7 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
           ) : (
             events.map((event, index) => (
               <Box 
-                key={event.eventId} 
+                key={event.id} 
                 sx={{ 
                   p: 2.5, 
                   mb: 2, 
@@ -163,21 +163,21 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
                   gap: { xs: 1, sm: 2 },
                   alignItems: { xs: 'flex-start', sm: 'center' }
                 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box key={`date-${event.id}`} sx={{ display: 'flex', alignItems: 'center' }}>
                     <CalendarIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
                     <Typography variant="caption" sx={{ fontWeight: 'medium' }}>
                       {event.date}
                     </Typography>
                   </Box>
                   
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box key={`time-${event.id}`} sx={{ display: 'flex', alignItems: 'center' }}>
                     <TimeIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
                     <Typography variant="caption" sx={{ fontWeight: 'medium' }}>
                       {event.time}
                     </Typography>
                   </Box>
                   
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box key={`location-${event.id}`} sx={{ display: 'flex', alignItems: 'center' }}>
                     <RoomIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
                     <Typography variant="caption" sx={{ fontWeight: 'medium' }}>
                       {event.location}

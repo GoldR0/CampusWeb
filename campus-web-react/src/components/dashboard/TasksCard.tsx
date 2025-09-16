@@ -74,7 +74,7 @@ const TasksCard: React.FC<TasksCardProps> = ({ customColors }) => {
               backgroundColor: task.priority === 'urgent' ? '#ffebee' : '#e3f2fd'
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <Box key={`task-header-${task.id}`} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               {task.priority === 'urgent' ? <WarningIcon color="error" /> : <TimeIcon color="primary" />}
               <Typography variant="body2" fontWeight="bold">
                 {task.title}

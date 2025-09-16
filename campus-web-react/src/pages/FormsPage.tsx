@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -43,7 +44,6 @@ interface FormsPageProps {
 
 interface FormData {
   event: {
-    eventId: string;
     title: string;
     description: string;
     date: string;
@@ -61,7 +61,7 @@ interface ValidationErrors {
 }
 
 interface Event {
-  eventId: string;
+  id: string;
   title: string;
   description: string;
   date: string;
@@ -92,7 +92,7 @@ interface LostFoundReport {
 }
 
 interface Inquiry {
-  inquiryId: string;
+  id: string;
   category: 'complaint' | 'improvement';
   description: string;
   date: string;
@@ -102,6 +102,8 @@ interface Inquiry {
 }
 
 const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
+  const { id, type } = useParams<{ id: string; type: string }>();
+  const navigate = useNavigate();
   const [activeForm, setActiveForm] = useState<string | null>(null);
   const [eventCounter, setEventCounter] = useState(1);
   const [events, setEvents] = useState<Event[]>([]);
@@ -117,7 +119,6 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   const [inquiryToDelete, setInquiryToDelete] = useState<Inquiry | null>(null);
   const [formData, setFormData] = useState<FormData>({
     event: {
-      eventId: `EVENT-${String(eventCounter).padStart(3, '0')}`,
       title: '',
       description: '',
       date: '',
@@ -204,6 +205,31 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     return isValid;
   };
 
+  // Handle deep link editing - open edit dialog if ID is in URL
+  useEffect(() => {
+    if (id && type) {
+      if (type === 'events' && events.length > 0) {
+        const eventToEdit = events.find(event => event.id === id);
+        if (eventToEdit) {
+          setEditingEvent(eventToEdit);
+          setFormData({
+            event: {
+              title: eventToEdit.title,
+              description: eventToEdit.description,
+              date: eventToEdit.date,
+              time: eventToEdit.time,
+              location: eventToEdit.location,
+              maxParticipants: eventToEdit.maxParticipants
+            }
+          });
+          setActiveForm('event');
+          // Clear the URL parameter
+          navigate('/forms', { replace: true });
+        }
+      }
+    }
+  }, [id, type, events, navigate]);
+
   // Load events and facilities from localStorage on component mount
   useEffect(() => {
 
@@ -228,7 +254,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             ];
             
             const initialEvents: Event[] = Array.from({ length: 10 }, (_, index) => ({
-              eventId: `EVENT-${String(index + 1).padStart(3, '0')}`,
+              id: `event-${index + 1}`,
               title: eventTitles[index],
               description: `תיאור מפורט של ${eventTitles[index]}`,
               date: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -246,7 +272,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             
             // Set counter to next available number
             const maxId = Math.max(...parsedEvents.map((event: Event) => 
-              parseInt(event.eventId.split('-')[1])
+              parseInt(event.id.split('-')[1])
             ));
             setEventCounter(maxId + 1);
           }
@@ -266,7 +292,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           ];
           
           const initialEvents: Event[] = Array.from({ length: 10 }, (_, index) => ({
-            eventId: `EVENT-${String(index + 1).padStart(3, '0')}`,
+            id: `event-${index + 1}`,
             title: eventTitles[index],
             description: `תיאור מפורט של ${eventTitles[index]}`,
             date: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -471,7 +497,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             const inquiryUsers2 = ['דוד כהן', 'שרה לוי', 'משה ישראלי', 'רחל אברהם', 'יוסף גולד', 'מרים שלום', 'אברהם כהן', 'רחל לוי', 'יצחק ישראלי', 'לאה אברהם'];
             
             const initialInquiries: Inquiry[] = Array.from({ length: 10 }, (_, index) => ({
-              inquiryId: `INQUIRY-${String(index + 1).padStart(3, '0')}`,
+              id: `inquiry-${index + 1}`,
               category: index % 2 === 0 ? 'complaint' : 'improvement',
               description: inquiryDescriptions[index] || `תיאור פנייה ${index + 1}`,
               date: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
@@ -503,7 +529,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           const inquiryUsers2 = ['דוד כהן', 'שרה לוי', 'משה ישראלי', 'רחל אברהם', 'יוסף גולד', 'מרים שלום', 'אברהם כהן', 'רחל לוי', 'יצחק ישראלי', 'לאה אברהם'];
           
           const initialInquiries: Inquiry[] = Array.from({ length: 10 }, (_, index) => ({
-            inquiryId: `INQUIRY-${String(index + 1).padStart(3, '0')}`,
+            id: `inquiry-${index + 1}`,
             category: index % 2 === 0 ? 'complaint' : 'improvement',
             description: inquiryDescriptions[index] || `תיאור פנייה ${index + 1}`,
             date: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
@@ -578,6 +604,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
 
       if (validateEventForm()) {
         const newEvent: Event = {
+          id: `event-${Date.now()}`, // Generate unique ID using timestamp
           ...formData.event,
           createdAt: new Date().toLocaleString('he-IL')
         };
@@ -596,15 +623,13 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         }
 
         setNotification({
-          message: `אירוע "${formData.event.title}" נוצר בהצלחה! מזהה: ${formData.event.eventId}`,
+          message: `אירוע "${formData.event.title}" נוצר בהצלחה!`,
           type: 'success'
         });
 
-        // Reset form and increment counter
-        setEventCounter(prev => prev + 1);
+        // Reset form
         setFormData({
           event: {
-            eventId: `EVENT-${String(eventCounter + 1).padStart(3, '0')}`,
             title: '',
             description: '',
             date: '',
@@ -764,7 +789,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
 
   const confirmDeleteInquiry = () => {
     if (inquiryToDelete) {
-      const updatedInquiries = inquiries.filter(inquiry => inquiry.inquiryId !== inquiryToDelete.inquiryId);
+      const updatedInquiries = inquiries.filter(inquiry => inquiry.id !== inquiryToDelete.id);
       setInquiries(updatedInquiries);
       
       // Save to localStorage
@@ -778,7 +803,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
       }
       
       setNotification({
-        message: `הפנייה "${inquiryToDelete.inquiryId}" נמחקה בהצלחה`,
+        message: `הפנייה "${inquiryToDelete.id}" נמחקה בהצלחה`,
         type: 'success'
       });
       setDeleteInquiryDialogOpen(false);
@@ -793,19 +818,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
 
   // Event management functions
   const handleEditEvent = (event: Event) => {
-    setEditingEvent(event);
-    setFormData({
-      event: {
-        eventId: event.eventId,
-        title: event.title,
-        description: event.description,
-        date: event.date,
-        time: event.time,
-        location: event.location,
-        maxParticipants: event.maxParticipants
-      }
-    });
-    setActiveForm('event');
+    navigate(`/forms/events/${event.id}/edit`);
   };
 
   const handleDeleteEvent = (event: Event) => {
@@ -815,7 +828,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
 
   const confirmDeleteEvent = () => {
     if (eventToDelete) {
-      const updatedEvents = events.filter(event => event.eventId !== eventToDelete.eventId);
+      const updatedEvents = events.filter(event => event.id !== eventToDelete.id);
       setEvents(updatedEvents);
       
       // Save to localStorage
@@ -840,8 +853,8 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   const handleUpdateEvent = () => {
     if (editingEvent) {
       const updatedEvents = events.map(event => 
-        event.eventId === editingEvent.eventId 
-          ? { ...formData.event, createdAt: editingEvent.createdAt }
+        event.id === editingEvent.id 
+          ? { ...event, ...formData.event, createdAt: editingEvent.createdAt }
           : event
       );
       setEvents(updatedEvents);
@@ -865,10 +878,8 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
       setActiveForm(null);
       
       // Reset form
-      setEventCounter(prev => prev + 1);
       setFormData({
         event: {
-          eventId: `EVENT-${String(eventCounter + 1).padStart(3, '0')}`,
           title: '',
           description: '',
           date: '',
@@ -889,23 +900,6 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
               {editingEvent ? 'עריכת אירוע' : 'יצירת אירוע'}
             </Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
-              <TextField
-                fullWidth
-                label="מזהה אירוע"
-                value={formData.event.eventId}
-                InputProps={{ 
-                  readOnly: true,
-                  sx: { 
-                    backgroundColor: '#f5f5f5',
-                    '& .MuiInputBase-input': {
-                      color: '#666',
-                      fontWeight: 'bold'
-                    }
-                  }
-                }}
-                helperText="נוצר אוטומטית"
-                sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}
-              />
               <TextField
                 fullWidth
                 label="כותרת האירוע"
@@ -1327,7 +1321,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             </Box>
             
             {events.map((event) => (
-              <Box key={event.eventId} sx={{ 
+              <Box key={event.id} sx={{ 
                 display: 'grid', 
                 gridTemplateColumns: 'auto 1fr 1fr 1fr 1fr 1fr auto auto',
                 gap: 2,
@@ -1336,7 +1330,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
                 '&:hover': { backgroundColor: '#f9f9f9' },
                 '&:last-child': { borderBottom: 'none' }
               }}>
-                <Box sx={{ fontWeight: 'bold', color: customColors.primary }}>{event.eventId}</Box>
+                <Box sx={{ fontWeight: 'bold', color: customColors.primary }}>{event.id}</Box>
                 <Box>{event.title}</Box>
                 <Box>{event.date}</Box>
                 <Box>{event.time}</Box>
@@ -1402,7 +1396,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             </Box>
             
             {inquiries.map((inquiry) => (
-              <Box key={inquiry.inquiryId} sx={{ 
+              <Box key={inquiry.id} sx={{ 
                 display: 'grid', 
                 gridTemplateColumns: 'auto 1fr 1fr 1fr 1fr 1fr auto',
                 gap: 2,
@@ -1411,7 +1405,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
                 '&:hover': { backgroundColor: '#f9f9f9' },
                 '&:last-child': { borderBottom: 'none' }
               }}>
-                <Box sx={{ fontWeight: 'bold', color: customColors.primary }}>{inquiry.inquiryId}</Box>
+                <Box sx={{ fontWeight: 'bold', color: customColors.primary }}>{inquiry.id}</Box>
                 <Box>
                   <Box sx={{ 
                     display: 'inline-block',
@@ -1502,7 +1496,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         <DialogTitle>אישור מחיקת פנייה</DialogTitle>
         <DialogContent>
           <Typography>
-            האם אתה בטוח שברצונך למחוק את הפנייה "{inquiryToDelete?.inquiryId}"?
+            האם אתה בטוח שברצונך למחוק את הפנייה "{inquiryToDelete?.id}"?
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             קטגוריה: {inquiryToDelete?.category === 'complaint' ? 'תלונה' : 'הצעה לשיפור'}

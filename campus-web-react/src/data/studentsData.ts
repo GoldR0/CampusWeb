@@ -2,7 +2,7 @@
 // Contains mock data for students in the campus management system
 // This data follows the Student type definition and validation rules
 // This data is used to test the campus management system
-import { Student } from '../types/Student';
+import { Student } from '../types';
 
 export const studentsData: Student[] = [
   {

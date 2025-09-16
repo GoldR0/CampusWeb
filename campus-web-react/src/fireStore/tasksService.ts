@@ -4,7 +4,10 @@ import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc,
 
 const taskConverter = {
     toFirestore: (task: Task): DocumentData => task,
-    fromFirestore: (snapshot: QueryDocumentSnapshot): Task => snapshot.data() as Task
+    fromFirestore: (snapshot: QueryDocumentSnapshot): Task => ({
+        ...snapshot.data() as Task,
+        id: snapshot.id
+    })
 };
 
 const tasksCollection = collection(firestore, "tasks").withConverter(taskConverter);
@@ -38,6 +41,18 @@ export async function deleteTask(id: string): Promise<void> {
     await deleteDoc(docRef);
 }
 
+export async function getTasksByCourse(course: string): Promise<Task[]> {
+    const q = query(tasksCollection, where("course", "==", course));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getTasksByType(type: Task['type']): Promise<Task[]> {
+    const q = query(tasksCollection, where("type", "==", type));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
 export async function getTasksByStatus(status: Task['status']): Promise<Task[]> {
     const q = query(tasksCollection, where("status", "==", status));
     const querySnapshot = await getDocs(q);
@@ -50,37 +65,71 @@ export async function getTasksByPriority(priority: Task['priority']): Promise<Ta
     return querySnapshot.docs.map((doc) => doc.data());
 }
 
-export async function getTasksByType(type: Task['type']): Promise<Task[]> {
-    const q = query(tasksCollection, where("type", "==", type));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => doc.data());
-}
-
-export async function getTasksByCourse(course: string): Promise<Task[]> {
-    const q = query(tasksCollection, where("course", "==", course));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => doc.data());
-}
-
 export async function getUrgentTasks(): Promise<Task[]> {
     const q = query(tasksCollection, where("priority", "==", "urgent"));
     const querySnapshot = await getDocs(q);
     return querySnapshot.docs.map((doc) => doc.data());
 }
 
-export async function updateTaskStatus(id: string, status: Task['status']): Promise<void> {
-    const docRef = doc(tasksCollection, id);
-    await updateDoc(docRef, { status });
+export async function getPendingTasks(): Promise<Task[]> {
+    const q = query(tasksCollection, where("status", "==", "pending"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
 }
 
-// Test function to verify Tasks collection
+export async function getCompletedTasks(): Promise<Task[]> {
+    const q = query(tasksCollection, where("status", "==", "completed"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getTasksByDueDateRange(startDate: string, endDate: string): Promise<Task[]> {
+    const q = query(
+        tasksCollection,
+        where("dueDate", ">=", startDate),
+        where("dueDate", "<=", endDate),
+        orderBy("dueDate")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getUpcomingTasks(days: number = 7): Promise<Task[]> {
+    const today = new Date();
+    const futureDate = new Date(today.getTime() + (days * 24 * 60 * 60 * 1000));
+    const todayStr = today.toISOString().split('T')[0];
+    const futureStr = futureDate.toISOString().split('T')[0];
+    
+    const q = query(
+        tasksCollection,
+        where("dueDate", ">=", todayStr),
+        where("dueDate", "<=", futureStr),
+        orderBy("dueDate")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getOverdueTasks(): Promise<Task[]> {
+    const today = new Date().toISOString().split('T')[0];
+    const q = query(
+        tasksCollection,
+        where("dueDate", "<", today),
+        where("status", "!=", "completed")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+// Test function to verify Firestore connection
 export async function testTasksCollection(): Promise<boolean> {
     try {
+        // Try to read from the tasks collection
         const querySnapshot = await getDocs(tasksCollection);
-        console.log("✅ Tasks collection accessible! Found", querySnapshot.docs.length, "tasks");
+        console.log("✅ Tasks collection connection successful! Found", querySnapshot.docs.length, "documents in tasks collection");
         return true;
     } catch (error) {
-        console.error("❌ Tasks collection error:", error);
+        console.error("❌ Tasks collection connection failed:", error);
         return false;
     }
 }

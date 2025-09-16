@@ -52,12 +52,28 @@ export interface Course {
 
 export interface Student {
   id: string;
-  name: string;
+  studentNumber: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
   email: string;
-  major: string;
+  phone: string;
+  address: string;
+  department: string;
   year: number;
+  semester: 'א' | 'ב' | 'ג';
+  creditsCompleted: number;
   gpa: number;
-  courses: string[];
+  birthDate: string;
+  age: number;
+  gender: 'male' | 'female' | 'other';
+  city: string;
+  status: 'active' | 'inactive' | 'graduated' | 'suspended';
+  enrollmentDate: string;
+  lastActive: string;
+  emergencyContact: string;
+  emergencyPhone: string;
+  notes?: string;
 }
 
 export interface Message {

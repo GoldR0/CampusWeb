@@ -1,10 +1,13 @@
 import { Course } from "../types";
 import { firestore } from "./config";
-import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData, query, where } from "firebase/firestore";
+import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData, query, where, orderBy } from "firebase/firestore";
 
 const courseConverter = {
     toFirestore: (course: Course): DocumentData => course,
-    fromFirestore: (snapshot: QueryDocumentSnapshot): Course => snapshot.data() as Course
+    fromFirestore: (snapshot: QueryDocumentSnapshot): Course => ({
+        ...snapshot.data() as Course,
+        id: snapshot.id
+    })
 };
 
 const coursesCollection = collection(firestore, "courses").withConverter(courseConverter);
@@ -38,10 +41,11 @@ export async function deleteCourse(id: string): Promise<void> {
     await deleteDoc(docRef);
 }
 
-export async function getCoursesByStatus(status: Course['status']): Promise<Course[]> {
-    const q = query(coursesCollection, where("status", "==", status));
+export async function getCourseByCode(code: string): Promise<Course | null> {
+    const q = query(coursesCollection, where("code", "==", code));
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => doc.data());
+    const courses = querySnapshot.docs.map((doc) => doc.data());
+    return courses.length > 0 ? courses[0] : null;
 }
 
 export async function getCoursesByInstructor(instructor: string): Promise<Course[]> {
@@ -50,31 +54,86 @@ export async function getCoursesByInstructor(instructor: string): Promise<Course
     return querySnapshot.docs.map((doc) => doc.data());
 }
 
-export async function getCourseByCode(code: string): Promise<Course | null> {
-    const q = query(coursesCollection, where("code", "==", code));
+export async function getCoursesByStatus(status: Course['status']): Promise<Course[]> {
+    const q = query(coursesCollection, where("status", "==", status));
     const querySnapshot = await getDocs(q);
-    const courses = querySnapshot.docs.map((doc) => doc.data());
-    return courses.length > 0 ? courses[0] : null;
+    return querySnapshot.docs.map((doc) => doc.data());
 }
 
-export async function updateCourseProgress(id: string, progress: number): Promise<void> {
-    const docRef = doc(coursesCollection, id);
-    await updateDoc(docRef, { progress });
+export async function getActiveCourses(): Promise<Course[]> {
+    const q = query(coursesCollection, where("status", "==", "active"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
 }
 
-export async function updateCourseStatus(id: string, status: Course['status']): Promise<void> {
-    const docRef = doc(coursesCollection, id);
-    await updateDoc(docRef, { status });
+export async function getCompletedCourses(): Promise<Course[]> {
+    const q = query(coursesCollection, where("status", "==", "completed"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
 }
 
-// Test function to verify Courses collection
+export async function getUpcomingCourses(): Promise<Course[]> {
+    const q = query(coursesCollection, where("status", "==", "upcoming"));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getCoursesByCredits(minCredits: number): Promise<Course[]> {
+    const q = query(
+        coursesCollection,
+        where("credits", ">=", minCredits),
+        orderBy("credits", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getCoursesByProgress(minProgress: number): Promise<Course[]> {
+    const q = query(
+        coursesCollection,
+        where("progress", ">=", minProgress),
+        orderBy("progress", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getCoursesByProgressRange(minProgress: number, maxProgress: number): Promise<Course[]> {
+    const q = query(
+        coursesCollection,
+        where("progress", ">=", minProgress),
+        where("progress", "<=", maxProgress),
+        orderBy("progress", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function updateCourseProgress(courseId: string, newProgress: number): Promise<void> {
+    const docRef = doc(coursesCollection, courseId);
+    await updateDoc(docRef, {
+        progress: newProgress
+    });
+}
+
+export async function getTopProgressCourses(limit: number = 5): Promise<Course[]> {
+    const q = query(
+        coursesCollection,
+        orderBy("progress", "desc")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.slice(0, limit).map((doc) => doc.data());
+}
+
+// Test function to verify Firestore connection
 export async function testCoursesCollection(): Promise<boolean> {
     try {
+        // Try to read from the courses collection
         const querySnapshot = await getDocs(coursesCollection);
-        console.log("✅ Courses collection accessible! Found", querySnapshot.docs.length, "courses");
+        console.log("✅ Courses collection connection successful! Found", querySnapshot.docs.length, "documents in courses collection");
         return true;
     } catch (error) {
-        console.error("❌ Courses collection error:", error);
+        console.error("❌ Courses collection connection failed:", error);
         return false;
     }
 }

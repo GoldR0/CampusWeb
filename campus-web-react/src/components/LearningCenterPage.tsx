@@ -33,7 +33,7 @@ interface StudentCourse {
 }
 
 interface StudentTask {
-  taskId: string;
+  id: string;
   title: string;
   type: string;
   date: string;
@@ -274,7 +274,7 @@ const LearningCenterPage: React.FC<LearningCenterPageProps> = ({ currentUser }) 
                 </Box>
                 
                 {studentTasks.map((task) => (
-                  <Box key={task.taskId} sx={{ 
+                  <Box key={task.id} sx={{ 
                     display: 'grid', 
                     gridTemplateColumns: 'auto 1fr 1fr 1fr auto',
                     gap: 2,
@@ -283,7 +283,7 @@ const LearningCenterPage: React.FC<LearningCenterPageProps> = ({ currentUser }) 
                     '&:hover': { backgroundColor: '#f9f9f9' },
                     '&:last-child': { borderBottom: 'none' }
                   }}>
-                    <Box sx={{ fontWeight: 'bold', color: customColors.primary }}>{task.taskId}</Box>
+                    <Box sx={{ fontWeight: 'bold', color: customColors.primary }}>{task.id}</Box>
                     <Box>{task.title}</Box>
                     <Box>
                       <Chip 

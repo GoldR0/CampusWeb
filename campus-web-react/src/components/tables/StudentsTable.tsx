@@ -25,7 +25,7 @@ import {
   Email as EmailIcon,
   Phone as PhoneIcon
 } from '@mui/icons-material';
-import { Student } from '../../types/Student';
+import { Student } from '../../types';
 
 interface StudentsTableProps {
   students: Student[];

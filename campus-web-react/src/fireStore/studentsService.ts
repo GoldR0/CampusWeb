@@ -1,10 +1,13 @@
-import { Student } from "../types/Student";
+import { Student } from "../types";
 import { firestore } from "./config";
 import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData, query, where } from "firebase/firestore";
 
 const studentConverter = {
     toFirestore: (student: Student): DocumentData => student,
-    fromFirestore: (snapshot: QueryDocumentSnapshot): Student => snapshot.data() as Student
+    fromFirestore: (snapshot: QueryDocumentSnapshot): Student => ({
+        ...snapshot.data() as Student,
+        id: snapshot.id
+    })
 };
 
 const studentsCollection = collection(firestore, "students").withConverter(studentConverter);

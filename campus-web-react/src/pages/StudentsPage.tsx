@@ -3,6 +3,7 @@
 // Handles data fetching, filtering, and actions
 
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -45,7 +46,7 @@ import {
   Delete as DeleteIcon
 } from '@mui/icons-material';
 import { StudentsTable } from '../components/tables';
-import { Student } from '../types/Student';
+import { Student } from '../types';
 import { 
   getAllStudents, 
   getStudentsStatistics,
@@ -55,7 +56,6 @@ import {
 import { addStudent } from '../fireStore/studentsService';
 
 interface TaskFormData {
-  taskId: string;
   title: string;
   type: string;
   date: string;
@@ -74,6 +74,7 @@ interface CourseFormData {
 }
 
 interface Task extends TaskFormData {
+  id: string;
   createdAt: string;
 }
 
@@ -127,6 +128,8 @@ interface TaskValidationErrors {
 }
 
 const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
@@ -138,7 +141,6 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
   const [taskCounter, setTaskCounter] = useState(1);
   const [courseCounter, setCourseCounter] = useState(1);
   const [taskFormData, setTaskFormData] = useState<TaskFormData>({
-    taskId: `TASK-${String(taskCounter).padStart(3, '0')}`,
     title: '',
     type: '',
     date: '',
@@ -202,18 +204,28 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
     setStatistics(getStudentsStatistics());
   }, []);
 
+  // Handle deep link editing - open edit dialog if ID is in URL
+  useEffect(() => {
+    if (id && students.length > 0) {
+      const studentToEdit = students.find(student => student.id === id);
+      if (studentToEdit) {
+        setSelectedStudent(studentToEdit);
+        setViewDialogOpen(true);
+        // Clear the URL parameter
+        navigate('/students', { replace: true });
+      }
+    }
+  }, [id, students, navigate]);
+
   // Handle view student
   const handleViewStudent = (student: Student) => {
     setSelectedStudent(student);
     setViewDialogOpen(true);
   };
 
-  // Handle edit student (placeholder for future implementation)
+  // Handle edit student - navigate to edit page
   const handleEditStudent = (student: Student) => {
-    setNotification({
-      message: `עריכת סטודנט: ${student.fullName} - פונקציונליות תתווסף בהמשך`,
-      type: 'success'
-    });
+    navigate(`/students/${student.id}/edit`);
   };
 
   // Handle delete student
@@ -786,7 +798,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
             ];
             
             const initialTasks: Task[] = Array.from({ length: 10 }, (_, index) => ({
-              taskId: `TASK-${String(index + 1).padStart(3, '0')}`,
+              id: `task-${index + 1}`,
               title: taskTitles[index],
               type: ['assignment', 'exam', 'quiz', 'presentation'][index % 4],
               date: new Date(Date.now() + (index + 1) * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -815,7 +827,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
           ];
           
           const initialTasks: Task[] = Array.from({ length: 10 }, (_, index) => ({
-            taskId: `TASK-${String(index + 1).padStart(3, '0')}`,
+            id: `task-${index + 1}`,
             title: taskTitles[index],
             type: ['assignment', 'exam', 'quiz', 'presentation'][index % 4],
             date: new Date(Date.now() + (index + 1) * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -867,9 +879,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
   const handleTaskSubmit = () => {
     // Mark all fields as touched
     const allTouched = Object.keys(taskFormData).reduce((acc, field) => {
-      if (field !== 'taskId' && field !== 'createdAt') {
-        acc[field] = true;
-      }
+      acc[field] = true;
       return acc;
     }, {} as Record<string, boolean>);
     setTaskTouched(allTouched);
@@ -888,6 +898,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
 
       // Create new task with creation date
       const newTask: Task = {
+        id: `task-${Date.now()}`, // Generate unique ID using timestamp
         ...taskFormData,
         createdAt: new Date().toLocaleString('he-IL')
       };
@@ -907,13 +918,11 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       }
 
       setNotification({
-        message: `מטלה חדשה נוצרה בהצלחה! מזהה: ${taskFormData.taskId}`,
+        message: `מטלה חדשה נוצרה בהצלחה!`,
         type: 'success'
       });
       
-      setTaskCounter(prev => prev + 1);
       setTaskFormData({
-        taskId: `TASK-${String(taskCounter + 1).padStart(3, '0')}`,
         title: '',
         type: '',
         date: '',
@@ -1135,7 +1144,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
 
   const confirmDeleteTask = () => {
     if (taskToDelete) {
-      const updatedTasks = tasks.filter(task => task.taskId !== taskToDelete.taskId);
+      const updatedTasks = tasks.filter(task => task.id !== taskToDelete.id);
       setTasks(updatedTasks);
       
       // Save to localStorage
@@ -1328,23 +1337,6 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
             ) : (
               <>
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
-                  <TextField
-                    fullWidth
-                    label="מזהה מטלה"
-                    value={taskFormData.taskId}
-                    InputProps={{ 
-                      readOnly: true,
-                      sx: { 
-                        backgroundColor: '#f5f5f5',
-                        '& .MuiInputBase-input': {
-                          color: '#666',
-                          fontWeight: 'bold'
-                        }
-                      }
-                    }}
-                    helperText="נוצר אוטומטית"
-                    sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}
-                  />
                   <TextField
                     fullWidth
                     label="כותרת"
@@ -1657,7 +1649,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
                 </Box>
                 
                 {tasks.map((task, index) => (
-                  <Box key={task.taskId} sx={{ 
+                  <Box key={task.id} sx={{ 
                     display: 'grid', 
                     gridTemplateColumns: 'auto 1fr 1fr 1fr auto auto',
                     gap: 2,
@@ -1666,7 +1658,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
                     '&:hover': { backgroundColor: '#f9f9f9' },
                     '&:last-child': { borderBottom: 'none' }
                   }}>
-                    <Box sx={{ fontWeight: 'bold', color: 'rgb(179, 209, 53)' }}>{task.taskId}</Box>
+                    <Box sx={{ fontWeight: 'bold', color: 'rgb(179, 209, 53)' }}>{task.id}</Box>
                     <Box>{task.title}</Box>
                     <Box>
                       <Chip 

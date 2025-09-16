@@ -4,7 +4,10 @@ import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc,
 
 const eventConverter = {
     toFirestore: (event: Event): DocumentData => event,
-    fromFirestore: (snapshot: QueryDocumentSnapshot): Event => snapshot.data() as Event
+    fromFirestore: (snapshot: QueryDocumentSnapshot): Event => ({
+        ...snapshot.data() as Event,
+        id: snapshot.id
+    })
 };
 
 const eventsCollection = collection(firestore, "events").withConverter(eventConverter);
@@ -38,12 +41,6 @@ export async function deleteEvent(id: string): Promise<void> {
     await deleteDoc(docRef);
 }
 
-export async function getUrgentEvents(): Promise<Event[]> {
-    const q = query(eventsCollection, where("urgent", "==", true));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => doc.data());
-}
-
 export async function getEventsByDate(date: string): Promise<Event[]> {
     const q = query(eventsCollection, where("date", "==", date));
     const querySnapshot = await getDocs(q);
@@ -56,14 +53,43 @@ export async function getEventsByRoom(roomId: string): Promise<Event[]> {
     return querySnapshot.docs.map((doc) => doc.data());
 }
 
-// Test function to verify Events collection
+export async function getUrgentEvents(): Promise<Event[]> {
+    const q = query(eventsCollection, where("urgent", "==", true));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getEventsByDateRange(startDate: string, endDate: string): Promise<Event[]> {
+    const q = query(
+        eventsCollection,
+        where("date", ">=", startDate),
+        where("date", "<=", endDate),
+        orderBy("date")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+export async function getUpcomingEvents(): Promise<Event[]> {
+    const today = new Date().toISOString().split('T')[0];
+    const q = query(
+        eventsCollection,
+        where("date", ">=", today),
+        orderBy("date")
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map((doc) => doc.data());
+}
+
+// Test function to verify Firestore connection
 export async function testEventsCollection(): Promise<boolean> {
     try {
+        // Try to read from the events collection
         const querySnapshot = await getDocs(eventsCollection);
-        console.log("✅ Events collection accessible! Found", querySnapshot.docs.length, "events");
+        console.log("✅ Events collection connection successful! Found", querySnapshot.docs.length, "documents in events collection");
         return true;
     } catch (error) {
-        console.error("❌ Events collection error:", error);
+        console.error("❌ Events collection connection failed:", error);
         return false;
     }
 }

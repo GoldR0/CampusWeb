@@ -1,65 +1,47 @@
-/**
- * Firestore Collections Initialization Script
- * 
- * This script initializes all Firestore collections with demo data.
- * Run this script once to populate your Firestore database with sample data.
- * 
- * Usage:
- * 1. Import and call initializeAllCollections() from your app
- * 2. Or run this script directly in a development environment
- */
+import { initializeAllCollections, testAllCollections } from '../fireStore/initializeCollections.js';
 
-import { initializeAllCollections, testAllCollections } from '../fireStore/initializeCollections';
-
-// Main initialization function
-export async function runInitialization(): Promise<void> {
-    console.log("🚀 Starting Firestore Collections Initialization...");
-    console.log("=" .repeat(50));
+// Initialize Firestore collections with demo data
+async function main() {
+    console.log("🚀 Starting Firestore initialization...");
     
     try {
-        // Initialize all collections with demo data
+        // Test connection first
+        console.log("🔍 Testing Firestore connection...");
+        const connectionTest = await testAllCollections();
+        
+        if (!connectionTest) {
+            console.log("❌ Firestore connection test failed. Please check your configuration.");
+            return;
+        }
+        
+        console.log("✅ Firestore connection successful!");
+        
+        // Initialize all collections
+        console.log("📝 Initializing all collections...");
         await initializeAllCollections();
         
-        console.log("=" .repeat(50));
-        console.log("🧪 Testing all collections...");
+        console.log("🎉 Firestore initialization completed successfully!");
         
-        // Test all collections to ensure they work correctly
-        const testResults = await testAllCollections();
+        // Test again to verify
+        console.log("🧪 Running final verification...");
+        const finalTest = await testAllCollections();
         
-        if (testResults) {
-            console.log("=" .repeat(50));
-            console.log("🎉 SUCCESS! All collections initialized and tested successfully!");
-            console.log("📊 Collections created:");
-            console.log("   • users - User accounts and profiles");
-            console.log("   • students - Student records with academic info");
-            console.log("   • events - Campus events and activities");
-            console.log("   • facilities - Campus facilities and their status");
-            console.log("   • tasks - Academic tasks and assignments");
-            console.log("   • courses - Course information and progress");
-            console.log("   • messages - Communication messages");
-            console.log("=" .repeat(50));
+        if (finalTest) {
+            console.log("✅ All collections verified and working!");
         } else {
-            console.log("❌ Some collections failed testing. Please check the logs above.");
+            console.log("❌ Some collections failed verification");
         }
         
     } catch (error) {
-        console.error("❌ Initialization failed:", error);
-        throw error;
+        console.error("❌ Error during Firestore initialization:", error);
     }
 }
 
-// Auto-run if this script is executed directly
-if (typeof window === 'undefined') {
-    // Node.js environment
-    runInitialization()
-        .then(() => {
-            console.log("✅ Initialization completed successfully!");
-            process.exit(0);
-        })
-        .catch((error) => {
-            console.error("❌ Initialization failed:", error);
-            process.exit(1);
-        });
-}
-
-export default runInitialization;
+// Run the initialization
+main().then(() => {
+    console.log("🏁 Initialization script completed");
+    process.exit(0);
+}).catch((error) => {
+    console.error("💥 Fatal error:", error);
+    process.exit(1);
+});

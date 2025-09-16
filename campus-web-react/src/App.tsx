@@ -57,7 +57,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard currentUser={currentUser} />} />
           <Route path="/students" element={<StudentsPage currentUser={currentUser} />} />
+          <Route path="/students/:id/edit" element={<StudentsPage currentUser={currentUser} />} />
           <Route path="/forms" element={<FormsPage currentUser={currentUser} />} />
+          <Route path="/forms/events/:id/edit" element={<FormsPage currentUser={currentUser} />} />
+          <Route path="/forms/tasks/:id/edit" element={<FormsPage currentUser={currentUser} />} />
           <Route path="/profile" element={<ProfilePage currentUser={currentUser} />} />
           <Route path="/learning" element={<LearningCenterPage currentUser={currentUser} />} />
           <Route path="/cafeteria" element={<CafeteriaPage />} />

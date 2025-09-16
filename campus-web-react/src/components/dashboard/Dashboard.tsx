@@ -5,6 +5,7 @@ import { User } from '../../types';
 import WelcomeBanner from './WelcomeBanner';
 import TasksCard from './TasksCard';
 import EventsCard from './EventsCard';
+import DebugInfo from '../DebugInfo';
 import { demoEvents } from '../../data/demoData';
 import { getAllStudents } from '../../data/studentsData';
 
@@ -31,7 +32,7 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
           // Create initial events data (at least 10 objects)
           const initialEvents = [
             ...demoEvents.map(demoEvent => ({
-              eventId: demoEvent.id,
+              id: demoEvent.id,
               title: demoEvent.title,
               description: demoEvent.description,
               date: demoEvent.date,
@@ -42,7 +43,7 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
             })),
             // Add more events to reach 10
             ...Array.from({ length: 7 }, (_, index) => ({
-              eventId: `EVENT-${index + 4}`,
+              id: `EVENT-${index + 4}`,
               title: `אירוע ${index + 4}`,
               description: `תיאור אירוע ${index + 4}`,
               date: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -181,7 +182,7 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
           ];
           
           const initialTasks = Array.from({ length: 10 }, (_, index) => ({
-            taskId: `TASK-${String(index + 1).padStart(3, '0')}`,
+            id: `TASK-${String(index + 1).padStart(3, '0')}`,
             title: taskTitles[index],
             type: ['assignment', 'exam', 'quiz', 'presentation'][index % 4],
             date: new Date(Date.now() + (index + 1) * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -218,6 +219,9 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
 
   return (
     <Box>
+      {/* Debug Info - Temporary */}
+      <DebugInfo currentUser={currentUser} />
+
       {/* Welcome Banner */}
       <WelcomeBanner currentUser={currentUser} />
 
