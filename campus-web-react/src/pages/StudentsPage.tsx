@@ -221,10 +221,9 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
     }
   }, [id, students, navigate]);
 
-  // Handle view student
+  // Handle view student - navigate to student details page
   const handleViewStudent = (student: Student) => {
-    setSelectedStudent(student);
-    setViewDialogOpen(true);
+    navigate(`/students/${student.id}`);
   };
 
   // Handle edit student - navigate to edit page

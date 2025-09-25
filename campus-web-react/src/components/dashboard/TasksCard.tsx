@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Box, Typography, LinearProgress } from '@mui/material';
-import { CheckCircle as CheckCircleIcon, Warning as WarningIcon, AccessTime as TimeIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, Box, Typography, LinearProgress, IconButton, Tooltip } from '@mui/material';
+import { CheckCircle as CheckCircleIcon, Warning as WarningIcon, AccessTime as TimeIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth';
 
 import { demoTasks } from '../../data/demoData';
@@ -25,8 +26,13 @@ interface TasksCardProps {
 
 const TasksCard: React.FC<TasksCardProps> = ({ customColors }) => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [studentTasks, setStudentTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const handleViewTask = (task: Task) => {
+    navigate(`/tasks/${task.id}`);
+  };
 
   // Load student-specific tasks from Firestore
   useEffect(() => {
@@ -101,11 +107,25 @@ const TasksCard: React.FC<TasksCardProps> = ({ customColors }) => {
                 backgroundColor: task.priority === 'urgent' ? '#ffebee' : '#e3f2fd'
               }}
             >
-              <Box key={`task-header-${task.id}`} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                {task.priority === 'urgent' ? <WarningIcon color="error" /> : <TimeIcon color="primary" />}
-                <Typography variant="body2" fontWeight="bold">
-                  {task.title}
-                </Typography>
+              <Box key={`task-header-${task.id}`} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {task.priority === 'urgent' ? <WarningIcon color="error" /> : <TimeIcon color="primary" />}
+                  <Typography variant="body2" fontWeight="bold">
+                    {task.title}
+                  </Typography>
+                </Box>
+                <Tooltip title="צפייה בפרטי המטלה">
+                  <IconButton 
+                    size="small" 
+                    onClick={() => handleViewTask(task)}
+                    sx={{ 
+                      color: 'primary.main',
+                      '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.1)' }
+                    }}
+                  >
+                    <VisibilityIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </Box>
               <Typography variant="caption" color="text.secondary">
                 {task.course} - {(task as any).date || task.dueDate}

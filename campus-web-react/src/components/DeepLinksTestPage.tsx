@@ -5,6 +5,15 @@ import { Link } from 'react-router-dom';
 const DeepLinksTestPage: React.FC = () => {
   const testRoutes = [
     {
+      title: 'Main Pages',
+      description: 'Navigate to main pages with entity lists',
+      routes: [
+        { path: '/students', label: 'Students Page - View and click on students' },
+        { path: '/forms', label: 'Forms Page - View events and their details' },
+        { path: '/', label: 'Dashboard - View tasks and events with detail links' }
+      ]
+    },
+    {
       title: 'Student Detail',
       description: 'View specific student details',
       routes: [
@@ -78,15 +87,17 @@ const DeepLinksTestPage: React.FC = () => {
       <Card sx={{ mt: 4 }}>
         <CardContent>
           <Typography variant="h6" gutterBottom>
-            How to Test Deep Links
+            איך לבדוק קישורים ישירים (Deep Links)
           </Typography>
           <Typography variant="body2" component="div">
             <ol>
-              <li>Click on any of the test links above</li>
-              <li>The page should navigate to the specific entity detail page</li>
-              <li>If the entity doesn't exist, you'll see an appropriate error message</li>
-              <li>You can also manually type URLs like <code>/students/any-id</code> in the address bar</li>
-              <li>The detail pages include navigation back to the main pages</li>
+              <li>לחץ על דפי הראשי למעלה כדי לראות את הרשימות</li>
+              <li>בדף הסטודנטים - לחץ על כפתור העין כדי לצפות בפרטי סטודנט</li>
+              <li>בדף הטפסים - לחץ על כפתור העין ליד אירועים</li>
+              <li>בלוח הבקרה - לחץ על כפתורי העין ליד מטלות ואירועים</li>
+              <li>אתה יכול גם להקליד ישירות בכתובת URL כמו <code>/students/any-id</code></li>
+              <li>דפי הפרטים כוללים ניווט חזרה לדפים הראשיים</li>
+              <li>אם הישות לא קיימת, תראה הודעת שגיאה מתאימה</li>
             </ol>
           </Typography>
         </CardContent>

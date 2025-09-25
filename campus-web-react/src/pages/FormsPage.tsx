@@ -30,6 +30,7 @@ import {
   CheckCircle as CheckCircleIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  Visibility as VisibilityIcon,
   Business as BusinessIcon,
   LibraryBooks as LibraryIcon,
   Restaurant as RestaurantIcon,
@@ -828,6 +829,10 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   };
 
   // Event management functions
+  const handleViewEvent = (event: LocalEvent) => {
+    navigate(`/events/${event.id}`);
+  };
+
   const handleEditEvent = (event: LocalEvent) => {
     navigate(`/forms/events/${event.id}/edit`);
   };
@@ -1380,7 +1385,15 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
                 <Box>{event.time}</Box>
                 <Box>{event.location}</Box>
                 <Box>{event.maxParticipants}</Box>
-                <Box>
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  <IconButton
+                    size="small"
+                    color="info"
+                    onClick={() => handleViewEvent(event)}
+                    sx={{ '&:hover': { backgroundColor: 'rgba(2, 136, 209, 0.1)' } }}
+                  >
+                    <VisibilityIcon fontSize="small" />
+                  </IconButton>
                   <IconButton
                     size="small"
                     color="primary"
@@ -1389,8 +1402,6 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
                   >
                     <EditIcon fontSize="small" />
                   </IconButton>
-                </Box>
-                <Box>
                   <IconButton
                     size="small"
                     color="error"

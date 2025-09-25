@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Box, Typography, LinearProgress } from '@mui/material';
-import { CalendarToday as CalendarIcon, AccessTime as TimeIcon, MeetingRoom as RoomIcon } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, Box, Typography, LinearProgress, IconButton, Tooltip } from '@mui/material';
+import { CalendarToday as CalendarIcon, AccessTime as TimeIcon, MeetingRoom as RoomIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 
 import { demoEvents } from '../../data/demoData';
 import { listEvents } from '../../fireStore/eventsService';
@@ -23,8 +24,13 @@ interface EventsCardProps {
 }
 
 const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
+  const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const handleViewEvent = (event: Event) => {
+    navigate(`/events/${event.id}`);
+  };
 
   useEffect(() => {
     const loadEventsFromFirestore = async () => {
@@ -149,17 +155,30 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
                   }
                 }}
               >
-                <Typography 
-                  variant="subtitle1" 
-                  color="primary"
-                  sx={{ 
-                    fontWeight: 'bold', 
-                    mb: 1,
-                    fontSize: '1.1rem'
-                  }}
-                >
-                  {event.title}
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Typography 
+                    variant="subtitle1" 
+                    color="primary"
+                    sx={{ 
+                      fontWeight: 'bold', 
+                      fontSize: '1.1rem'
+                    }}
+                  >
+                    {event.title}
+                  </Typography>
+                  <Tooltip title="צפייה בפרטי האירוע">
+                    <IconButton 
+                      size="small" 
+                      onClick={() => handleViewEvent(event)}
+                      sx={{ 
+                        color: 'primary.main',
+                        '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.1)' }
+                      }}
+                    >
+                      <VisibilityIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
                 
                 <Typography 
                   variant="body2" 
