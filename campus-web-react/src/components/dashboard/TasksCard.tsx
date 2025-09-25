@@ -5,6 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 
 import { demoTasks } from '../../data/demoData';
 import { listTasks } from '../../fireStore/tasksService';
+import { listCourses } from '../../fireStore/coursesService';
 
 interface Task {
   id: string;
@@ -32,39 +33,28 @@ const TasksCard: React.FC<TasksCardProps> = ({ customColors }) => {
       const loadTasksFromFirestore = async () => {
         try {
           const firestoreTasks = await listTasks();
-          const savedCourses = localStorage.getItem('campus-courses-data');
+          const firestoreCourses = await listCourses();
           
-          if (savedCourses) {
-            const allCourses = JSON.parse(savedCourses);
-            
+          if (firestoreCourses.length > 0) {
             // Find courses where this student is enrolled
-            const studentCourses = allCourses.filter((course: { selectedStudents?: string[]; courseId: string }) => 
+            const studentCourses = firestoreCourses.filter((course: { selectedStudents?: string[]; id: string }) => 
               course.selectedStudents && course.selectedStudents.includes(currentUser.id)
             );
             
             // Find tasks for courses this student is enrolled in
             const userTasks = firestoreTasks.filter((task: { course: string }) => {
-              return studentCourses.some((course: { courseId: string }) => course.courseId === task.course);
+              return studentCourses.some((course: { id: string }) => course.id === task.course);
             });
             
             setStudentTasks(userTasks);
-            localStorage.setItem('campus-tasks-data', JSON.stringify(firestoreTasks));
           }
         } catch (error) {
           console.error('Error loading tasks from Firestore:', error);
-          // Fallback to localStorage
-          const savedTasks = localStorage.getItem('campus-tasks-data');
-          if (savedTasks) {
-            const allTasks = JSON.parse(savedTasks);
-            setStudentTasks(allTasks);
-          }
+          setStudentTasks([]);
         }
       };
       
       loadTasksFromFirestore();
-      } catch (error) {
-        setStudentTasks([]);
-      }
     }
   }, [currentUser]);
 

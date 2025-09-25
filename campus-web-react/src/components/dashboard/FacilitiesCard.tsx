@@ -23,7 +23,7 @@ interface ManagedFacility {
   id: string;
   name: string;
   type: 'library' | 'cafeteria' | 'gym' | 'parking';
-  status: 'open' | 'closed';
+  status: 'open' | 'closed' | 'busy';
   lastUpdated: string;
 }
 
@@ -37,48 +37,43 @@ const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
       try {
         const firestoreFacilities = await listFacilities();
         if (firestoreFacilities.length > 0) {
-          setManagedFacilities(firestoreFacilities);
-          localStorage.setItem('campus-facilities-data', JSON.stringify(firestoreFacilities));
+          // Convert Firestore facilities to local format
+          const localFacilities: ManagedFacility[] = firestoreFacilities.map(facility => ({
+            id: facility.id,
+            name: facility.name,
+            type: 'library' as 'library' | 'cafeteria' | 'gym' | 'parking', // Default type
+            status: facility.status,
+            lastUpdated: new Date().toLocaleString('he-IL')
+          }));
+          setManagedFacilities(localFacilities);
         } else {
           // If no facilities in Firestore, use demo facilities
-          setManagedFacilities(demoFacilities);
-          localStorage.setItem('campus-facilities-data', JSON.stringify(demoFacilities));
+          const convertedFacilities: ManagedFacility[] = demoFacilities.map(facility => ({
+            id: facility.id,
+            name: facility.name,
+            type: 'library' as 'library' | 'cafeteria' | 'gym' | 'parking',
+            status: facility.status as 'open' | 'closed' | 'busy',
+            lastUpdated: new Date().toLocaleString('he-IL')
+          }));
+          setManagedFacilities(convertedFacilities);
         }
       } catch (error) {
         console.error('Error loading facilities from Firestore:', error);
-        // Fallback to localStorage
-        const savedFacilities = localStorage.getItem('campus-facilities-data');
-        if (savedFacilities) {
-          const parsedFacilities = JSON.parse(savedFacilities);
-          setManagedFacilities(parsedFacilities);
-        } else {
-          setManagedFacilities(demoFacilities);
-        }
+        // Fallback to demo facilities
+        const convertedFacilities: ManagedFacility[] = demoFacilities.map(facility => ({
+          id: facility.id,
+          name: facility.name,
+          type: 'library' as 'library' | 'cafeteria' | 'gym' | 'parking',
+          status: facility.status as 'open' | 'closed' | 'busy',
+          lastUpdated: new Date().toLocaleString('he-IL')
+        }));
+        setManagedFacilities(convertedFacilities);
       }
     };
 
     loadFacilitiesFromFirestore();
     
-    // Listen for storage changes to update when facilities are modified in FormsPage
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'campus-facilities-data') {
-        loadFacilitiesFromFirestore();
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Also listen for custom events (for same-tab updates)
-    const handleFacilityUpdate = () => {
-      loadFacilitiesFromLocalStorage();
-    };
-
-    window.addEventListener('facilityUpdated', handleFacilityUpdate);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('facilityUpdated', handleFacilityUpdate);
-    };
+    // Facilities are now managed through Firestore, no need for localStorage listeners
   }, []);
 
   const getStatusColor = (status: string) => {

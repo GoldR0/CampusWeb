@@ -58,7 +58,7 @@ const LearningCenterPage: React.FC<LearningCenterPageProps> = ({ currentUser }) 
   useEffect(() => {
     if (currentUser) {
       // Load courses from localStorage
-      const savedCourses = localStorage.getItem('campus-courses-data');
+      const savedCourses = null; // Courses are now managed through Firestore
       if (savedCourses) {
         try {
           const allCourses = JSON.parse(savedCourses);
@@ -68,7 +68,7 @@ const LearningCenterPage: React.FC<LearningCenterPageProps> = ({ currentUser }) 
           setStudentCourses(userCourses);
           
           // Load tasks from localStorage after courses are loaded
-          const savedTasks = localStorage.getItem('campus-tasks-data');
+          const savedTasks = null; // Tasks are now managed through Firestore
           if (savedTasks) {
             try {
               const allTasks = JSON.parse(savedTasks);

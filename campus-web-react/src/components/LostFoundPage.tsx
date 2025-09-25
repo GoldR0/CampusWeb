@@ -146,7 +146,7 @@ const LostFoundPage: React.FC<LostFoundPageProps> = ({ currentUser }) => {
   useEffect(() => {
     const loadReportsFromLocalStorage = () => {
       try {
-        const savedReports = localStorage.getItem('campus-lost-found-data');
+        const savedReports = null; // Lost found reports are now managed through Firestore
         if (savedReports) {
           const parsedReports = JSON.parse(savedReports);
           if (parsedReports.length === 0) {
@@ -169,7 +169,7 @@ const LostFoundPage: React.FC<LostFoundPageProps> = ({ currentUser }) => {
             
             setSubmittedForms(demoReports);
             setReportCounter(11);
-            localStorage.setItem('campus-lost-found-data', JSON.stringify(demoReports));
+            // Lost found reports are now managed through Firestore
           } else {
             // Convert timestamp strings back to Date objects
             const reportsWithDates = parsedReports.map((report: { timestamp: string | Date; [key: string]: any }) => ({
@@ -197,7 +197,7 @@ const LostFoundPage: React.FC<LostFoundPageProps> = ({ currentUser }) => {
               
               const allReports = [...reportsWithDates, ...additionalReports];
               setSubmittedForms(allReports);
-              localStorage.setItem('campus-lost-found-data', JSON.stringify(allReports));
+              // Lost found reports are now managed through Firestore
               setReportCounter(allReports.length + 1);
             } else {
               setSubmittedForms(reportsWithDates);
@@ -229,11 +229,11 @@ const LostFoundPage: React.FC<LostFoundPageProps> = ({ currentUser }) => {
           
           setSubmittedForms(demoReports);
           setReportCounter(11);
-          localStorage.setItem('campus-lost-found-data', JSON.stringify(demoReports));
+          // Lost found reports are now managed through Firestore
         }
         
         // Always ensure reports have proper IDs (in case of corrupted data)
-        const currentReports = localStorage.getItem('campus-lost-found-data');
+        const currentReports = null; // Lost found reports are now managed through Firestore
         if (currentReports) {
           try {
             const parsed = JSON.parse(currentReports);
@@ -257,7 +257,7 @@ const LostFoundPage: React.FC<LostFoundPageProps> = ({ currentUser }) => {
               
               if (needsUpdate) {
                 setSubmittedForms(fixedReports);
-                localStorage.setItem('campus-lost-found-data', JSON.stringify(fixedReports));
+                // Lost found reports are now managed through Firestore
                 setReportCounter(fixedReports.length + 1);
               }
             }
@@ -281,13 +281,13 @@ const LostFoundPage: React.FC<LostFoundPageProps> = ({ currentUser }) => {
             
             setSubmittedForms(demoReports);
             setReportCounter(11);
-            localStorage.setItem('campus-lost-found-data', JSON.stringify(demoReports));
+            // Lost found reports are now managed through Firestore
           }
         }
       } catch (error) {
         // Error loading reports from localStorage
         // If there's an error, clear localStorage and initialize with demo data
-        localStorage.removeItem('campus-lost-found-data');
+        // Lost found reports are now managed through Firestore
         const itemNames = ['מפתחות', 'ארנק', 'טלפון', 'תיק', 'ספר', 'משקפיים', 'שעון', 'תעודת זהות', 'כרטיס סטודנט', 'מחשב נייד'];
         const locations = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'אודיטוריום', 'מעבדה', 'כיתה', 'משרד', 'גינה', 'מרכז סטודנטים'];
         const users = ['דוד כהן', 'שרה לוי', 'משה ישראלי', 'רחל אברהם', 'יוסף גולד', 'מרים שלום', 'אברהם כהן', 'רחל לוי', 'יצחק ישראלי', 'לאה אברהם'];
@@ -306,7 +306,7 @@ const LostFoundPage: React.FC<LostFoundPageProps> = ({ currentUser }) => {
         
         setSubmittedForms(demoReports);
         setReportCounter(11);
-        localStorage.setItem('campus-lost-found-data', JSON.stringify(demoReports));
+        // Lost found reports are now managed through Firestore
       }
     };
 
@@ -374,7 +374,7 @@ const LostFoundPage: React.FC<LostFoundPageProps> = ({ currentUser }) => {
       
       // Save to localStorage
       try {
-        localStorage.setItem('campus-lost-found-data', JSON.stringify(updatedForms));
+        // Lost found reports are now managed through Firestore
         
         // Dispatch custom event to notify other components
         window.dispatchEvent(new CustomEvent('lostFoundUpdated'));

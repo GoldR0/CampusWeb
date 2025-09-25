@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { listEvents, deleteEvent, patchEvent } from '../fireStore/eventsService';
+import { listEvents, deleteEvent, patchEvent, addEvent } from '../fireStore/eventsService';
 import { listFacilities, patchFacility } from '../fireStore/facilitiesService';
 import {
   Box,
@@ -252,7 +252,6 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           }));
           
           setEvents(localEvents);
-          localStorage.setItem('campus-events-data', JSON.stringify(localEvents));
           
           // Set counter to next available number
           const maxId = Math.max(...localEvents.map((event: LocalEvent) => 
@@ -287,12 +286,12 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           
           setEvents(initialEvents);
           setEventCounter(11);
-          localStorage.setItem('campus-events-data', JSON.stringify(initialEvents));
+          // Events are now managed through Firestore
         }
       } catch (error) {
         console.error('Error loading events from Firestore:', error);
-        // Fallback to localStorage
-        const savedEvents = localStorage.getItem('campus-events-data');
+        // Fallback to demo data
+        const savedEvents = null;
         if (savedEvents) {
           const parsedEvents = JSON.parse(savedEvents);
           setEvents(parsedEvents);
@@ -320,7 +319,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           }));
           
           setFacilities(localFacilities);
-          localStorage.setItem('campus-facilities-data', JSON.stringify(localFacilities));
+          // Facilities are now managed through Firestore
         } else {
           // If no facilities in Firestore, create initial facilities
           const initialFacilities: LocalFacility[] = [
@@ -330,12 +329,12 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             { id: 'facility-4', name: 'חניון', type: 'parking', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') }
           ];
           setFacilities(initialFacilities);
-          localStorage.setItem('campus-facilities-data', JSON.stringify(initialFacilities));
+          // Facilities are now managed through Firestore
         }
       } catch (error) {
         console.error('Error loading facilities from Firestore:', error);
-        // Fallback to localStorage
-        const savedFacilities = localStorage.getItem('campus-facilities-data');
+        // Fallback to demo data
+        const savedFacilities = null;
         if (savedFacilities) {
           const parsedFacilities = JSON.parse(savedFacilities);
           setFacilities(parsedFacilities);
@@ -343,83 +342,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
       }
     };
 
-    const loadEventsFromLocalStorage = () => {
-      try {
-        const savedEvents = localStorage.getItem('campus-events-data');
-        if (savedEvents) {
-          const parsedEvents = JSON.parse(savedEvents);
-          if (parsedEvents.length === 0) {
-            // If events array is empty, create initial events
-            const eventTitles = [
-              'הרצאה על בינה מלאכותית',
-              'סדנת תכנות',
-              'מפגש סטודנטים',
-              'הרצאה על אבטחת מידע',
-              'סדנת פיתוח אפליקציות',
-              'מפגש בוגרים',
-              'הרצאה על רשתות מחשבים',
-              'סדנת מסדי נתונים',
-              'מפגש חברתי',
-              'הרצאה על אלגוריתמים'
-            ];
-            
-            const initialEvents: LocalEvent[] = Array.from({ length: 10 }, (_, index) => ({
-              id: `event-${index + 1}`,
-              title: eventTitles[index],
-              description: `תיאור מפורט של ${eventTitles[index]}`,
-              date: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-              time: `${10 + (index % 8)}:00`,
-              location: `חדר ${index + 1}`,
-              maxParticipants: 30 + (index * 5),
-              createdAt: new Date().toLocaleString('he-IL')
-            }));
-            
-            setEvents(initialEvents);
-            setEventCounter(11);
-            localStorage.setItem('campus-events-data', JSON.stringify(initialEvents));
-          } else {
-            setEvents(parsedEvents);
-            
-            // Set counter to next available number
-            const maxId = Math.max(...parsedEvents.map((event: LocalEvent) => 
-              parseInt(event.id.split('-')[1])
-            ));
-            setEventCounter(maxId + 1);
-          }
-        } else {
-          // Create initial events if none exist
-          const eventTitles = [
-            'הרצאה על בינה מלאכותית',
-            'סדנת תכנות',
-            'מפגש סטודנטים',
-            'הרצאה על אבטחת מידע',
-            'סדנת פיתוח אפליקציות',
-            'מפגש בוגרים',
-            'הרצאה על רשתות מחשבים',
-            'סדנת מסדי נתונים',
-            'מפגש חברתי',
-            'הרצאה על אלגוריתמים'
-          ];
-          
-          const initialEvents: LocalEvent[] = Array.from({ length: 10 }, (_, index) => ({
-            id: `event-${index + 1}`,
-            title: eventTitles[index],
-            description: `תיאור מפורט של ${eventTitles[index]}`,
-            date: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            time: `${10 + (index % 8)}:00`,
-            location: `חדר ${index + 1}`,
-            maxParticipants: 30 + (index * 5),
-            createdAt: new Date().toLocaleString('he-IL')
-          }));
-          
-          setEvents(initialEvents);
-          setEventCounter(11);
-          localStorage.setItem('campus-events-data', JSON.stringify(initialEvents));
-        }
-      } catch (error) {
-        // Error loading events from localStorage
-      }
-    };
+    // Events are now loaded from Firestore in loadEventsFromFirestore
 
     const loadFacilitiesFromLocalStorage = () => {
       try {
@@ -445,7 +368,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             }));
             
             setFacilities(initialFacilities);
-            localStorage.setItem('campus-facilities-data', JSON.stringify(initialFacilities));
+            // Facilities are now managed through Firestore
           } else {
             setFacilities(filteredFacilities);
             
@@ -549,7 +472,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             }));
             
             setLostFoundReports(initialReports);
-            localStorage.setItem('campus-lost-found-data', JSON.stringify(initialReports));
+            // Lost found reports are now managed through Firestore
           } else {
             // Convert timestamp strings back to Date objects
             const reportsWithDates = parsedReports.map((report: { timestamp: string | Date; [key: string]: any }) => ({
@@ -577,7 +500,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           }));
           
           setLostFoundReports(initialReports);
-          localStorage.setItem('campus-lost-found-data', JSON.stringify(initialReports));
+          // Lost found reports are now managed through Firestore
         }
       } catch (error) {
         // Error loading lost-found reports from localStorage
@@ -617,7 +540,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             }));
             
             setInquiries(initialInquiries);
-            localStorage.setItem('campus-inquiries-data', JSON.stringify(initialInquiries));
+            // Inquiries are now managed through Firestore
           } else {
             setInquiries(parsedInquiries);
           }
@@ -649,7 +572,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           }));
           
           setInquiries(initialInquiries);
-          localStorage.setItem('campus-inquiries-data', JSON.stringify(initialInquiries));
+          // Inquiries are now managed through Firestore
         }
       } catch (error) {
         // Error loading inquiries from localStorage
@@ -658,25 +581,10 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
 
     loadEventsFromFirestore();
     loadFacilitiesFromFirestore();
-    loadLostFoundReportsFromLocalStorage();
-    loadInquiriesFromLocalStorage();
+    // loadLostFoundReportsFromLocalStorage();
+    // loadInquiriesFromLocalStorage();
 
-    // Listen for updates from other tabs
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'campus-facilities-data') {
-        loadFacilitiesFromLocalStorage();
-      } else if (e.key === 'campus-lost-found-data') {
-        loadLostFoundReportsFromLocalStorage();
-      } else if (e.key === 'campus-inquiries-data') {
-        loadInquiriesFromLocalStorage();
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
+    // Data is now managed through Firestore, no need for localStorage listeners
   }, []);
 
   const forms = [
@@ -703,7 +611,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     }
   ];
 
-  const handleFormSubmit = (formType: string) => {
+  const handleFormSubmit = async (formType: string) => {
     if (formType === 'event') {
       // Mark all fields as touched
       const allTouched = ['title', 'date', 'time', 'location'].reduce((acc, field) => {
@@ -722,14 +630,14 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         const updatedEvents = [...events, newEvent];
         setEvents(updatedEvents);
 
-        // Save to localStorage
+        // Save to Firestore
         try {
-          localStorage.setItem('campus-events-data', JSON.stringify(updatedEvents));
+          await addEvent(newEvent as any);
           
           // Dispatch custom event to notify other components
           window.dispatchEvent(new CustomEvent('eventsUpdated'));
         } catch (error) {
-          // Error saving events to localStorage
+          console.error('Error saving event to Firestore:', error);
         }
 
         setNotification({
@@ -779,10 +687,8 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         return facility;
       });
       setFacilities(updatedFacilities);
-      try {
-        localStorage.setItem('campus-facilities-data', JSON.stringify(updatedFacilities));
-        window.dispatchEvent(new CustomEvent('facilityUpdated'));
-      } catch (error) {}
+      // Facilities are now managed through Firestore
+      window.dispatchEvent(new CustomEvent('facilityUpdated'));
       setNotification({
         message: `המתקן "${target?.name}" שונה למצב ${toggledStatus === 'open' ? 'פתוח' : 'סגור'}`,
         type: 'success'
@@ -820,15 +726,8 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
       const updatedReports = lostFoundReports.filter(report => report.id !== reportToDelete.id);
       setLostFoundReports(updatedReports);
       
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-lost-found-data', JSON.stringify(updatedReports));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('lostFoundUpdated'));
-      } catch (error) {
-        // Error saving reports to localStorage
-      }
+      // Lost found reports are now managed through Firestore
+      window.dispatchEvent(new CustomEvent('lostFoundUpdated'));
       
       setNotification({
         message: `הדיווח "${reportToDelete.id}" נמחק בהצלחה`,
@@ -901,15 +800,8 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
       const updatedInquiries = inquiries.filter(inquiry => inquiry.id !== inquiryToDelete.id);
       setInquiries(updatedInquiries);
       
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-inquiries-data', JSON.stringify(updatedInquiries));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('inquiriesUpdated'));
-      } catch (error) {
-        // Error saving inquiries to localStorage
-      }
+      // Inquiries are now managed through Firestore
+      window.dispatchEvent(new CustomEvent('inquiriesUpdated'));
       
       setNotification({
         message: `הפנייה "${inquiryToDelete.id}" נמחקה בהצלחה`,
@@ -941,10 +833,8 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         await deleteEvent(eventToDelete.id);
         const updatedEvents = events.filter(event => event.id !== eventToDelete.id);
         setEvents(updatedEvents);
-        try {
-          localStorage.setItem('campus-events-data', JSON.stringify(updatedEvents));
-          window.dispatchEvent(new CustomEvent('eventsUpdated'));
-        } catch (error) {}
+        // Events are now managed through Firestore
+        window.dispatchEvent(new CustomEvent('eventsUpdated'));
         setNotification({
           message: `האירוע "${eventToDelete.title}" נמחק בהצלחה`,
           type: 'success'
@@ -977,10 +867,8 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             : event
         );
         setEvents(updatedEvents);
-        try {
-          localStorage.setItem('campus-events-data', JSON.stringify(updatedEvents));
-          window.dispatchEvent(new CustomEvent('eventsUpdated'));
-        } catch (error) {}
+        // Events are now managed through Firestore
+        window.dispatchEvent(new CustomEvent('eventsUpdated'));
         setNotification({
           message: `האירוע "${formData.event.title}" עודכן בהצלחה`,
           type: 'success'

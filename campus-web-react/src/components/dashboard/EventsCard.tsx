@@ -30,8 +30,18 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
       try {
         const firestoreEvents = await listEvents();
         if (firestoreEvents.length > 0) {
-          setEvents(firestoreEvents);
-          localStorage.setItem('campus-events-data', JSON.stringify(firestoreEvents));
+          // Convert Firestore events to local format
+          const localEvents = firestoreEvents.map(event => ({
+            id: event.id,
+            title: event.title,
+            description: event.description,
+            date: event.date,
+            time: event.time,
+            location: event.roomId,
+            maxParticipants: 50,
+            createdAt: new Date().toLocaleString('he-IL')
+          }));
+          setEvents(localEvents);
         } else {
           // If no events in Firestore, use demo events
           const demoEventsData = demoEvents.map(demoEvent => ({
@@ -45,53 +55,28 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
             createdAt: new Date().toLocaleString('he-IL')
           }));
           setEvents(demoEventsData);
-          localStorage.setItem('campus-events-data', JSON.stringify(demoEventsData));
         }
       } catch (error) {
         console.error('Error loading events from Firestore:', error);
-        // Fallback to localStorage
-        const savedEvents = localStorage.getItem('campus-events-data');
-        if (savedEvents) {
-          const parsedEvents = JSON.parse(savedEvents);
-          setEvents(parsedEvents);
-        } else {
-          // Final fallback to demo events
-          setEvents(demoEvents.map(demoEvent => ({
-            id: demoEvent.id,
-            title: demoEvent.title,
-            description: demoEvent.description,
-            date: demoEvent.date,
-            time: demoEvent.time,
-            location: `חדר ${demoEvent.roomId}`,
-            maxParticipants: 50,
-            createdAt: new Date().toLocaleString('he-IL')
-          })));
-        }
+        // Fallback to demo events
+        setEvents(demoEvents.map(demoEvent => ({
+          id: demoEvent.id,
+          title: demoEvent.title,
+          description: demoEvent.description,
+          date: demoEvent.date,
+          time: demoEvent.time,
+          location: `חדר ${demoEvent.roomId}`,
+          maxParticipants: 50,
+          createdAt: new Date().toLocaleString('he-IL')
+        })));
       }
     };
 
     loadEventsFromFirestore();
     
-    // Listen for storage changes to update when events are modified in FormsPage
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'campus-events-data') {
-        loadEventsFromFirestore();
-      }
-    };
+    // Events are now managed through Firestore, no need for localStorage listeners
 
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Also listen for custom events (for same-tab updates)
-    const handleEventsUpdate = () => {
-      loadEventsFromLocalStorage();
-    };
-
-    window.addEventListener('eventsUpdated', handleEventsUpdate);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('eventsUpdated', handleEventsUpdate);
-    };
+    // Events are now managed through Firestore, no need for event listeners
   }, []);
 
   return (

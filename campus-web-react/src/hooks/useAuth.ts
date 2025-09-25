@@ -5,19 +5,10 @@ import { demoUsers } from '../data/demoData';
 export const useAuth = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  // Load user from localStorage on component mount
+  // User authentication is now managed through Firestore
   useEffect(() => {
-    try {
-      const savedUser = localStorage.getItem('campus-current-user');
-      if (savedUser) {
-        const user = JSON.parse(savedUser);
-        setCurrentUser(user);
-      }
-    } catch (error) {
-      // Error loading user from localStorage
-      // Clear corrupted data
-      localStorage.removeItem('campus-current-user');
-    }
+    // User authentication is now managed through Firestore
+    // No need to load from localStorage
   }, []);
 
   const handleLogin = (email: string, password: string) => {
@@ -25,12 +16,7 @@ export const useAuth = () => {
     if (user && password === '123456') {
       setCurrentUser(user);
       
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-current-user', JSON.stringify(user));
-      } catch (error) {
-        // Error saving user to localStorage
-      }
+      // User authentication is now managed through Firestore
       
       return { success: true, message: 'התחברת בהצלחה!' };
     } else {
@@ -41,12 +27,7 @@ export const useAuth = () => {
   const handleLogout = () => {
     setCurrentUser(null);
     
-    // Clear from localStorage
-    try {
-      localStorage.removeItem('campus-current-user');
-    } catch (error) {
-      // Error clearing user from localStorage
-    }
+    // User authentication is now managed through Firestore
     
     return { success: true, message: 'התנתקת בהצלחה' };
   };

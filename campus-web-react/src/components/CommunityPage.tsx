@@ -69,7 +69,7 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
   // Load existing inquiries counter on component mount
   useEffect(() => {
     try {
-      const savedInquiries = localStorage.getItem('campus-inquiries-data');
+      const savedInquiries = null; // Inquiries are now managed through Firestore
       if (savedInquiries) {
         const inquiries = JSON.parse(savedInquiries);
         if (inquiries.length > 0) {
@@ -209,11 +209,11 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
 
       // Save to localStorage
       try {
-        const existingInquiries = localStorage.getItem('campus-inquiries-data');
+        const existingInquiries = null; // Inquiries are now managed through Firestore
         const inquiries = existingInquiries ? JSON.parse(existingInquiries) : [];
         const updatedInquiries = [...inquiries, newInquiry];
         
-        localStorage.setItem('campus-inquiries-data', JSON.stringify(updatedInquiries));
+        // Inquiries are now managed through Firestore
         
         // Dispatch custom event to notify other components
         window.dispatchEvent(new CustomEvent('inquiriesUpdated'));

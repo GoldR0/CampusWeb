@@ -54,6 +54,8 @@ import {
   getHighGPAStudents
 } from '../data/studentsData';
 import { addStudent, listStudents, deleteStudent } from '../fireStore/studentsService';
+import { addCourse, listCourses, updateCourse, deleteCourse } from '../fireStore/coursesService';
+import { addTask, listTasks, deleteTask } from '../fireStore/tasksService';
 
 interface TaskFormData {
   title: string;
@@ -241,12 +243,8 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
         await deleteStudent(selectedStudent.id);
         // Update students state after Firestore deletion
         setStudents(prev => prev.filter(s => s.id !== selectedStudent.id));
-        try {
-          localStorage.setItem('campus-students-data', JSON.stringify(
-            students.filter(s => s.id !== selectedStudent.id)
-          ));
-          window.dispatchEvent(new CustomEvent('studentsUpdated'));
-        } catch (error) {}
+        // Dispatch custom event to notify other components
+        window.dispatchEvent(new CustomEvent('studentsUpdated'));
         setNotification({
           message: `הסטודנט ${selectedStudent.fullName} נמחק בהצלחה`,
           type: 'success'
@@ -427,9 +425,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
         const updatedStudents = [...students, newStudent];
         setStudents(updatedStudents);
 
-        // // Save to localStorage
-        // const studentsJson = JSON.stringify(updatedStudents);
-        // localStorage.setItem('campus-students-data', studentsJson);
+        // Students are now managed through Firestore
         addStudent(newStudent)
         .then(() => {
           window.dispatchEvent(new CustomEvent('studentsUpdated'));
@@ -694,14 +690,12 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       const allStudents = await listStudents();
       setStudents(allStudents);
       setStatistics(getStudentsStatistics());
-      localStorage.setItem('campus-students-data', JSON.stringify(allStudents));
     } catch (error) {
       console.error('Error loading students from Firestore:', error);
       // Fallback to demo data if Firestore fails
       const allStudents = getAllStudents();
       setStudents(allStudents);
       setStatistics(getStudentsStatistics());
-      localStorage.setItem('campus-students-data', JSON.stringify(allStudents));
     }
   };
 
@@ -710,45 +704,26 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
     // Force reload on first load to ensure we have the correct data
     forceReloadStudents();
 
-    const loadCoursesFromLocalStorage = () => {
+    const loadCoursesFromFirestore = async () => {
       try {
-        const savedCourses = localStorage.getItem('campus-courses-data');
-        if (savedCourses) {
-          const parsedCourses = JSON.parse(savedCourses);
-          if (parsedCourses.length === 0) {
-            // If courses array is empty, create initial courses
-            const courseNames = [
-              'מבוא למדעי המחשב',
-              'אלגוריתמים',
-              'מבני נתונים',
-              'מסדי נתונים',
-              'תכנות מונחה עצמים',
-              'רשתות מחשבים',
-              'אבטחת מידע',
-              'בינה מלאכותית',
-              'פיתוח אפליקציות',
-              'ניהול פרויקטים'
-            ];
-            
-            const initialCourses: Course[] = Array.from({ length: 10 }, (_, index) => ({
-              courseId: `COURSE-${String(index + 1).padStart(3, '0')}`,
-              courseName: courseNames[index],
-              lecturer: `ד"ר ${['כהן', 'לוי', 'ישראלי', 'אברהם', 'גולד'][index % 5]}`,
-              semester: ['a', 'b', 'summer'][index % 3],
-              year: '2025',
-              students: '0',
-              credits: String((index % 4) + 2),
-              selectedStudents: [],
-              createdAt: new Date().toLocaleString('he-IL')
-            }));
-            
-            setCourses(initialCourses);
-            localStorage.setItem('campus-courses-data', JSON.stringify(initialCourses));
-          } else {
-            setCourses(parsedCourses);
-          }
+        // Load courses from Firestore
+        const firestoreCourses = await listCourses();
+        if (firestoreCourses.length > 0) {
+          // Convert Firestore courses to local format
+          const localCourses: Course[] = firestoreCourses.map(course => ({
+            courseId: course.id,
+            courseName: course.name,
+            lecturer: course.instructor,
+            semester: 'a', // Default semester
+            year: '2025', // Default year
+            students: '0',
+            credits: course.credits.toString(),
+            selectedStudents: [],
+            createdAt: new Date().toLocaleString('he-IL')
+          }));
+          setCourses(localCourses);
         } else {
-          // Create initial courses if none exist
+          // Create initial courses if none exist in Firestore
           const courseNames = [
             'מבוא למדעי המחשב',
             'אלגוריתמים',
@@ -775,49 +750,38 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
           }));
           
           setCourses(initialCourses);
-          localStorage.setItem('campus-courses-data', JSON.stringify(initialCourses));
+          
+          // Save initial courses to Firestore
+          for (const course of initialCourses) {
+            try {
+              await addCourse(course as any);
+            } catch (error) {
+              console.error('Error adding initial course to Firestore:', error);
+            }
+          }
         }
       } catch (error) {
-        // Error loading courses from localStorage
+        console.error('Error loading courses from Firestore:', error);
       }
     };
 
-    const loadTasksFromLocalStorage = () => {
+    const loadTasksFromFirestore = async () => {
       try {
-        const savedTasks = localStorage.getItem('campus-tasks-data');
-        if (savedTasks) {
-          const parsedTasks = JSON.parse(savedTasks);
-          if (parsedTasks.length === 0) {
-            // If tasks array is empty, create initial tasks
-            const taskTitles = [
-              'מטלת תכנות בסיסית',
-              'מבחן אלגוריתמים',
-              'בוחן מבני נתונים',
-              'הצגת פרויקט',
-              'מטלת מסדי נתונים',
-              'מבחן רשתות',
-              'בוחן אבטחה',
-              'הצגת בינה מלאכותית',
-              'מטלת פיתוח',
-              'מבחן ניהול פרויקטים'
-            ];
-            
-            const initialTasks: Task[] = Array.from({ length: 10 }, (_, index) => ({
-              id: `task-${index + 1}`,
-              title: taskTitles[index],
-              type: ['assignment', 'exam', 'quiz', 'presentation'][index % 4],
-              date: new Date(Date.now() + (index + 1) * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-              course: `COURSE-${String(index + 1).padStart(3, '0')}`,
-              createdAt: new Date().toLocaleString('he-IL')
-            }));
-            
-            setTasks(initialTasks);
-            localStorage.setItem('campus-tasks-data', JSON.stringify(initialTasks));
-          } else {
-            setTasks(parsedTasks);
-          }
+        // Load tasks from Firestore
+        const firestoreTasks = await listTasks();
+        if (firestoreTasks.length > 0) {
+          // Convert Firestore tasks to local format
+          const localTasks: Task[] = firestoreTasks.map(task => ({
+            id: task.id,
+            title: task.title,
+            type: task.type,
+            date: task.dueDate,
+            course: task.course,
+            createdAt: new Date().toLocaleString('he-IL')
+          }));
+          setTasks(localTasks);
         } else {
-          // Create initial tasks if none exist
+          // Create initial tasks if none exist in Firestore
           const taskTitles = [
             'מטלת תכנות בסיסית',
             'מבחן אלגוריתמים',
@@ -841,15 +805,23 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
           }));
           
           setTasks(initialTasks);
-          localStorage.setItem('campus-tasks-data', JSON.stringify(initialTasks));
+          
+          // Save initial tasks to Firestore
+          for (const task of initialTasks) {
+            try {
+              await addTask(task as any);
+            } catch (error) {
+              console.error('Error adding initial task to Firestore:', error);
+            }
+          }
         }
       } catch (error) {
-        // Error loading tasks from localStorage
+        console.error('Error loading tasks from Firestore:', error);
       }
     };
 
-    loadCoursesFromLocalStorage();
-    loadTasksFromLocalStorage();
+    loadCoursesFromFirestore();
+    loadTasksFromFirestore();
   }, []);
 
   // Task form handlers

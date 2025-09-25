@@ -30,14 +30,13 @@ const DebugInfo: React.FC<DebugInfoProps> = ({ currentUser }) => {
   };
 
   const clearLocalStorage = () => {
-    localStorage.clear();
-    alert('LocalStorage cleared! Please refresh the page.');
+    // Data is now managed through Firestore, no need to clear localStorage
+    alert('Data is now managed through Firestore. No localStorage to clear.');
   };
 
   const checkLocalStorage = () => {
-    const keys = Object.keys(localStorage);
-    const campusKeys = keys.filter(key => key.startsWith('campus-'));
-    alert(`LocalStorage keys: ${campusKeys.join(', ')}`);
+    // Data is now managed through Firestore, no localStorage to check
+    alert('Data is now managed through Firestore. No localStorage to check.');
   };
 
   return (

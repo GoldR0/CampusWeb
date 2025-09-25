@@ -72,7 +72,7 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
     const loadData = () => {
       try {
         // Load courses
-        const savedCourses = localStorage.getItem('campus-courses-data');
+        const savedCourses = null; // Courses are now managed through Firestore
         if (savedCourses) {
           const parsedCourses = JSON.parse(savedCourses);
           setCourses(parsedCourses);
@@ -92,7 +92,7 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
         }
         
         // Load messages
-        const savedMessages = localStorage.getItem('campus-forum-messages');
+        const savedMessages = null; // Forum messages are now managed through Firestore
         if (savedMessages) {
           setMessages(JSON.parse(savedMessages));
         }
@@ -125,7 +125,7 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
 
     // Save to localStorage
     try {
-      localStorage.setItem('campus-forum-messages', JSON.stringify(updatedMessages));
+      // Forum messages are now managed through Firestore
       
       // Dispatch custom event to notify other components
       window.dispatchEvent(new CustomEvent('forumMessagesUpdated'));
