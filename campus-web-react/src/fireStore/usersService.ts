@@ -36,6 +36,12 @@ export async function updateUser(user: User): Promise<void> {
     await setDoc(docRef, user);
 }
 
+// Partial update for existing user document
+export async function patchUser(id: string, partial: Partial<User>): Promise<void> {
+    const docRef = doc(usersCollection, id);
+    await updateDoc(docRef, partial as any);
+}
+
 export async function deleteUser(id: string): Promise<void> {
     const docRef = doc(usersCollection, id);
     await deleteDoc(docRef);

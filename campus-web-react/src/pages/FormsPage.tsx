@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { listEvents } from '../fireStore/eventsService';
-import { listFacilities } from '../fireStore/facilitiesService';
+import { listEvents, deleteEvent, patchEvent } from '../fireStore/eventsService';
+import { listFacilities, patchFacility } from '../fireStore/facilitiesService';
 import {
   Box,
   Container,
@@ -763,37 +763,36 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   };
 
   // Facility management functions
-  const handleFacilityStatusToggle = (facilityId: string) => {
-    const updatedFacilities = facilities.map(facility => {
-      if (facility.id === facilityId) {
-        const newStatus: 'open' | 'closed' = facility.status === 'open' ? 'closed' : 'open';
-        return {
-          ...facility,
-          status: newStatus,
-          lastUpdated: new Date().toLocaleString('he-IL')
-        };
-      }
-      return facility;
-    });
-    
-    setFacilities(updatedFacilities);
-    
-    // Save to localStorage
+  const handleFacilityStatusToggle = async (facilityId: string) => {
+    const target = facilities.find(f => f.id === facilityId);
+    const toggledStatus: 'open' | 'closed' = target?.status === 'open' ? 'closed' : 'open';
     try {
-      localStorage.setItem('campus-facilities-data', JSON.stringify(updatedFacilities));
-      
-      // Dispatch custom event to notify other components
-      window.dispatchEvent(new CustomEvent('facilityUpdated'));
+      await patchFacility(facilityId, { status: toggledStatus } as any);
+      const updatedFacilities = facilities.map(facility => {
+        if (facility.id === facilityId) {
+          return {
+            ...facility,
+            status: toggledStatus,
+            lastUpdated: new Date().toLocaleString('he-IL')
+          };
+        }
+        return facility;
+      });
+      setFacilities(updatedFacilities);
+      try {
+        localStorage.setItem('campus-facilities-data', JSON.stringify(updatedFacilities));
+        window.dispatchEvent(new CustomEvent('facilityUpdated'));
+      } catch (error) {}
+      setNotification({
+        message: `המתקן "${target?.name}" שונה למצב ${toggledStatus === 'open' ? 'פתוח' : 'סגור'}`,
+        type: 'success'
+      });
     } catch (error) {
-      // Error saving facilities to localStorage
+      setNotification({
+        message: 'שגיאה בעדכון מצב המתקן במסד',
+        type: 'error'
+      });
     }
-    
-    const facility = facilities.find(f => f.id === facilityId);
-    const newStatus = facility?.status === 'open' ? 'סגור' : 'פתוח';
-    setNotification({
-      message: `המתקן "${facility?.name}" שונה למצב ${newStatus}`,
-      type: 'success'
-    });
   };
 
   const getFacilityIcon = (type: string) => {
@@ -936,68 +935,75 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     setDeleteEventDialogOpen(true);
   };
 
-  const confirmDeleteEvent = () => {
+  const confirmDeleteEvent = async () => {
     if (eventToDelete) {
-      const updatedEvents = events.filter(event => event.id !== eventToDelete.id);
-      setEvents(updatedEvents);
-      
-      // Save to localStorage
       try {
-        localStorage.setItem('campus-events-data', JSON.stringify(updatedEvents));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('eventsUpdated'));
+        await deleteEvent(eventToDelete.id);
+        const updatedEvents = events.filter(event => event.id !== eventToDelete.id);
+        setEvents(updatedEvents);
+        try {
+          localStorage.setItem('campus-events-data', JSON.stringify(updatedEvents));
+          window.dispatchEvent(new CustomEvent('eventsUpdated'));
+        } catch (error) {}
+        setNotification({
+          message: `האירוע "${eventToDelete.title}" נמחק בהצלחה`,
+          type: 'success'
+        });
       } catch (error) {
-        // Error saving events to localStorage
+        setNotification({
+          message: 'שגיאה במחיקת האירוע מהמסד',
+          type: 'error'
+        });
+      } finally {
+        setDeleteEventDialogOpen(false);
+        setEventToDelete(null);
       }
-      
-      setNotification({
-        message: `האירוע "${eventToDelete.title}" נמחק בהצלחה`,
-        type: 'success'
-      });
-      setDeleteEventDialogOpen(false);
-      setEventToDelete(null);
     }
   };
 
-  const handleUpdateEvent = () => {
+  const handleUpdateEvent = async () => {
     if (editingEvent) {
-      const updatedEvents = events.map(event => 
-        event.id === editingEvent.id 
-          ? { ...event, ...formData.event, createdAt: editingEvent.createdAt } as LocalEvent
-          : event
-      );
-      setEvents(updatedEvents);
-      
-      // Save to localStorage
       try {
-        localStorage.setItem('campus-events-data', JSON.stringify(updatedEvents));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('eventsUpdated'));
+        await patchEvent(editingEvent.id, {
+          title: formData.event.title,
+          description: formData.event.description,
+          date: formData.event.date,
+          time: formData.event.time,
+          roomId: formData.event.location
+        } as any);
+        const updatedEvents = events.map(event => 
+          event.id === editingEvent.id 
+            ? { ...event, ...formData.event, createdAt: editingEvent.createdAt } as LocalEvent
+            : event
+        );
+        setEvents(updatedEvents);
+        try {
+          localStorage.setItem('campus-events-data', JSON.stringify(updatedEvents));
+          window.dispatchEvent(new CustomEvent('eventsUpdated'));
+        } catch (error) {}
+        setNotification({
+          message: `האירוע "${formData.event.title}" עודכן בהצלחה`,
+          type: 'success'
+        });
       } catch (error) {
-        // Error saving events to localStorage
+        setNotification({
+          message: 'שגיאה בעדכון האירוע במסד',
+          type: 'error'
+        });
+      } finally {
+        setEditingEvent(null);
+        setActiveForm(null);
+        setFormData({
+          event: {
+            title: '',
+            description: '',
+            date: '',
+            time: '',
+            location: '',
+            maxParticipants: 10
+          }
+        });
       }
-      
-      setNotification({
-        message: `האירוע "${formData.event.title}" עודכן בהצלחה`,
-        type: 'success'
-      });
-      
-      setEditingEvent(null);
-      setActiveForm(null);
-      
-      // Reset form
-      setFormData({
-        event: {
-          title: '',
-          description: '',
-          date: '',
-          time: '',
-          location: '',
-          maxParticipants: 10
-        }
-      });
     }
   };
 

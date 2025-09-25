@@ -36,6 +36,12 @@ export async function updateCourse(course: Course): Promise<void> {
     await setDoc(docRef, course);
 }
 
+// Partial update for existing course document
+export async function patchCourse(id: string, partial: Partial<Course>): Promise<void> {
+    const docRef = doc(coursesCollection, id);
+    await updateDoc(docRef, partial as any);
+}
+
 export async function deleteCourse(id: string): Promise<void> {
     const docRef = doc(coursesCollection, id);
     await deleteDoc(docRef);

@@ -36,6 +36,12 @@ export async function updateFacility(facility: Facility): Promise<void> {
     await setDoc(docRef, facility);
 }
 
+// Partial update for existing facility document
+export async function patchFacility(id: string, partial: Partial<Facility>): Promise<void> {
+    const docRef = doc(facilitiesCollection, id);
+    await updateDoc(docRef, partial as any);
+}
+
 export async function deleteFacility(id: string): Promise<void> {
     const docRef = doc(facilitiesCollection, id);
     await deleteDoc(docRef);

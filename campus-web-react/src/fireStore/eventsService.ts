@@ -36,6 +36,12 @@ export async function updateEvent(event: Event): Promise<void> {
     await setDoc(docRef, event);
 }
 
+// Partial update for existing event document
+export async function patchEvent(id: string, partial: Partial<Event>): Promise<void> {
+    const docRef = doc(eventsCollection, id);
+    await updateDoc(docRef, partial as any);
+}
+
 export async function deleteEvent(id: string): Promise<void> {
     const docRef = doc(eventsCollection, id);
     await deleteDoc(docRef);

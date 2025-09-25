@@ -36,6 +36,12 @@ export async function updateMessage(message: Message): Promise<void> {
     await setDoc(docRef, message);
 }
 
+// Partial update for existing message document
+export async function patchMessage(id: string, partial: Partial<Message>): Promise<void> {
+    const docRef = doc(messagesCollection, id);
+    await updateDoc(docRef, partial as any);
+}
+
 export async function deleteMessage(id: string): Promise<void> {
     const docRef = doc(messagesCollection, id);
     await deleteDoc(docRef);

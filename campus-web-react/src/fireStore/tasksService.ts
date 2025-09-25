@@ -36,6 +36,12 @@ export async function updateTask(task: Task): Promise<void> {
     await setDoc(docRef, task);
 }
 
+// Partial update for existing task document
+export async function patchTask(id: string, partial: Partial<Task>): Promise<void> {
+    const docRef = doc(tasksCollection, id);
+    await updateDoc(docRef, partial as any);
+}
+
 export async function deleteTask(id: string): Promise<void> {
     const docRef = doc(tasksCollection, id);
     await deleteDoc(docRef);

@@ -53,7 +53,7 @@ import {
   getStudentsByStatus,
   getHighGPAStudents
 } from '../data/studentsData';
-import { addStudent, listStudents } from '../fireStore/studentsService';
+import { addStudent, listStudents, deleteStudent } from '../fireStore/studentsService';
 
 interface TaskFormData {
   title: string;
@@ -235,32 +235,31 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
   };
 
   // Confirm delete
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (selectedStudent) {
-      // Update students state
-      setStudents(prev => {
-        const updatedStudents = prev.filter(s => s.id !== selectedStudent.id);
-        
-        // Save updated data to localStorage
+      try {
+        await deleteStudent(selectedStudent.id);
+        // Update students state after Firestore deletion
+        setStudents(prev => prev.filter(s => s.id !== selectedStudent.id));
         try {
-          const studentsJson = JSON.stringify(updatedStudents);
-          localStorage.setItem('campus-students-data', studentsJson);
-          
-          // Dispatch custom event to notify other components
+          localStorage.setItem('campus-students-data', JSON.stringify(
+            students.filter(s => s.id !== selectedStudent.id)
+          ));
           window.dispatchEvent(new CustomEvent('studentsUpdated'));
-        } catch (error) {
-          // Error saving to localStorage
-        }
-        
-        return updatedStudents;
-      });
-      
-      setNotification({
-        message: `הסטודנט ${selectedStudent.fullName} נמחק בהצלחה`,
-        type: 'success'
-      });
-      setDeleteDialogOpen(false);
-      setSelectedStudent(null);
+        } catch (error) {}
+        setNotification({
+          message: `הסטודנט ${selectedStudent.fullName} נמחק בהצלחה`,
+          type: 'success'
+        });
+      } catch (error) {
+        setNotification({
+          message: 'שגיאה במחיקת הסטודנט מהמסד',
+          type: 'error'
+        });
+      } finally {
+        setDeleteDialogOpen(false);
+        setSelectedStudent(null);
+      }
     }
   };
 
