@@ -7,6 +7,9 @@ import TasksCard from './TasksCard';
 import EventsCard from './EventsCard';
 import { demoEvents } from '../../data/demoData';
 import { getAllStudents } from '../../data/studentsData';
+import { listEvents } from '../../fireStore/eventsService';
+import { listFacilities } from '../../fireStore/facilitiesService';
+import { listTasks } from '../../fireStore/tasksService';
 
 interface DashboardProps {
   currentUser: User | null;
@@ -21,14 +24,16 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
     textOnPrimary: 'white'
   };
 
-  // Initialize data in localStorage if empty
+  // Initialize data from Firestore
   useEffect(() => {
-    const initializeData = () => {
+    const initializeData = async () => {
       try {
-        // Check if events data exists
-        const existingEvents = localStorage.getItem('campus-events-data');
-        if (!existingEvents) {
-          // Create initial events data (at least 10 objects)
+        // Load events from Firestore
+        const firestoreEvents = await listEvents();
+        if (firestoreEvents.length > 0) {
+          localStorage.setItem('campus-events-data', JSON.stringify(firestoreEvents));
+        } else {
+          // Create initial events data if none exist in Firestore
           const initialEvents = [
             ...demoEvents.map(demoEvent => ({
               id: demoEvent.id,
@@ -56,10 +61,12 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
           localStorage.setItem('campus-events-data', JSON.stringify(initialEvents));
         }
 
-        // Check if facilities data exists
-        const existingFacilities = localStorage.getItem('campus-facilities-data');
-        if (!existingFacilities) {
-          // Create initial facilities data (at least 10 objects)
+        // Load facilities from Firestore
+        const firestoreFacilities = await listFacilities();
+        if (firestoreFacilities.length > 0) {
+          localStorage.setItem('campus-facilities-data', JSON.stringify(firestoreFacilities));
+        } else {
+          // Create initial facilities data if none exist in Firestore
           const facilityTypes = ['library', 'cafeteria', 'gym', 'parking', 'study', 'recreation'];
           const facilityNames = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'חדר לימוד', 'חדר משחקים', 'מעבדה', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
           

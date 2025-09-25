@@ -4,6 +4,7 @@ import { CheckCircle as CheckCircleIcon, Warning as WarningIcon, AccessTime as T
 import { useAuth } from '../../hooks/useAuth';
 
 import { demoTasks } from '../../data/demoData';
+import { listTasks } from '../../fireStore/tasksService';
 
 interface Task {
   id: string;
@@ -25,29 +26,42 @@ const TasksCard: React.FC<TasksCardProps> = ({ customColors }) => {
   const { currentUser } = useAuth();
   const [studentTasks, setStudentTasks] = useState<Task[]>([]);
 
-  // Load student-specific tasks from localStorage
+  // Load student-specific tasks from Firestore
   useEffect(() => {
     if (currentUser) {
-      try {
-        const savedCourses = localStorage.getItem('campus-courses-data');
-        const savedTasks = localStorage.getItem('campus-tasks-data');
-        
-        if (savedCourses && savedTasks) {
-          const allCourses = JSON.parse(savedCourses);
-          const allTasks = JSON.parse(savedTasks);
+      const loadTasksFromFirestore = async () => {
+        try {
+          const firestoreTasks = await listTasks();
+          const savedCourses = localStorage.getItem('campus-courses-data');
           
-          // Find courses where this student is enrolled
-          const studentCourses = allCourses.filter((course: { selectedStudents?: string[]; courseId: string }) => 
-            course.selectedStudents && course.selectedStudents.includes(currentUser.id)
-          );
-          
-          // Find tasks for courses this student is enrolled in
-          const userTasks = allTasks.filter((task: { course: string }) => {
-            return studentCourses.some((course: { courseId: string }) => course.courseId === task.course);
-          });
-          
-          setStudentTasks(userTasks);
+          if (savedCourses) {
+            const allCourses = JSON.parse(savedCourses);
+            
+            // Find courses where this student is enrolled
+            const studentCourses = allCourses.filter((course: { selectedStudents?: string[]; courseId: string }) => 
+              course.selectedStudents && course.selectedStudents.includes(currentUser.id)
+            );
+            
+            // Find tasks for courses this student is enrolled in
+            const userTasks = firestoreTasks.filter((task: { course: string }) => {
+              return studentCourses.some((course: { courseId: string }) => course.courseId === task.course);
+            });
+            
+            setStudentTasks(userTasks);
+            localStorage.setItem('campus-tasks-data', JSON.stringify(firestoreTasks));
+          }
+        } catch (error) {
+          console.error('Error loading tasks from Firestore:', error);
+          // Fallback to localStorage
+          const savedTasks = localStorage.getItem('campus-tasks-data');
+          if (savedTasks) {
+            const allTasks = JSON.parse(savedTasks);
+            setStudentTasks(allTasks);
+          }
         }
+      };
+      
+      loadTasksFromFirestore();
       } catch (error) {
         setStudentTasks([]);
       }

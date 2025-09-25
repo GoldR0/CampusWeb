@@ -3,6 +3,7 @@ import { Card, CardContent, Box, Typography } from '@mui/material';
 import { CalendarToday as CalendarIcon, AccessTime as TimeIcon, MeetingRoom as RoomIcon } from '@mui/icons-material';
 
 import { demoEvents } from '../../data/demoData';
+import { listEvents } from '../../fireStore/eventsService';
 
 interface Event {
   id: string;
@@ -25,14 +26,36 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
   const [events, setEvents] = useState<Event[]>([]);
 
   useEffect(() => {
-    const loadEventsFromLocalStorage = () => {
+    const loadEventsFromFirestore = async () => {
       try {
+        const firestoreEvents = await listEvents();
+        if (firestoreEvents.length > 0) {
+          setEvents(firestoreEvents);
+          localStorage.setItem('campus-events-data', JSON.stringify(firestoreEvents));
+        } else {
+          // If no events in Firestore, use demo events
+          const demoEventsData = demoEvents.map(demoEvent => ({
+            id: demoEvent.id,
+            title: demoEvent.title,
+            description: demoEvent.description,
+            date: demoEvent.date,
+            time: demoEvent.time,
+            location: `חדר ${demoEvent.roomId}`,
+            maxParticipants: 50,
+            createdAt: new Date().toLocaleString('he-IL')
+          }));
+          setEvents(demoEventsData);
+          localStorage.setItem('campus-events-data', JSON.stringify(demoEventsData));
+        }
+      } catch (error) {
+        console.error('Error loading events from Firestore:', error);
+        // Fallback to localStorage
         const savedEvents = localStorage.getItem('campus-events-data');
         if (savedEvents) {
           const parsedEvents = JSON.parse(savedEvents);
           setEvents(parsedEvents);
         } else {
-          // If no saved events, use demo events
+          // Final fallback to demo events
           setEvents(demoEvents.map(demoEvent => ({
             id: demoEvent.id,
             title: demoEvent.title,
@@ -44,28 +67,15 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
             createdAt: new Date().toLocaleString('he-IL')
           })));
         }
-      } catch (error) {
-        // Error loading events from localStorage
-        // Fallback to demo events
-        setEvents(demoEvents.map(demoEvent => ({
-          id: demoEvent.id,
-          title: demoEvent.title,
-          description: demoEvent.description,
-          date: demoEvent.date,
-          time: demoEvent.time,
-          location: `חדר ${demoEvent.roomId}`,
-          maxParticipants: 50,
-          createdAt: new Date().toLocaleString('he-IL')
-        })));
       }
     };
 
-    loadEventsFromLocalStorage();
+    loadEventsFromFirestore();
     
     // Listen for storage changes to update when events are modified in FormsPage
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'campus-events-data') {
-        loadEventsFromLocalStorage();
+        loadEventsFromFirestore();
       }
     };
 

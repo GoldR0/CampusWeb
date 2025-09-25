@@ -53,7 +53,7 @@ import {
   getStudentsByStatus,
   getHighGPAStudents
 } from '../data/studentsData';
-import { addStudent } from '../fireStore/studentsService';
+import { addStudent, listStudents } from '../fireStore/studentsService';
 
 interface TaskFormData {
   title: string;
@@ -688,19 +688,25 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
 
 
 
-  // Force reload students data from demo data
-  const forceReloadStudents = () => {
-    // Clear existing data
-    localStorage.removeItem('campus-students-data');
-    // Load fresh data
-    const allStudents = getAllStudents();
-    setStudents(allStudents);
-    setStatistics(getStudentsStatistics());
-    localStorage.setItem('campus-students-data', JSON.stringify(allStudents));
-
+  // Force reload students data from Firestore
+  const forceReloadStudents = async () => {
+    try {
+      // Load fresh data from Firestore
+      const allStudents = await listStudents();
+      setStudents(allStudents);
+      setStatistics(getStudentsStatistics());
+      localStorage.setItem('campus-students-data', JSON.stringify(allStudents));
+    } catch (error) {
+      console.error('Error loading students from Firestore:', error);
+      // Fallback to demo data if Firestore fails
+      const allStudents = getAllStudents();
+      setStudents(allStudents);
+      setStatistics(getStudentsStatistics());
+      localStorage.setItem('campus-students-data', JSON.stringify(allStudents));
+    }
   };
 
-  // Load students from localStorage on component mount
+  // Load students from Firestore on component mount
   useEffect(() => {
     // Force reload on first load to ensure we have the correct data
     forceReloadStudents();

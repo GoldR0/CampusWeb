@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { listEvents } from '../fireStore/eventsService';
+import { listFacilities } from '../fireStore/facilitiesService';
 import {
   Box,
   Container,
@@ -60,7 +62,7 @@ interface ValidationErrors {
   location?: string;
 }
 
-interface Event {
+interface LocalEvent {
   id: string;
   title: string;
   description: string;
@@ -71,11 +73,11 @@ interface Event {
   createdAt: string;
 }
 
-interface Facility {
+interface LocalFacility {
   id: string;
   name: string;
   type: 'library' | 'cafeteria' | 'gym' | 'parking';
-  status: 'open' | 'closed';
+  status: 'open' | 'closed' | 'busy';
   lastUpdated: string;
 }
 
@@ -106,11 +108,11 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   const navigate = useNavigate();
   const [activeForm, setActiveForm] = useState<string | null>(null);
   const [eventCounter, setEventCounter] = useState(1);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [events, setEvents] = useState<LocalEvent[]>([]);
+  const [editingEvent, setEditingEvent] = useState<LocalEvent | null>(null);
   const [deleteEventDialogOpen, setDeleteEventDialogOpen] = useState(false);
-  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
-  const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [eventToDelete, setEventToDelete] = useState<LocalEvent | null>(null);
+  const [facilities, setFacilities] = useState<LocalFacility[]>([]);
   const [lostFoundReports, setLostFoundReports] = useState<LostFoundReport[]>([]);
   const [deleteReportDialogOpen, setDeleteReportDialogOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<LostFoundReport | null>(null);
@@ -230,8 +232,116 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     }
   }, [id, type, events, navigate]);
 
-  // Load events and facilities from localStorage on component mount
+  // Load events and facilities from Firestore on component mount
   useEffect(() => {
+
+    const loadEventsFromFirestore = async () => {
+      try {
+        const firestoreEvents = await listEvents();
+        if (firestoreEvents.length > 0) {
+          // Convert Firestore events to local events format
+          const localEvents: LocalEvent[] = firestoreEvents.map(event => ({
+            id: event.id,
+            title: event.title,
+            description: event.description,
+            date: event.date,
+            time: event.time,
+            location: event.roomId, // Map roomId to location
+            maxParticipants: 50, // Default value
+            createdAt: new Date().toLocaleString('he-IL')
+          }));
+          
+          setEvents(localEvents);
+          localStorage.setItem('campus-events-data', JSON.stringify(localEvents));
+          
+          // Set counter to next available number
+          const maxId = Math.max(...localEvents.map((event: LocalEvent) => 
+            parseInt(event.id.split('-')[1])
+          ));
+          setEventCounter(maxId + 1);
+        } else {
+          // If no events in Firestore, create initial events
+          const eventTitles = [
+            'הרצאה על בינה מלאכותית',
+            'סדנת תכנות',
+            'מפגש סטודנטים',
+            'הרצאה על אבטחת מידע',
+            'סדנת פיתוח אפליקציות',
+            'מפגש בוגרים',
+            'הרצאה על רשתות מחשבים',
+            'סדנת מסדי נתונים',
+            'מפגש חברתי',
+            'הרצאה על אלגוריתמים'
+          ];
+          
+          const initialEvents: LocalEvent[] = Array.from({ length: 10 }, (_, index) => ({
+            id: `event-${index + 1}`,
+            title: eventTitles[index],
+            description: `תיאור מפורט של ${eventTitles[index]}`,
+            date: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            time: `${10 + (index % 8)}:00`,
+            location: `חדר ${index + 1}`,
+            maxParticipants: 30 + (index * 5),
+            createdAt: new Date().toLocaleString('he-IL')
+          }));
+          
+          setEvents(initialEvents);
+          setEventCounter(11);
+          localStorage.setItem('campus-events-data', JSON.stringify(initialEvents));
+        }
+      } catch (error) {
+        console.error('Error loading events from Firestore:', error);
+        // Fallback to localStorage
+        const savedEvents = localStorage.getItem('campus-events-data');
+        if (savedEvents) {
+          const parsedEvents = JSON.parse(savedEvents);
+          setEvents(parsedEvents);
+          
+          // Set counter to next available number
+          const maxId = Math.max(...parsedEvents.map((event: LocalEvent) => 
+            parseInt(event.id.split('-')[1])
+          ));
+          setEventCounter(maxId + 1);
+        }
+      }
+    };
+
+    const loadFacilitiesFromFirestore = async () => {
+      try {
+        const firestoreFacilities = await listFacilities();
+        if (firestoreFacilities.length > 0) {
+          // Convert Firestore facilities to local facilities format
+          const localFacilities: LocalFacility[] = firestoreFacilities.map(facility => ({
+            id: facility.id,
+            name: facility.name,
+            type: 'library', // Default type, you might need to map this based on your data
+            status: facility.status,
+            lastUpdated: new Date().toLocaleString('he-IL')
+          }));
+          
+          setFacilities(localFacilities);
+          localStorage.setItem('campus-facilities-data', JSON.stringify(localFacilities));
+        } else {
+          // If no facilities in Firestore, create initial facilities
+          const initialFacilities: LocalFacility[] = [
+            { id: 'facility-1', name: 'ספרייה מרכזית', type: 'library', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
+            { id: 'facility-2', name: 'קפיטריה', type: 'cafeteria', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
+            { id: 'facility-3', name: 'מכון כושר', type: 'gym', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
+            { id: 'facility-4', name: 'חניון', type: 'parking', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') }
+          ];
+          setFacilities(initialFacilities);
+          localStorage.setItem('campus-facilities-data', JSON.stringify(initialFacilities));
+        }
+      } catch (error) {
+        console.error('Error loading facilities from Firestore:', error);
+        // Fallback to localStorage
+        const savedFacilities = localStorage.getItem('campus-facilities-data');
+        if (savedFacilities) {
+          const parsedFacilities = JSON.parse(savedFacilities);
+          setFacilities(parsedFacilities);
+        }
+      }
+    };
 
     const loadEventsFromLocalStorage = () => {
       try {
@@ -253,7 +363,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
               'הרצאה על אלגוריתמים'
             ];
             
-            const initialEvents: Event[] = Array.from({ length: 10 }, (_, index) => ({
+            const initialEvents: LocalEvent[] = Array.from({ length: 10 }, (_, index) => ({
               id: `event-${index + 1}`,
               title: eventTitles[index],
               description: `תיאור מפורט של ${eventTitles[index]}`,
@@ -271,7 +381,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             setEvents(parsedEvents);
             
             // Set counter to next available number
-            const maxId = Math.max(...parsedEvents.map((event: Event) => 
+            const maxId = Math.max(...parsedEvents.map((event: LocalEvent) => 
               parseInt(event.id.split('-')[1])
             ));
             setEventCounter(maxId + 1);
@@ -291,7 +401,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             'הרצאה על אלגוריתמים'
           ];
           
-          const initialEvents: Event[] = Array.from({ length: 10 }, (_, index) => ({
+          const initialEvents: LocalEvent[] = Array.from({ length: 10 }, (_, index) => ({
             id: `event-${index + 1}`,
             title: eventTitles[index],
             description: `תיאור מפורט של ${eventTitles[index]}`,
@@ -326,7 +436,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             const facilityTypes: ('library' | 'cafeteria' | 'gym' | 'parking')[] = ['library', 'cafeteria', 'gym', 'parking'];
             const facilityNames = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'חדר לימוד', 'חדר משחקים', 'מעבדה', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
             
-            const initialFacilities: Facility[] = Array.from({ length: 10 }, (_, index) => ({
+            const initialFacilities: LocalFacility[] = Array.from({ length: 10 }, (_, index) => ({
               id: `facility-${index + 1}`,
               name: facilityNames[index] || `מתקן ${index + 1}`,
               type: facilityTypes[index % facilityTypes.length],
@@ -352,7 +462,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           const facilityTypes: ('library' | 'cafeteria' | 'gym' | 'parking')[] = ['library', 'cafeteria', 'gym', 'parking'];
           const facilityNames = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'חדר לימוד', 'חדר משחקים', 'מעבדה', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
           
-          const defaultFacilities: Facility[] = Array.from({ length: 10 }, (_, index) => ({
+          const defaultFacilities: LocalFacility[] = Array.from({ length: 10 }, (_, index) => ({
             id: `facility-${index + 1}`,
             name: facilityNames[index] || `מתקן ${index + 1}`,
             type: facilityTypes[index % facilityTypes.length],
@@ -378,7 +488,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
               const facilityTypes: ('library' | 'cafeteria' | 'gym' | 'parking')[] = ['library', 'cafeteria', 'gym', 'parking'];
               const facilityNames = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'חדר לימוד', 'חדר משחקים', 'מעבדה', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
               
-              const defaultFacilities: Facility[] = Array.from({ length: 10 }, (_, index) => ({
+              const defaultFacilities: LocalFacility[] = Array.from({ length: 10 }, (_, index) => ({
                 id: `facility-${index + 1}`,
                 name: facilityNames[index] || `מתקן ${index + 1}`,
                 type: facilityTypes[index % facilityTypes.length],
@@ -396,7 +506,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             const facilityTypes: ('library' | 'cafeteria' | 'gym' | 'parking')[] = ['library', 'cafeteria', 'gym', 'parking'];
             const facilityNames = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'חדר לימוד', 'חדר משחקים', 'מעבדה', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
             
-            const defaultFacilities: Facility[] = Array.from({ length: 10 }, (_, index) => ({
+            const defaultFacilities: LocalFacility[] = Array.from({ length: 10 }, (_, index) => ({
               id: `facility-${index + 1}`,
               name: facilityNames[index] || `מתקן ${index + 1}`,
               type: facilityTypes[index % facilityTypes.length],
@@ -546,8 +656,8 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
       }
     };
 
-    loadEventsFromLocalStorage();
-    loadFacilitiesFromLocalStorage();
+    loadEventsFromFirestore();
+    loadFacilitiesFromFirestore();
     loadLostFoundReportsFromLocalStorage();
     loadInquiriesFromLocalStorage();
 
@@ -603,7 +713,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
       setTouched(allTouched);
 
       if (validateEventForm()) {
-        const newEvent: Event = {
+        const newEvent: LocalEvent = {
           id: `event-${Date.now()}`, // Generate unique ID using timestamp
           ...formData.event,
           createdAt: new Date().toLocaleString('he-IL')
@@ -817,11 +927,11 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   };
 
   // Event management functions
-  const handleEditEvent = (event: Event) => {
+  const handleEditEvent = (event: LocalEvent) => {
     navigate(`/forms/events/${event.id}/edit`);
   };
 
-  const handleDeleteEvent = (event: Event) => {
+  const handleDeleteEvent = (event: LocalEvent) => {
     setEventToDelete(event);
     setDeleteEventDialogOpen(true);
   };
@@ -854,7 +964,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     if (editingEvent) {
       const updatedEvents = events.map(event => 
         event.id === editingEvent.id 
-          ? { ...event, ...formData.event, createdAt: editingEvent.createdAt }
+          ? { ...event, ...formData.event, createdAt: editingEvent.createdAt } as LocalEvent
           : event
       );
       setEvents(updatedEvents);

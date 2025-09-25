@@ -11,6 +11,7 @@ import {
 import RatingStars from '../RatingStars';
 
 import { demoFacilities } from '../../data/demoData';
+import { listFacilities } from '../../fireStore/facilitiesService';
 
 interface FacilitiesCardProps {
   customColors: {
@@ -30,26 +31,38 @@ const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
   const [facilities, setFacilities] = useState(demoFacilities);
   const [managedFacilities, setManagedFacilities] = useState<ManagedFacility[]>([]);
 
-  // Load facilities from localStorage
+  // Load facilities from Firestore
   useEffect(() => {
-    const loadFacilitiesFromLocalStorage = () => {
+    const loadFacilitiesFromFirestore = async () => {
       try {
+        const firestoreFacilities = await listFacilities();
+        if (firestoreFacilities.length > 0) {
+          setManagedFacilities(firestoreFacilities);
+          localStorage.setItem('campus-facilities-data', JSON.stringify(firestoreFacilities));
+        } else {
+          // If no facilities in Firestore, use demo facilities
+          setManagedFacilities(demoFacilities);
+          localStorage.setItem('campus-facilities-data', JSON.stringify(demoFacilities));
+        }
+      } catch (error) {
+        console.error('Error loading facilities from Firestore:', error);
+        // Fallback to localStorage
         const savedFacilities = localStorage.getItem('campus-facilities-data');
         if (savedFacilities) {
           const parsedFacilities = JSON.parse(savedFacilities);
           setManagedFacilities(parsedFacilities);
+        } else {
+          setManagedFacilities(demoFacilities);
         }
-      } catch (error) {
-        // Error loading facilities from localStorage
       }
     };
 
-    loadFacilitiesFromLocalStorage();
+    loadFacilitiesFromFirestore();
     
     // Listen for storage changes to update when facilities are modified in FormsPage
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'campus-facilities-data') {
-        loadFacilitiesFromLocalStorage();
+        loadFacilitiesFromFirestore();
       }
     };
 
