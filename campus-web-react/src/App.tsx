@@ -17,6 +17,10 @@ import HelpPage from './components/HelpPage';
 import LearningCenterPage from './components/LearningCenterPage';
 import ForumPage from './components/ForumPage';
 import DebugInfo from './components/DebugInfo';
+import StudentDetailPage from './components/StudentDetailPage';
+import TaskDetailPage from './components/TaskDetailPage';
+import EventDetailPage from './components/EventDetailPage';
+import DeepLinksTestPage from './components/DeepLinksTestPage';
 import { useAuth } from './hooks/useAuth';
 import { useNotifications } from './hooks/useNotifications';
 import { User } from './types';
@@ -59,8 +63,11 @@ function App() {
           <Route path="/" element={<Dashboard currentUser={currentUser} />} />
           <Route path="/debug" element={<DebugInfo currentUser={currentUser} />} />
           <Route path="/students" element={<StudentsPage currentUser={currentUser} />} />
+          <Route path="/students/:id" element={<StudentDetailPage />} />
           <Route path="/students/:id/edit" element={<StudentsPage currentUser={currentUser} />} />
           <Route path="/forms" element={<FormsPage currentUser={currentUser} />} />
+          <Route path="/events/:id" element={<EventDetailPage />} />
+          <Route path="/tasks/:id" element={<TaskDetailPage />} />
           <Route path="/forms/events/:id/edit" element={<FormsPage currentUser={currentUser} />} />
           <Route path="/forms/tasks/:id/edit" element={<FormsPage currentUser={currentUser} />} />
           <Route path="/profile" element={<ProfilePage currentUser={currentUser} />} />
@@ -70,6 +77,7 @@ function App() {
           <Route path="/community" element={<CommunityPage currentUser={currentUser} />} />
           <Route path="/forum" element={<ForumPage currentUser={currentUser} />} />
           <Route path="/help" element={<HelpPage />} />
+          <Route path="/test-deep-links" element={<DeepLinksTestPage />} />
         </Routes>
       </Container>
 
