@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Box, Typography } from '@mui/material';
+import { Card, CardContent, Box, Typography, LinearProgress } from '@mui/material';
 import { CalendarToday as CalendarIcon, AccessTime as TimeIcon, MeetingRoom as RoomIcon } from '@mui/icons-material';
 
 import { demoEvents } from '../../data/demoData';
@@ -24,9 +24,11 @@ interface EventsCardProps {
 
 const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
   const [events, setEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadEventsFromFirestore = async () => {
+      setIsLoading(true);
       try {
         const firestoreEvents = await listEvents();
         if (firestoreEvents.length > 0) {
@@ -69,6 +71,8 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
           maxParticipants: 50,
           createdAt: new Date().toLocaleString('he-IL')
         })));
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -86,30 +90,46 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
           <CalendarIcon sx={{ mr: 1 }} />
           <Typography variant="h6">לוח אירועים ({events.length})</Typography>
         </Box>
-        <Box sx={{ 
-          maxHeight: { xs: 'none', lg: '500px' }, 
-          overflow: 'auto',
-          '&::-webkit-scrollbar': {
-            width: '6px'
-          },
-          '&::-webkit-scrollbar-track': {
-            backgroundColor: '#f1f1f1',
-            borderRadius: '3px'
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: '#888',
-            borderRadius: '3px',
-            '&:hover': {
-              backgroundColor: '#555'
-            }
-          }
-        }}>
-          {events.length === 0 ? (
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-              אין אירועים מתוכננים
+        {isLoading ? (
+          <Box sx={{ width: '100%', mt: 2 }}>
+            <LinearProgress 
+              sx={{ 
+                height: 3,
+                backgroundColor: 'rgba(179, 209, 53, 0.2)',
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: 'rgb(179, 209, 53)'
+                }
+              }} 
+            />
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 1 }}>
+              טוען אירועים...
             </Typography>
-          ) : (
-            events.map((event, index) => (
+          </Box>
+        ) : (
+          <Box sx={{ 
+            maxHeight: { xs: 'none', lg: '500px' }, 
+            overflow: 'auto',
+            '&::-webkit-scrollbar': {
+              width: '6px'
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: '#f1f1f1',
+              borderRadius: '3px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: '#888',
+              borderRadius: '3px',
+              '&:hover': {
+                backgroundColor: '#555'
+              }
+            }
+          }}>
+            {events.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+                אין אירועים מתוכננים
+              </Typography>
+            ) : (
+              events.map((event, index) => (
               <Box 
                 key={event.id} 
                 sx={{ 
@@ -180,9 +200,10 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
                   </Box>
                 </Box>
               </Box>
-            ))
-          )}
-        </Box>
+              ))
+            )}
+          </Box>
+        )}
       </CardContent>
     </Card>
   );

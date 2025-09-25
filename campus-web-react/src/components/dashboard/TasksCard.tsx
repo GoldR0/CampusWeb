@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Box, Typography } from '@mui/material';
+import { Card, CardContent, Box, Typography, LinearProgress } from '@mui/material';
 import { CheckCircle as CheckCircleIcon, Warning as WarningIcon, AccessTime as TimeIcon } from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -26,11 +26,13 @@ interface TasksCardProps {
 const TasksCard: React.FC<TasksCardProps> = ({ customColors }) => {
   const { currentUser } = useAuth();
   const [studentTasks, setStudentTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load student-specific tasks from Firestore
   useEffect(() => {
     if (currentUser) {
       const loadTasksFromFirestore = async () => {
+        setIsLoading(true);
         try {
           const firestoreTasks = await listTasks();
           const firestoreCourses = await listCourses();
@@ -51,10 +53,14 @@ const TasksCard: React.FC<TasksCardProps> = ({ customColors }) => {
         } catch (error) {
           console.error('Error loading tasks from Firestore:', error);
           setStudentTasks([]);
+        } finally {
+          setIsLoading(false);
         }
       };
       
       loadTasksFromFirestore();
+    } else {
+      setIsLoading(false);
     }
   }, [currentUser]);
 
@@ -67,28 +73,46 @@ const TasksCard: React.FC<TasksCardProps> = ({ customColors }) => {
           <CheckCircleIcon sx={{ mr: 1 }} />
           <Typography variant="h6">תזכורות יומיות</Typography>
         </Box>
-        {tasksToShow.map((task) => (
-          <Box 
-            key={task.id} 
-            sx={{ 
-              p: 2, 
-              mb: 1, 
-              border: '1px solid #e0e0e0',
-              borderRadius: 1,
-              backgroundColor: task.priority === 'urgent' ? '#ffebee' : '#e3f2fd'
-            }}
-          >
-            <Box key={`task-header-${task.id}`} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              {task.priority === 'urgent' ? <WarningIcon color="error" /> : <TimeIcon color="primary" />}
-              <Typography variant="body2" fontWeight="bold">
-                {task.title}
-              </Typography>
-            </Box>
-            <Typography variant="caption" color="text.secondary">
-              {task.course} - {(task as any).date || task.dueDate}
+        
+        {isLoading ? (
+          <Box sx={{ width: '100%', mt: 2 }}>
+            <LinearProgress 
+              sx={{ 
+                height: 3,
+                backgroundColor: 'rgba(179, 209, 53, 0.2)',
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: 'rgb(179, 209, 53)'
+                }
+              }} 
+            />
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 1 }}>
+              טוען מטלות...
             </Typography>
           </Box>
-        ))}
+        ) : (
+          tasksToShow.map((task) => (
+            <Box 
+              key={task.id} 
+              sx={{ 
+                p: 2, 
+                mb: 1, 
+                border: '1px solid #e0e0e0',
+                borderRadius: 1,
+                backgroundColor: task.priority === 'urgent' ? '#ffebee' : '#e3f2fd'
+              }}
+            >
+              <Box key={`task-header-${task.id}`} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                {task.priority === 'urgent' ? <WarningIcon color="error" /> : <TimeIcon color="primary" />}
+                <Typography variant="body2" fontWeight="bold">
+                  {task.title}
+                </Typography>
+              </Box>
+              <Typography variant="caption" color="text.secondary">
+                {task.course} - {(task as any).date || task.dueDate}
+              </Typography>
+            </Box>
+          ))
+        )}
       </CardContent>
     </Card>
   );

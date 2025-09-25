@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Box } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, LinearProgress } from '@mui/material';
 
 import { User } from '../../types';
 import WelcomeBanner from './WelcomeBanner';
@@ -16,6 +16,8 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  
   // Custom color theme
   const customColors = {
     primary: 'rgb(179, 209, 53)',
@@ -27,6 +29,7 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
   // Initialize data from Firestore
   useEffect(() => {
     const initializeData = async () => {
+      setIsLoading(true);
       try {
         // Load events from Firestore
         const firestoreEvents = await listEvents();
@@ -93,6 +96,8 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
 
       } catch (error) {
         console.error('Error initializing data from Firestore:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -101,6 +106,21 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
 
   return (
     <Box>
+      {/* Loading Progress */}
+      {isLoading && (
+        <Box sx={{ width: '100%', mb: 2 }}>
+          <LinearProgress 
+            sx={{ 
+              height: 4,
+              backgroundColor: 'rgba(179, 209, 53, 0.2)',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: 'rgb(179, 209, 53)'
+              }
+            }} 
+          />
+        </Box>
+      )}
+
       {/* Welcome Banner */}
       <WelcomeBanner currentUser={currentUser} />
 

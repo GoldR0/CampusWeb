@@ -17,7 +17,8 @@ import {
   TextField,
   Alert,
   Snackbar,
-  IconButton
+  IconButton,
+  LinearProgress
 } from '@mui/material';
 import { CUSTOM_COLORS, TYPOGRAPHY, CARD_STYLES } from '../constants/theme';
 import { User } from '../types';
@@ -133,6 +134,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const customColors = {
     primary: 'rgb(179, 209, 53)',
@@ -234,6 +236,15 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
 
   // Load events and facilities from Firestore on component mount
   useEffect(() => {
+    const loadDataFromFirestore = async () => {
+      setIsLoading(true);
+      try {
+        await loadEventsFromFirestore();
+        await loadFacilitiesFromFirestore();
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     const loadEventsFromFirestore = async () => {
       try {
@@ -579,8 +590,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
       }
     };
 
-    loadEventsFromFirestore();
-    loadFacilitiesFromFirestore();
+    loadDataFromFirestore();
     // loadLostFoundReportsFromLocalStorage();
     // loadInquiriesFromLocalStorage();
 
@@ -1147,6 +1157,21 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
+      {/* Loading Progress */}
+      {isLoading && (
+        <Box sx={{ width: '100%', mb: 2 }}>
+          <LinearProgress 
+            sx={{ 
+              height: 4,
+              backgroundColor: 'rgba(179, 209, 53, 0.2)',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: 'rgb(179, 209, 53)'
+              }
+            }} 
+          />
+        </Box>
+      )}
+
       {/* Page Header */}
       <Box sx={{ mb: 4 }}>
         <Box>
@@ -1298,7 +1323,22 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           ניהול אירועים ({events.length})
         </Typography>
         
-        {events.length === 0 ? (
+        {isLoading ? (
+          <Box sx={{ width: '100%', mt: 2 }}>
+            <LinearProgress 
+              sx={{ 
+                height: 3,
+                backgroundColor: 'rgba(179, 209, 53, 0.2)',
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: 'rgb(179, 209, 53)'
+                }
+              }} 
+            />
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 1 }}>
+              טוען אירועים...
+            </Typography>
+          </Box>
+        ) : events.length === 0 ? (
           <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
             אין אירועים עדיין. צור אירוע חדש באמצעות הטופס למעלה.
           </Typography>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Box, Typography, Chip, Divider } from '@mui/material';
+import { Card, CardContent, Box, Typography, Chip, Divider, LinearProgress } from '@mui/material';
 import { 
   LocationOn as LocationIcon,
   LocalLibrary as LibraryIcon,
@@ -30,10 +30,12 @@ interface ManagedFacility {
 const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
   const [facilities, setFacilities] = useState(demoFacilities);
   const [managedFacilities, setManagedFacilities] = useState<ManagedFacility[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load facilities from Firestore
   useEffect(() => {
     const loadFacilitiesFromFirestore = async () => {
+      setIsLoading(true);
       try {
         const firestoreFacilities = await listFacilities();
         if (firestoreFacilities.length > 0) {
@@ -68,6 +70,8 @@ const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
           lastUpdated: new Date().toLocaleString('he-IL')
         }));
         setManagedFacilities(convertedFacilities);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -141,8 +145,24 @@ const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
           <Typography variant="h6">מצב מתקנים</Typography>
         </Box>
         
-        {/* Display managed facilities if available, otherwise show demo facilities */}
-        {(managedFacilities.length > 0 ? managedFacilities : facilities).map((facility, index) => {
+        {isLoading ? (
+          <Box sx={{ width: '100%', mt: 2 }}>
+            <LinearProgress 
+              sx={{ 
+                height: 3,
+                backgroundColor: 'rgba(179, 209, 53, 0.2)',
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: 'rgb(179, 209, 53)'
+                }
+              }} 
+            />
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 1 }}>
+              טוען מתקנים...
+            </Typography>
+          </Box>
+        ) : (
+          /* Display managed facilities if available, otherwise show demo facilities */
+          (managedFacilities.length > 0 ? managedFacilities : facilities).map((facility, index) => {
           const isManagedFacility = managedFacilities.length > 0;
           
           return (
@@ -200,7 +220,8 @@ const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
               )}
             </Box>
           );
-        })}
+        })
+        )}
       </CardContent>
     </Card>
   );

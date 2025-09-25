@@ -31,7 +31,8 @@ import {
   ListItem,
   ListItemText,
   ListItemButton,
-  FormHelperText
+  FormHelperText,
+  LinearProgress
 } from '@mui/material';
 import { CUSTOM_COLORS, TYPOGRAPHY } from '../constants/theme';
 import { User } from '../types';
@@ -138,6 +139,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [statistics, setStatistics] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Form states
   const [taskCounter, setTaskCounter] = useState(1);
@@ -685,6 +687,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
 
   // Force reload students data from Firestore
   const forceReloadStudents = async () => {
+    setIsLoading(true);
     try {
       // Load fresh data from Firestore
       const allStudents = await listStudents();
@@ -696,6 +699,8 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       const allStudents = getAllStudents();
       setStudents(allStudents);
       setStatistics(getStudentsStatistics());
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -1169,6 +1174,21 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
 
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
+      {/* Loading Progress */}
+      {isLoading && (
+        <Box sx={{ width: '100%', mb: 2 }}>
+          <LinearProgress 
+            sx={{ 
+              height: 4,
+              backgroundColor: 'rgba(179, 209, 53, 0.2)',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: 'rgb(179, 209, 53)'
+              }
+            }} 
+          />
+        </Box>
+      )}
+
       {/* Page Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" gutterBottom sx={{ ...TYPOGRAPHY.h4, color: CUSTOM_COLORS.primary }}>
@@ -1268,12 +1288,29 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       </Box>
 
       {/* Students Table */}
-      <StudentsTable
-        students={students}
-        onViewStudent={handleViewStudent}
-        onEditStudent={handleEditStudent}
-        onDeleteStudent={handleDeleteStudent}
-      />
+      {isLoading ? (
+        <Box sx={{ width: '100%', mt: 4 }}>
+          <LinearProgress 
+            sx={{ 
+              height: 4,
+              backgroundColor: 'rgba(179, 209, 53, 0.2)',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: 'rgb(179, 209, 53)'
+              }
+            }} 
+          />
+          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 2 }}>
+            טוען נתוני סטודנטים...
+          </Typography>
+        </Box>
+      ) : (
+        <StudentsTable
+          students={students}
+          onViewStudent={handleViewStudent}
+          onEditStudent={handleEditStudent}
+          onDeleteStudent={handleDeleteStudent}
+        />
+      )}
 
       {/* Forms Section */}
       <Box sx={{ mt: 6 }}>
