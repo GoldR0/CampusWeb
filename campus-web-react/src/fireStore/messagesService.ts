@@ -3,11 +3,14 @@ import { firestore } from "./config";
 import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData, query, where, orderBy } from "firebase/firestore";
 
 const messageConverter = {
-    toFirestore: (message: Message): DocumentData => message,
-    fromFirestore: (snapshot: QueryDocumentSnapshot): Message => ({
-        ...snapshot.data() as Message,
-        id: snapshot.id
-    })
+    toFirestore: (message: Message): DocumentData => {
+        const { id, ...data } = message as any;
+        return data;
+    },
+    fromFirestore: (snapshot: QueryDocumentSnapshot): Message => {
+        const data = snapshot.data() as Omit<Message, 'id'>;
+        return new Message({ id: snapshot.id, ...(data as any) });
+    }
 };
 
 const messagesCollection = collection(firestore, "messages").withConverter(messageConverter);

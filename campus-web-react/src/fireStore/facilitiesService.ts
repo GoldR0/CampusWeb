@@ -3,11 +3,14 @@ import { firestore } from "./config";
 import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData, query, where, orderBy } from "firebase/firestore";
 
 const facilityConverter = {
-    toFirestore: (facility: Facility): DocumentData => facility,
-    fromFirestore: (snapshot: QueryDocumentSnapshot): Facility => ({
-        ...snapshot.data() as Facility,
-        id: snapshot.id
-    })
+    toFirestore: (facility: Facility): DocumentData => {
+        const { id, ...data } = facility as any;
+        return data;
+    },
+    fromFirestore: (snapshot: QueryDocumentSnapshot): Facility => {
+        const data = snapshot.data() as Omit<Facility, 'id'>;
+        return new Facility({ id: snapshot.id, ...(data as any) });
+    }
 };
 
 const facilitiesCollection = collection(firestore, "facilities").withConverter(facilityConverter);

@@ -3,11 +3,14 @@ import { firestore } from "./config";
 import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData, query, where, orderBy } from "firebase/firestore";
 
 const eventConverter = {
-    toFirestore: (event: Event): DocumentData => event,
-    fromFirestore: (snapshot: QueryDocumentSnapshot): Event => ({
-        ...snapshot.data() as Event,
-        id: snapshot.id
-    })
+    toFirestore: (event: Event): DocumentData => {
+        const { id, ...data } = event as any;
+        return data;
+    },
+    fromFirestore: (snapshot: QueryDocumentSnapshot): Event => {
+        const data = snapshot.data() as Omit<Event, 'id'>;
+        return new Event({ id: snapshot.id, ...(data as any) });
+    }
 };
 
 const eventsCollection = collection(firestore, "events").withConverter(eventConverter);

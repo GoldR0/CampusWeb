@@ -3,11 +3,14 @@ import { firestore } from "./config";
 import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData, query, where } from "firebase/firestore";
 
 const userConverter = {
-    toFirestore: (user: User): DocumentData => user,
-    fromFirestore: (snapshot: QueryDocumentSnapshot): User => ({
-        ...snapshot.data() as User,
-        id: snapshot.id
-    })
+    toFirestore: (user: User): DocumentData => {
+        const { id, ...data } = user as any;
+        return data;
+    },
+    fromFirestore: (snapshot: QueryDocumentSnapshot): User => {
+        const data = snapshot.data() as Omit<User, 'id'>;
+        return new User({ id: snapshot.id, ...(data as any) });
+    }
 };
 
 const usersCollection = collection(firestore, "users").withConverter(userConverter);

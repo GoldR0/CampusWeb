@@ -3,11 +3,14 @@ import { firestore } from "./config";
 import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData, query, where, orderBy } from "firebase/firestore";
 
 const taskConverter = {
-    toFirestore: (task: Task): DocumentData => task,
-    fromFirestore: (snapshot: QueryDocumentSnapshot): Task => ({
-        ...snapshot.data() as Task,
-        id: snapshot.id
-    })
+    toFirestore: (task: Task): DocumentData => {
+        const { id, ...data } = task as any;
+        return data;
+    },
+    fromFirestore: (snapshot: QueryDocumentSnapshot): Task => {
+        const data = snapshot.data() as Omit<Task, 'id'>;
+        return new Task({ id: snapshot.id, ...(data as any) });
+    }
 };
 
 const tasksCollection = collection(firestore, "tasks").withConverter(taskConverter);
