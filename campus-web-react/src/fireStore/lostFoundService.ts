@@ -15,12 +15,12 @@ export interface LostFoundReport {
 
 const lostFoundConverter = {
   toFirestore: (report: LostFoundReport): DocumentData => {
-    const { id, ...data } = report as any;
+    const { id, ...data } = report;
     return data;
   },
   fromFirestore: (snapshot: QueryDocumentSnapshot): LostFoundReport => {
     const data = snapshot.data() as Omit<LostFoundReport, 'id'>;
-    return { id: snapshot.id, ...(data as any) };
+    return { id: snapshot.id, ...data };
   }
 };
 
@@ -49,7 +49,7 @@ export async function updateLostFoundReport(report: LostFoundReport): Promise<vo
 
 export async function patchLostFoundReport(id: string, partial: Partial<LostFoundReport>): Promise<void> {
   const ref = doc(lostFoundCollection, id);
-  await updateDoc(ref, partial as any);
+  await updateDoc(ref, partial);
 }
 
 export async function deleteLostFoundReport(id: string): Promise<void> {

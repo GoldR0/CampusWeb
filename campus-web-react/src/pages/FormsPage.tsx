@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { listEvents, deleteEvent, patchEvent, addEvent } from '../fireStore/eventsService';
 import { listFacilities, patchFacility } from '../fireStore/facilitiesService';
+import { Event } from '../types';
 import {
   Box,
   Container,
@@ -667,7 +668,16 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
 
         // Save to Firestore
         try {
-          await addEvent(newEvent as any);
+          const eventData = {
+            id: newEvent.id,
+            title: newEvent.title,
+            description: newEvent.description,
+            date: newEvent.date,
+            time: newEvent.time,
+            roomId: newEvent.location,
+            urgent: false
+          };
+          await addEvent(new Event(eventData));
           
           // Dispatch custom event to notify other components
           window.dispatchEvent(new CustomEvent('eventsUpdated'));
@@ -710,7 +720,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     const target = facilities.find(f => f.id === facilityId);
     const toggledStatus: 'open' | 'closed' = target?.status === 'open' ? 'closed' : 'open';
     try {
-      await patchFacility(facilityId, { status: toggledStatus } as any);
+      await patchFacility(facilityId, { status: toggledStatus });
       const updatedFacilities = facilities.map(facility => {
         if (facility.id === facilityId) {
           return {
@@ -811,7 +821,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
       [formType]: {
         ...prev[formType as keyof FormData],
         [field]: value
-      } as any
+      }
     }));
 
     // Clear error when user starts typing
@@ -915,7 +925,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           date: formData.event.date,
           time: formData.event.time,
           roomId: formData.event.location
-        } as any);
+        });
         const updatedEvents = events.map(event => 
           event.id === editingEvent.id 
             ? { ...event, ...formData.event, createdAt: editingEvent.createdAt } as LocalEvent

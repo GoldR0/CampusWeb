@@ -132,7 +132,7 @@ const TasksCard: React.FC<TasksCardProps> = ({ customColors }) => {
                 </Tooltip>
               </Box>
               <Typography variant="caption" color="text.secondary">
-                {task.course} - {(task as any).date || task.dueDate}
+                {task.course} - {task.dueDate}
               </Typography>
             </Box>
           ))

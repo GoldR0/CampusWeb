@@ -4,12 +4,12 @@ import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc,
 
 const studentConverter = {
     toFirestore: (student: Student): DocumentData => {
-        const { id, ...data } = student as any;
+        const { id, ...data } = student;
         return data;
     },
     fromFirestore: (snapshot: QueryDocumentSnapshot): Student => {
         const data = snapshot.data() as Omit<Student, 'id'>;
-        return new Student({ id: snapshot.id, ...(data as any) });
+        return new Student({ id: snapshot.id, ...data });
     }
 };
 
@@ -42,7 +42,7 @@ export async function updateStudent(student: Student): Promise<void> {
 // Partial update for existing student document
 export async function patchStudent(id: string, partial: Partial<Student>): Promise<void> {
     const docRef = doc(studentsCollection, id);
-    await updateDoc(docRef, partial as any);
+    await updateDoc(docRef, partial);
 }
 
 export async function deleteStudent(id: string): Promise<void> {

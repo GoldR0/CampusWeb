@@ -161,7 +161,7 @@ const EventDetailPage: React.FC = () => {
               <Box display="flex" gap={1} mt={1} flexWrap="wrap">
                 <Chip 
                   label={getEventStatusText(event.date)} 
-                  color={getEventStatusColor(event.date) as any}
+                  color={getEventStatusColor(event.date) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
                   size="small"
                 />
                 {event.urgent && (
@@ -228,12 +228,12 @@ const EventDetailPage: React.FC = () => {
                   <Typography variant="body2" color="text.secondary">
                     סטטוס
                   </Typography>
-                  <Chip 
-                    label={getEventStatusText(event.date)} 
-                    color={getEventStatusColor(event.date) as any}
-                    size="small"
-                    sx={{ mt: 1 }}
-                  />
+                    <Chip 
+                      label={getEventStatusText(event.date)} 
+                      color={getEventStatusColor(event.date) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
+                      size="small"
+                      sx={{ mt: 1 }}
+                    />
                 </Box>
               </Paper>
             </Box>

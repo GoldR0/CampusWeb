@@ -4,12 +4,12 @@ import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc,
 
 const taskConverter = {
     toFirestore: (task: Task): DocumentData => {
-        const { id, ...data } = task as any;
+        const { id, ...data } = task;
         return data;
     },
     fromFirestore: (snapshot: QueryDocumentSnapshot): Task => {
         const data = snapshot.data() as Omit<Task, 'id'>;
-        return new Task({ id: snapshot.id, ...(data as any) });
+        return new Task({ id: snapshot.id, ...data });
     }
 };
 
@@ -42,7 +42,7 @@ export async function updateTask(task: Task): Promise<void> {
 // Partial update for existing task document
 export async function patchTask(id: string, partial: Partial<Task>): Promise<void> {
     const docRef = doc(tasksCollection, id);
-    await updateDoc(docRef, partial as any);
+    await updateDoc(docRef, partial);
 }
 
 export async function deleteTask(id: string): Promise<void> {

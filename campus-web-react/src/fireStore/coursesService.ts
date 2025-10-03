@@ -4,12 +4,12 @@ import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc,
 
 const courseConverter = {
     toFirestore: (course: Course): DocumentData => {
-        const { id, ...data } = course as any;
+        const { id, ...data } = course;
         return data;
     },
     fromFirestore: (snapshot: QueryDocumentSnapshot): Course => {
         const data = snapshot.data() as Omit<Course, 'id'>;
-        return new Course({ id: snapshot.id, ...(data as any) });
+        return new Course({ id: snapshot.id, ...data });
     }
 };
 
@@ -42,7 +42,7 @@ export async function updateCourse(course: Course): Promise<void> {
 // Partial update for existing course document
 export async function patchCourse(id: string, partial: Partial<Course>): Promise<void> {
     const docRef = doc(coursesCollection, id);
-    await updateDoc(docRef, partial as any);
+    await updateDoc(docRef, partial);
 }
 
 export async function deleteCourse(id: string): Promise<void> {

@@ -4,62 +4,102 @@ import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc,
 
 const eventConverter = {
     toFirestore: (event: Event): DocumentData => {
-        const { id, ...data } = event as any;
+        const { id, ...data } = event;
         return data;
     },
     fromFirestore: (snapshot: QueryDocumentSnapshot): Event => {
         const data = snapshot.data() as Omit<Event, 'id'>;
-        return new Event({ id: snapshot.id, ...(data as any) });
+        return new Event({ id: snapshot.id, ...data });
     }
 };
 
 const eventsCollection = collection(firestore, "events").withConverter(eventConverter);
 
 export async function addEvent(event: Event): Promise<void> {
-    await addDoc(eventsCollection, event);
+    try {
+        await addDoc(eventsCollection, event);
+    } catch (error) {
+        console.error('Error adding event:', error);
+        throw error;
+    }
 }
 
 export async function listEvents(): Promise<Event[]> {
-    const querySnapshot = await getDocs(eventsCollection);
-    return querySnapshot.docs.map((doc) => doc.data());
+    try {
+        const querySnapshot = await getDocs(eventsCollection);
+        return querySnapshot.docs.map((doc) => doc.data());
+    } catch (error) {
+        console.error('Error listing events:', error);
+        throw error;
+    }
 }
 
 export async function getEventById(id: string): Promise<Event | null> {
-    const docRef = doc(eventsCollection, id);
-    const docSnapshot = await getDoc(docRef);
-    
-    if (docSnapshot.exists()) {
-        return docSnapshot.data();
+    try {
+        const docRef = doc(eventsCollection, id);
+        const docSnapshot = await getDoc(docRef);
+        
+        if (docSnapshot.exists()) {
+            return docSnapshot.data();
+        }
+        return null;
+    } catch (error) {
+        console.error('Error getting event by id:', error);
+        throw error;
     }
-    return null;
 }
 
 export async function updateEvent(event: Event): Promise<void> {
-    const docRef = doc(eventsCollection, event.id);
-    await setDoc(docRef, event);
+    try {
+        const docRef = doc(eventsCollection, event.id);
+        await setDoc(docRef, event);
+    } catch (error) {
+        console.error('Error updating event:', error);
+        throw error;
+    }
 }
 
 // Partial update for existing event document
 export async function patchEvent(id: string, partial: Partial<Event>): Promise<void> {
-    const docRef = doc(eventsCollection, id);
-    await updateDoc(docRef, partial as any);
+    try {
+        const docRef = doc(eventsCollection, id);
+        await updateDoc(docRef, partial);
+    } catch (error) {
+        console.error('Error patching event:', error);
+        throw error;
+    }
 }
 
 export async function deleteEvent(id: string): Promise<void> {
-    const docRef = doc(eventsCollection, id);
-    await deleteDoc(docRef);
+    try {
+        const docRef = doc(eventsCollection, id);
+        await deleteDoc(docRef);
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        throw error;
+    }
 }
 
 export async function getEventsByDate(date: string): Promise<Event[]> {
-    const q = query(eventsCollection, where("date", "==", date));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => doc.data());
+    try {
+        const q = query(eventsCollection, where("date", "==", date));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map((doc) => doc.data());
+    } catch (error) {
+        console.error('Error getting events by date:', error);
+        throw error;
+    }
 }
 
 export async function getEventsByRoom(roomId: string): Promise<Event[]> {
-    const q = query(eventsCollection, where("roomId", "==", roomId));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => doc.data());
+    try {
+        const q = query(eventsCollection, where("roomId", "==", roomId));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map((doc) => doc.data());
+    } catch (error) {
+        console.error('Error getting events by room:', error);
+        throw error;
+    }
 }
 
 export async function getUrgentEvents(): Promise<Event[]> {

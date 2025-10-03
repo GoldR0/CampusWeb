@@ -136,7 +136,7 @@ const StudentDetailPage: React.FC = () => {
               </Typography>
               <Chip 
                 label={getStatusText(student.status)} 
-                color={getStatusColor(student.status) as any}
+                color={getStatusColor(student.status) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
                 size="small"
                 sx={{ mt: 1 }}
               />

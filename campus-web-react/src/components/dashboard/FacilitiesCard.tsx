@@ -156,7 +156,7 @@ const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                       <Chip 
                         label={facility.status === 'open' ? 'פתוח' : facility.status === 'busy' ? 'עמוס' : 'סגור'}
-                        color={getStatusColor(facility.status) as any}
+                        color={getStatusColor(facility.status) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
                         size="small"
                       />
                       <Typography variant="caption" color="text.secondary">

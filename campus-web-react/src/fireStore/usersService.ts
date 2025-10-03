@@ -4,12 +4,12 @@ import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc,
 
 const userConverter = {
     toFirestore: (user: User): DocumentData => {
-        const { id, ...data } = user as any;
+        const { id, ...data } = user;
         return data;
     },
     fromFirestore: (snapshot: QueryDocumentSnapshot): User => {
         const data = snapshot.data() as Omit<User, 'id'>;
-        return new User({ id: snapshot.id, ...(data as any) });
+        return new User({ id: snapshot.id, ...data });
     }
 };
 
@@ -42,7 +42,7 @@ export async function updateUser(user: User): Promise<void> {
 // Partial update for existing user document
 export async function patchUser(id: string, partial: Partial<User>): Promise<void> {
     const docRef = doc(usersCollection, id);
-    await updateDoc(docRef, partial as any);
+    await updateDoc(docRef, partial);
 }
 
 export async function deleteUser(id: string): Promise<void> {

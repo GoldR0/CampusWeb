@@ -4,12 +4,12 @@ import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc,
 
 const facilityConverter = {
     toFirestore: (facility: Facility): DocumentData => {
-        const { id, ...data } = facility as any;
+        const { id, ...data } = facility;
         return data;
     },
     fromFirestore: (snapshot: QueryDocumentSnapshot): Facility => {
         const data = snapshot.data() as Omit<Facility, 'id'>;
-        return new Facility({ id: snapshot.id, ...(data as any) });
+        return new Facility({ id: snapshot.id, ...data });
     }
 };
 
@@ -42,7 +42,7 @@ export async function updateFacility(facility: Facility): Promise<void> {
 // Partial update for existing facility document
 export async function patchFacility(id: string, partial: Partial<Facility>): Promise<void> {
     const docRef = doc(facilitiesCollection, id);
-    await updateDoc(docRef, partial as any);
+    await updateDoc(docRef, partial);
 }
 
 export async function deleteFacility(id: string): Promise<void> {

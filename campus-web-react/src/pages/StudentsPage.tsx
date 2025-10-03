@@ -47,7 +47,7 @@ import {
   Delete as DeleteIcon
 } from '@mui/icons-material';
 import { StudentsTable } from '../components/tables';
-import { Student } from '../types';
+import { Student, Course as CourseType, Task as TaskType } from '../types';
 import { 
   getAllStudents, 
   getStudentsStatistics,
@@ -758,7 +758,16 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
           // Save initial courses to Firestore
           for (const course of initialCourses) {
             try {
-              await addCourse(course as any);
+              const courseData = {
+                id: course.courseId,
+                name: course.courseName,
+                code: course.courseId,
+                instructor: course.lecturer,
+                credits: parseInt(course.credits),
+                status: 'active' as const,
+                progress: 0
+              };
+              await addCourse(new CourseType(courseData));
             } catch (error) {
               console.error('Error adding initial course to Firestore:', error);
             }
@@ -813,7 +822,17 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
           // Save initial tasks to Firestore
           for (const task of initialTasks) {
             try {
-              await addTask(task as any);
+              const taskData = {
+                id: task.id,
+                title: task.title,
+                type: task.type as 'exam' | 'assignment' | 'homework' | 'quiz' | 'presentation',
+                course: task.course,
+                dueDate: task.date,
+                priority: 'medium' as const,
+                status: 'pending' as const,
+                description: task.title
+              };
+              await addTask(new TaskType(taskData));
             } catch (error) {
               console.error('Error adding initial task to Firestore:', error);
             }
@@ -891,7 +910,17 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       // Persist to Firestore and notify
       (async () => {
         try {
-          await addTask(newTask as any);
+          const taskData = {
+            id: newTask.id,
+            title: newTask.title,
+            type: newTask.type as 'exam' | 'assignment' | 'homework' | 'quiz' | 'presentation',
+            course: newTask.course,
+            dueDate: newTask.date,
+            priority: 'medium' as const,
+            status: 'pending' as const,
+            description: newTask.title
+          };
+          await addTask(new TaskType(taskData));
           window.dispatchEvent(new CustomEvent('tasksUpdated'));
         } catch (error) {
           console.error('Error saving task to Firestore:', error);
@@ -973,7 +1002,16 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       // Persist to Firestore and notify
       (async () => {
         try {
-          await addCourse(newCourse as any);
+          const courseData = {
+            id: newCourse.courseId,
+            name: newCourse.courseName,
+            code: newCourse.courseId,
+            instructor: newCourse.lecturer,
+            credits: parseInt(newCourse.credits),
+            status: 'active' as const,
+            progress: 0
+          };
+          await addCourse(new CourseType(courseData));
           window.dispatchEvent(new CustomEvent('coursesUpdated'));
         } catch (error) {
           console.error('Error saving course to Firestore:', error);
@@ -1072,7 +1110,16 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       // Persist to Firestore (update course students) and notify
       (async () => {
         try {
-          await updateCourse({ ...(editingCourse as any), selectedStudents: courseFormData.selectedStudents, students: selectedCount.toString() } as any);
+          const courseData = {
+            id: editingCourse.courseId,
+            name: editingCourse.courseName,
+            code: editingCourse.courseId,
+            instructor: editingCourse.lecturer,
+            credits: parseInt(editingCourse.credits),
+            status: 'active' as const,
+            progress: 0
+          };
+          await updateCourse(new CourseType(courseData));
           window.dispatchEvent(new CustomEvent('coursesUpdated'));
         } catch (error) {
           console.error('Error updating course students in Firestore:', error);

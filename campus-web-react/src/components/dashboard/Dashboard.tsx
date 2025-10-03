@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, LinearProgress } from '@mui/material';
 
-import { User } from '../../types';
+import { User, Event, Facility } from '../../types';
 import WelcomeBanner from './WelcomeBanner';
 import TasksCard from './TasksCard';
 import EventsCard from './EventsCard';
@@ -62,7 +62,16 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
           // Save initial events to Firestore
           for (const event of initialEvents) {
             try {
-              await addEvent(event as any);
+              const eventData = {
+                id: event.id,
+                title: event.title,
+                description: event.description,
+                date: event.date,
+                time: event.time,
+                roomId: event.location.replace('חדר ', ''),
+                urgent: false
+              };
+              await addEvent(new Event(eventData));
             } catch (error) {
               console.error('Error adding initial event to Firestore:', error);
             }
@@ -87,7 +96,16 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser }) => {
           // Save initial facilities to Firestore
           for (const facility of initialFacilities) {
             try {
-              await addFacility(facility as any);
+              const facilityData = {
+                id: facility.id,
+                name: facility.name,
+                status: facility.status as 'open' | 'closed' | 'busy',
+                hours: '08:00-22:00',
+                rating: 4.5,
+                totalRatings: 10,
+                averageRating: 4.5
+              };
+              await addFacility(new Facility(facilityData));
             } catch (error) {
               console.error('Error adding initial facility to Firestore:', error);
             }

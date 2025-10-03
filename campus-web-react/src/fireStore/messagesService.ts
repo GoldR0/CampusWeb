@@ -4,12 +4,12 @@ import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc,
 
 const messageConverter = {
     toFirestore: (message: Message): DocumentData => {
-        const { id, ...data } = message as any;
+        const { id, ...data } = message;
         return data;
     },
     fromFirestore: (snapshot: QueryDocumentSnapshot): Message => {
         const data = snapshot.data() as Omit<Message, 'id'>;
-        return new Message({ id: snapshot.id, ...(data as any) });
+        return new Message({ id: snapshot.id, ...data });
     }
 };
 
@@ -42,7 +42,7 @@ export async function updateMessage(message: Message): Promise<void> {
 // Partial update for existing message document
 export async function patchMessage(id: string, partial: Partial<Message>): Promise<void> {
     const docRef = doc(messagesCollection, id);
-    await updateDoc(docRef, partial as any);
+    await updateDoc(docRef, partial);
 }
 
 export async function deleteMessage(id: string): Promise<void> {

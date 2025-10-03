@@ -211,7 +211,7 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
         user: currentUser?.name || 'משתמש אלמוני'
       };
       try {
-        await addInquiry(newInquiry as any);
+        await addInquiry(newInquiry);
         window.dispatchEvent(new CustomEvent('inquiriesUpdated'));
         setNotification({
           message: `פנייה חדשה נוצרה בהצלחה! מזהה: ${inquiryFormData.inquiryId}`,

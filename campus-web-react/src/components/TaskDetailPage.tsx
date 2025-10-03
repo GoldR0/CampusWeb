@@ -183,12 +183,12 @@ const TaskDetailPage: React.FC = () => {
                 />
                 <Chip 
                   label={getStatusText(task.status)} 
-                  color={getStatusColor(task.status) as any}
+                  color={getStatusColor(task.status) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
                   size="small"
                 />
                 <Chip 
                   label={getPriorityText(task.priority)} 
-                  color={getPriorityColor(task.priority) as any}
+                  color={getPriorityColor(task.priority) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
                   size="small"
                 />
               </Box>
@@ -267,7 +267,7 @@ const TaskDetailPage: React.FC = () => {
                     />
                     <Chip 
                       label={getStatusText(task.status)} 
-                      color={getStatusColor(task.status) as any}
+                      color={getStatusColor(task.status) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
                       size="small"
                     />
                   </Box>
@@ -295,7 +295,7 @@ const TaskDetailPage: React.FC = () => {
                     />
                     <Chip 
                       label={getPriorityText(task.priority)} 
-                      color={getPriorityColor(task.priority) as any}
+                      color={getPriorityColor(task.priority) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
                       size="small"
                     />
                   </Box>

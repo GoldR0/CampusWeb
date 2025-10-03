@@ -13,12 +13,12 @@ export interface Inquiry {
 
 const inquiryConverter = {
   toFirestore: (inquiry: Inquiry): DocumentData => {
-    const { id, ...data } = inquiry as any;
+    const { id, ...data } = inquiry;
     return data;
   },
   fromFirestore: (snapshot: QueryDocumentSnapshot): Inquiry => {
     const data = snapshot.data() as Omit<Inquiry, 'id'>;
-    return { id: snapshot.id, ...(data as any) };
+    return { id: snapshot.id, ...data };
   }
 };
 
