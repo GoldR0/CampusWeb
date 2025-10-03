@@ -1,12 +1,10 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, Box, Container, Alert, Snackbar } from '@mui/material';
+import { Box, Container, Alert, Snackbar } from '@mui/material';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Dashboard from './components/dashboard/Dashboard';
-import PlaceholderContent from './components/PlaceholderContent';
 import StudentsPage from './pages/StudentsPage';
 import CommunityPage from './components/CommunityPage';
 import FormsPage from './pages/FormsPage';
@@ -23,8 +21,6 @@ import EventDetailPage from './components/EventDetailPage';
 import DeepLinksTestPage from './components/DeepLinksTestPage';
 import { useAuth } from './hooks/useAuth';
 import { useNotifications } from './hooks/useNotifications';
-import { User } from './types';
-import { demoUsers } from './data/demoData';
 
 function App() {
   const { currentUser, handleLogin, handleLogout } = useAuth();
@@ -40,13 +36,6 @@ function App() {
     showNotification(result.message, 'success');
   };
 
-  // Custom color theme
-  const customColors = {
-    primary: 'rgb(179, 209, 53)',
-    primaryDark: 'rgb(159, 189, 33)',
-    primaryLight: 'rgb(199, 229, 73)',
-    textOnPrimary: 'white'
-  };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
