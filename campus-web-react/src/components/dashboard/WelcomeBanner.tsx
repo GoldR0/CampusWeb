@@ -1,15 +1,12 @@
 import React from 'react';
 import { Paper, Typography } from '@mui/material';
 import { User } from '../../types';
-import { demoTasks } from '../../data/demoData';
 
 interface WelcomeBannerProps {
   currentUser: User | null;
 }
 
 const WelcomeBanner: React.FC<WelcomeBannerProps> = ({ currentUser }) => {
-  const urgentTasks = demoTasks.filter(t => t.priority === 'urgent').length;
-  const assignmentTasks = demoTasks.filter(t => t.type === 'assignment').length;
 
   return (
     <Paper 
@@ -27,7 +24,7 @@ const WelcomeBanner: React.FC<WelcomeBannerProps> = ({ currentUser }) => {
       </Typography>
       {currentUser && (
         <Typography variant="h6">
-          שלום {currentUser.name}! היום יש לך {urgentTasks} מבחנים ו-{assignmentTasks} מטלות להגשה
+          שלום {currentUser.name}!
         </Typography>
       )}
     </Paper>

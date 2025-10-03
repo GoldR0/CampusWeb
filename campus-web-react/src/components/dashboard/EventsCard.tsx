@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, Box, Typography, LinearProgress, IconButton, Tooltip } from '@mui/material';
 import { CalendarToday as CalendarIcon, AccessTime as TimeIcon, MeetingRoom as RoomIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 
-import { demoEvents } from '../../data/demoData';
 import { listEvents } from '../../fireStore/eventsService';
 
 interface Event {
@@ -51,32 +50,11 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
           }));
           setEvents(localEvents);
         } else {
-          // If no events in Firestore, use demo events
-          const demoEventsData = demoEvents.map(demoEvent => ({
-            id: demoEvent.id,
-            title: demoEvent.title,
-            description: demoEvent.description,
-            date: demoEvent.date,
-            time: demoEvent.time,
-            location: `חדר ${demoEvent.roomId}`,
-            maxParticipants: 50,
-            createdAt: new Date().toLocaleString('he-IL')
-          }));
-          setEvents(demoEventsData);
+          setEvents([]);
         }
       } catch (error) {
         console.error('Error loading events from Firestore:', error);
-        // Fallback to demo events
-        setEvents(demoEvents.map(demoEvent => ({
-          id: demoEvent.id,
-          title: demoEvent.title,
-          description: demoEvent.description,
-          date: demoEvent.date,
-          time: demoEvent.time,
-          location: `חדר ${demoEvent.roomId}`,
-          maxParticipants: 50,
-          createdAt: new Date().toLocaleString('he-IL')
-        })));
+        setEvents([]);
       } finally {
         setIsLoading(false);
       }

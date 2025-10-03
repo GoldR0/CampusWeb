@@ -888,15 +888,15 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       const updatedTasks = [...tasks, newTask];
       setTasks(updatedTasks);
 
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-tasks-data', JSON.stringify(updatedTasks));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('tasksUpdated'));
-      } catch (error) {
-        // Error saving tasks to localStorage
-      }
+      // Persist to Firestore and notify
+      (async () => {
+        try {
+          await addTask(newTask as any);
+          window.dispatchEvent(new CustomEvent('tasksUpdated'));
+        } catch (error) {
+          console.error('Error saving task to Firestore:', error);
+        }
+      })();
 
       setNotification({
         message: `מטלה חדשה נוצרה בהצלחה!`,
@@ -970,15 +970,15 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       const updatedCourses = [...courses, newCourse];
       setCourses(updatedCourses);
 
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-courses-data', JSON.stringify(updatedCourses));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('coursesUpdated'));
-      } catch (error) {
-        // Error saving courses to localStorage
-      }
+      // Persist to Firestore and notify
+      (async () => {
+        try {
+          await addCourse(newCourse as any);
+          window.dispatchEvent(new CustomEvent('coursesUpdated'));
+        } catch (error) {
+          console.error('Error saving course to Firestore:', error);
+        }
+      })();
 
       setNotification({
         message: `קורס חדש נוצר בהצלחה! מזהה: ${courseFormData.courseId}`,
@@ -1069,15 +1069,15 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       
       setCourses(updatedCourses);
       
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-courses-data', JSON.stringify(updatedCourses));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('coursesUpdated'));
-      } catch (error) {
-        // Error saving courses to localStorage
-      }
+      // Persist to Firestore (update course students) and notify
+      (async () => {
+        try {
+          await updateCourse({ ...(editingCourse as any), selectedStudents: courseFormData.selectedStudents, students: selectedCount.toString() } as any);
+          window.dispatchEvent(new CustomEvent('coursesUpdated'));
+        } catch (error) {
+          console.error('Error updating course students in Firestore:', error);
+        }
+      })();
 
       setNotification({
         message: `עודכנו ${selectedCount} סטודנטים בקורס ${editingCourse.courseName}`,
@@ -1128,15 +1128,15 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       const updatedTasks = tasks.filter(task => task.id !== taskToDelete.id);
       setTasks(updatedTasks);
       
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-tasks-data', JSON.stringify(updatedTasks));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('tasksUpdated'));
-      } catch (error) {
-        // Error saving tasks to localStorage
-      }
+      // Delete from Firestore and notify
+      (async () => {
+        try {
+          await deleteTask(taskToDelete.id);
+          window.dispatchEvent(new CustomEvent('tasksUpdated'));
+        } catch (error) {
+          console.error('Error deleting task from Firestore:', error);
+        }
+      })();
       
       setNotification({
         message: `המטלה "${taskToDelete.title}" נמחקה בהצלחה`,
@@ -1152,15 +1152,15 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       const updatedCourses = courses.filter(course => course.courseId !== courseToDelete.courseId);
       setCourses(updatedCourses);
       
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-courses-data', JSON.stringify(updatedCourses));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('coursesUpdated'));
-      } catch (error) {
-        // Error saving courses to localStorage
-      }
+      // Delete from Firestore and notify
+      (async () => {
+        try {
+          await deleteCourse(courseToDelete.courseId);
+          window.dispatchEvent(new CustomEvent('coursesUpdated'));
+        } catch (error) {
+          console.error('Error deleting course from Firestore:', error);
+        }
+      })();
       
       setNotification({
         message: `הקורס "${courseToDelete.courseName}" נמחק בהצלחה`,

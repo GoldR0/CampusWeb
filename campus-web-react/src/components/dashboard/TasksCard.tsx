@@ -4,7 +4,6 @@ import { Card, CardContent, Box, Typography, LinearProgress, IconButton, Tooltip
 import { CheckCircle as CheckCircleIcon, Warning as WarningIcon, AccessTime as TimeIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth';
 
-import { demoTasks } from '../../data/demoData';
 import { listTasks } from '../../fireStore/tasksService';
 import { listCourses } from '../../fireStore/coursesService';
 
@@ -70,7 +69,7 @@ const TasksCard: React.FC<TasksCardProps> = ({ customColors }) => {
     }
   }, [currentUser]);
 
-  const tasksToShow = currentUser ? studentTasks : demoTasks;
+  const tasksToShow = currentUser ? studentTasks : [];
 
   return (
     <Card sx={{ border: `2px solid ${customColors.primary}` }}>
@@ -96,6 +95,11 @@ const TasksCard: React.FC<TasksCardProps> = ({ customColors }) => {
             </Typography>
           </Box>
         ) : (
+          tasksToShow.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+              אין מטלות להצגה
+            </Typography>
+          ) : (
           tasksToShow.map((task) => (
             <Box 
               key={task.id} 
@@ -132,6 +136,7 @@ const TasksCard: React.FC<TasksCardProps> = ({ customColors }) => {
               </Typography>
             </Box>
           ))
+          )
         )}
       </CardContent>
     </Card>

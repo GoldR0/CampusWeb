@@ -8,9 +8,7 @@ import {
   LocalParking as ParkingIcon,
   Business as BusinessIcon
 } from '@mui/icons-material';
-import RatingStars from '../RatingStars';
 
-import { demoFacilities } from '../../data/demoData';
 import { listFacilities } from '../../fireStore/facilitiesService';
 
 interface FacilitiesCardProps {
@@ -28,7 +26,7 @@ interface ManagedFacility {
 }
 
 const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
-  const [facilities, setFacilities] = useState(demoFacilities);
+  const [facilities, setFacilities] = useState<ManagedFacility[]>([]);
   const [managedFacilities, setManagedFacilities] = useState<ManagedFacility[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -48,28 +46,15 @@ const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
             lastUpdated: new Date().toLocaleString('he-IL')
           }));
           setManagedFacilities(localFacilities);
+          setFacilities(localFacilities);
         } else {
-          // If no facilities in Firestore, use demo facilities
-          const convertedFacilities: ManagedFacility[] = demoFacilities.map(facility => ({
-            id: facility.id,
-            name: facility.name,
-            type: 'library' as 'library' | 'cafeteria' | 'gym' | 'parking',
-            status: facility.status as 'open' | 'closed' | 'busy',
-            lastUpdated: new Date().toLocaleString('he-IL')
-          }));
-          setManagedFacilities(convertedFacilities);
+          setManagedFacilities([]);
+          setFacilities([]);
         }
       } catch (error) {
         console.error('Error loading facilities from Firestore:', error);
-        // Fallback to demo facilities
-        const convertedFacilities: ManagedFacility[] = demoFacilities.map(facility => ({
-          id: facility.id,
-          name: facility.name,
-          type: 'library' as 'library' | 'cafeteria' | 'gym' | 'parking',
-          status: facility.status as 'open' | 'closed' | 'busy',
-          lastUpdated: new Date().toLocaleString('he-IL')
-        }));
-        setManagedFacilities(convertedFacilities);
+        setManagedFacilities([]);
+        setFacilities([]);
       } finally {
         setIsLoading(false);
       }
@@ -116,27 +101,6 @@ const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
     }
   };
 
-  const handleRatingChange = (facilityId: string, rating: number) => {
-    setFacilities(prevFacilities => 
-      prevFacilities.map(facility => {
-        if (facility.id === facilityId) {
-          const newTotalRatings = (facility.totalRatings || 0) + 1;
-          const newAverageRating = facility.averageRating 
-            ? ((facility.averageRating * (facility.totalRatings || 0)) + rating) / newTotalRatings
-            : rating;
-          
-          return {
-            ...facility,
-            rating,
-            totalRatings: newTotalRatings,
-            averageRating: newAverageRating
-          };
-        }
-        return facility;
-      })
-    );
-  };
-
   return (
     <Card sx={{ border: `2px solid ${customColors.primary}` }}>
       <CardContent>
@@ -161,66 +125,56 @@ const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
             </Typography>
           </Box>
         ) : (
-          /* Display managed facilities if available, otherwise show demo facilities */
+          (managedFacilities.length > 0 ? managedFacilities : facilities).length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+              אין מתקנים להצגה
+            </Typography>
+          ) : (
           (managedFacilities.length > 0 ? managedFacilities : facilities).map((facility, index) => {
-          const isManagedFacility = managedFacilities.length > 0;
-          
-          return (
-            <Box key={facility.id}>
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center', 
-                mb: 2,
-                p: 2,
-                backgroundColor: 'rgba(0,0,0,0.02)',
-                borderRadius: 1,
-                border: '1px solid rgba(0,0,0,0.05)'
-              }}>
-                <Box sx={{ flex: 1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            const isManagedFacility = managedFacilities.length > 0;
+            
+            return (
+              <Box key={facility.id}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  mb: 2,
+                  p: 2,
+                  backgroundColor: 'rgba(0,0,0,0.02)',
+                  borderRadius: 1,
+                  border: '1px solid rgba(0,0,0,0.05)'
+                }}>
+                  <Box sx={{ flex: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                     {getFacilityIcon(facility.name, isManagedFacility ? (facility as ManagedFacility).type : undefined)}
-                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', ml: 1 }}>
-                      {facility.name}
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <Chip 
-                      label={facility.status === 'open' ? 'פתוח' : facility.status === 'busy' ? 'עמוס' : 'סגור'}
-                      color={getStatusColor(facility.status) as any}
-                      size="small"
-                    />
-                    <Typography variant="caption" color="text.secondary">
-                      {isManagedFacility ? `עודכן: ${(facility as ManagedFacility).lastUpdated}` : (facility as any).hours}
-                    </Typography>
-                  </Box>
-                  
-                  {/* Rating Section - only for demo facilities */}
-                  {!isManagedFacility && (
-                    <Box sx={{ mt: 2 }}>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                        דרג את המתקן:
+                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', ml: 1 }}>
+                        {facility.name}
                       </Typography>
-                      <RatingStars
-                        value={(facility as any).rating || 0}
-                        onChange={(rating) => handleRatingChange(facility.id, rating)}
-                        size="small"
-                        showLabel={true}
-                        totalRatings={(facility as any).totalRatings || 0}
-                        averageRating={(facility as any).averageRating || 0}
-                      />
                     </Box>
-                  )}
+                    
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Chip 
+                        label={facility.status === 'open' ? 'פתוח' : facility.status === 'busy' ? 'עמוס' : 'סגור'}
+                        color={getStatusColor(facility.status) as any}
+                        size="small"
+                      />
+                      <Typography variant="caption" color="text.secondary">
+                        {isManagedFacility ? `עודכן: ${(facility as ManagedFacility).lastUpdated}` : ''}
+                      </Typography>
+                    </Box>
+                    
+                    {/* דירוג מוצג רק בדמו - הוסר כדי לעבוד עם Firestore בלבד */}
+                  </Box>
                 </Box>
+                
+                {index < (managedFacilities.length > 0 ? managedFacilities : facilities).length - 1 && (
+                  <Divider sx={{ my: 1 }} />
+                )}
               </Box>
-              
-              {index < (managedFacilities.length > 0 ? managedFacilities : facilities).length - 1 && (
-                <Divider sx={{ my: 1 }} />
-              )}
-            </Box>
-          );
+            );
         })
+        )
         )}
       </CardContent>
     </Card>
