@@ -30,6 +30,7 @@ import {
   Person as PersonIcon,
   Add as AddIcon
 } from '@mui/icons-material';
+import { listLostFoundOrderedByTimestampDesc, addLostFoundReport, LostFoundReport } from '../fireStore/lostFoundService';
 
 interface LostFoundPageProps {
   currentUser: User | null;
@@ -142,186 +143,29 @@ const LostFoundPage: React.FC<LostFoundPageProps> = ({ currentUser }) => {
     return isValid;
   };
 
-  // Load reports from localStorage on component mount
+  // Load reports from Firestore on component mount
   useEffect(() => {
-    const loadReportsFromLocalStorage = () => {
+    const loadFromFirestore = async () => {
       try {
-        const savedReports = null; // Lost found reports are now managed through Firestore
-        if (savedReports) {
-          const parsedReports = JSON.parse(savedReports);
-          if (parsedReports.length === 0) {
-            // If reports array is empty, create initial reports
-            const itemNames = ['מפתחות', 'ארנק', 'טלפון', 'תיק', 'ספר', 'משקפיים', 'שעון', 'תעודת זהות', 'כרטיס סטודנט', 'מחשב נייד'];
-            const locations = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'אודיטוריום', 'מעבדה', 'כיתה', 'משרד', 'גינה', 'מרכז סטודנטים'];
-            const users = ['דוד כהן', 'שרה לוי', 'משה ישראלי', 'רחל אברהם', 'יוסף גולד', 'מרים שלום', 'אברהם כהן', 'רחל לוי', 'יצחק ישראלי', 'לאה אברהם'];
-            
-            const demoReports: SubmittedForm[] = Array.from({ length: 10 }, (_, index) => ({
-              id: `LF-${String(index + 1).padStart(3, '0')}`,
-              type: index % 2 === 0 ? 'lost' : 'found',
-              itemName: itemNames[index] || `פריט ${index + 1}`,
-              description: `תיאור מפורט של ${itemNames[index] || `פריט ${index + 1}`}`,
-              location: locations[index] || `מיקום ${index + 1}`,
-              date: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
-              contactPhone: `050-${String(1234567 + index).padStart(7, '0')}`,
-              timestamp: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)),
-              user: users[index] || `משתמש ${index + 1}`
-            }));
-            
-            setSubmittedForms(demoReports);
-            setReportCounter(11);
-            // Lost found reports are now managed through Firestore
-          } else {
-            // Convert timestamp strings back to Date objects
-            const reportsWithDates = parsedReports.map((report: { timestamp: string | Date; [key: string]: any }) => ({
-              ...report,
-              timestamp: new Date(report.timestamp)
-            }));
-            
-            // If we have less than 10 reports, add more to reach 10
-            if (reportsWithDates.length < 10) {
-              const itemNames = ['מפתחות', 'ארנק', 'טלפון', 'תיק', 'ספר', 'משקפיים', 'שעון', 'תעודת זהות', 'כרטיס סטודנט', 'מחשב נייד'];
-              const locations = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'אודיטוריום', 'מעבדה', 'כיתה', 'משרד', 'גינה', 'מרכז סטודנטים'];
-              const users = ['דוד כהן', 'שרה לוי', 'משה ישראלי', 'רחל אברהם', 'יוסף גולד', 'מרים שלום', 'אברהם כהן', 'רחל לוי', 'יצחק ישראלי', 'לאה אברהם'];
-              
-              const additionalReports: SubmittedForm[] = Array.from({ length: 10 - reportsWithDates.length }, (_, index) => ({
-                id: `LF-${String(reportsWithDates.length + index + 1).padStart(3, '0')}`,
-                type: (reportsWithDates.length + index) % 2 === 0 ? 'lost' : 'found',
-                itemName: itemNames[(reportsWithDates.length + index) % itemNames.length],
-                description: `תיאור מפורט של ${itemNames[(reportsWithDates.length + index) % itemNames.length]}`,
-                location: locations[(reportsWithDates.length + index) % locations.length],
-                date: new Date(Date.now() - ((reportsWithDates.length + index) * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
-                contactPhone: `050-${String(1234567 + reportsWithDates.length + index).padStart(7, '0')}`,
-                timestamp: new Date(Date.now() - ((reportsWithDates.length + index) * 24 * 60 * 60 * 1000)),
-                user: users[(reportsWithDates.length + index) % users.length]
-              }));
-              
-              const allReports = [...reportsWithDates, ...additionalReports];
-              setSubmittedForms(allReports);
-              // Lost found reports are now managed through Firestore
-              setReportCounter(allReports.length + 1);
-            } else {
-              setSubmittedForms(reportsWithDates);
-              
-              // Set counter to next available number
-              const maxId = Math.max(...parsedReports.map((report: SubmittedForm) => 
-                parseInt(report.id.split('-')[1])
-              ));
-              setReportCounter(maxId + 1);
-            }
-          }
-        } else {
-          // Initialize with demo data - create 10 reports
-          const itemNames = ['מפתחות', 'ארנק', 'טלפון', 'תיק', 'ספר', 'משקפיים', 'שעון', 'תעודת זהות', 'כרטיס סטודנט', 'מחשב נייד'];
-          const locations = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'אודיטוריום', 'מעבדה', 'כיתה', 'משרד', 'גינה', 'מרכז סטודנטים'];
-          const users = ['דוד כהן', 'שרה לוי', 'משה ישראלי', 'רחל אברהם', 'יוסף גולד', 'מרים שלום', 'אברהם כהן', 'רחל לוי', 'יצחק ישראלי', 'לאה אברהם'];
-          
-          const demoReports: SubmittedForm[] = Array.from({ length: 10 }, (_, index) => ({
-            id: `LF-${String(index + 1).padStart(3, '0')}`,
-            type: index % 2 === 0 ? 'lost' : 'found',
-            itemName: itemNames[index] || `פריט ${index + 1}`,
-            description: `תיאור מפורט של ${itemNames[index] || `פריט ${index + 1}`}`,
-            location: locations[index] || `מיקום ${index + 1}`,
-            date: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
-            contactPhone: `050-${String(1234567 + index).padStart(7, '0')}`,
-            timestamp: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)),
-            user: users[index] || `משתמש ${index + 1}`
-          }));
-          
-          setSubmittedForms(demoReports);
-          setReportCounter(11);
-          // Lost found reports are now managed through Firestore
-        }
-        
-        // Always ensure reports have proper IDs (in case of corrupted data)
-        const currentReports = null; // Lost found reports are now managed through Firestore
-        if (currentReports) {
-          try {
-            const parsed = JSON.parse(currentReports);
-            if (Array.isArray(parsed)) {
-              // Check if any reports have old numeric IDs and fix them
-              let needsUpdate = false;
-              const fixedReports: SubmittedForm[] = parsed.map((report: { [key: string]: any }, index: number) => {
-                if (typeof report.id === 'number' || !report.id.startsWith('LF-')) {
-                  needsUpdate = true;
-                  return {
-                    ...report,
-                    id: `LF-${String(index + 1).padStart(3, '0')}`,
-                    timestamp: new Date(report.timestamp)
-                  } as SubmittedForm;
-                }
-                return {
-                  ...report,
-                  timestamp: new Date(report.timestamp)
-                } as SubmittedForm;
-              });
-              
-              if (needsUpdate) {
-                setSubmittedForms(fixedReports);
-                // Lost found reports are now managed through Firestore
-                setReportCounter(fixedReports.length + 1);
-              }
-            }
-          } catch (error) {
-            // Corrupted reports data, resetting...
-            const itemNames = ['מפתחות', 'ארנק', 'טלפון', 'תיק', 'ספר', 'משקפיים', 'שעון', 'תעודת זהות', 'כרטיס סטודנט', 'מחשב נייד'];
-            const locations = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'אודיטוריום', 'מעבדה', 'כיתה', 'משרד', 'גינה', 'מרכז סטודנטים'];
-            const users = ['דוד כהן', 'שרה לוי', 'משה ישראלי', 'רחל אברהם', 'יוסף גולד', 'מרים שלום', 'אברהם כהן', 'רחל לוי', 'יצחק ישראלי', 'לאה אברהם'];
-            
-            const demoReports: SubmittedForm[] = Array.from({ length: 10 }, (_, index) => ({
-              id: `LF-${String(index + 1).padStart(3, '0')}`,
-              type: index % 2 === 0 ? 'lost' : 'found',
-              itemName: itemNames[index] || `פריט ${index + 1}`,
-              description: `תיאור מפורט של ${itemNames[index] || `פריט ${index + 1}`}`,
-              location: locations[index] || `מיקום ${index + 1}`,
-              date: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
-              contactPhone: `050-${String(1234567 + index).padStart(7, '0')}`,
-              timestamp: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)),
-              user: users[index] || `משתמש ${index + 1}`
-            }));
-            
-            setSubmittedForms(demoReports);
-            setReportCounter(11);
-            // Lost found reports are now managed through Firestore
-          }
-        }
-      } catch (error) {
-        // Error loading reports from localStorage
-        // If there's an error, clear localStorage and initialize with demo data
-        // Lost found reports are now managed through Firestore
-        const itemNames = ['מפתחות', 'ארנק', 'טלפון', 'תיק', 'ספר', 'משקפיים', 'שעון', 'תעודת זהות', 'כרטיס סטודנט', 'מחשב נייד'];
-        const locations = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'אודיטוריום', 'מעבדה', 'כיתה', 'משרד', 'גינה', 'מרכז סטודנטים'];
-        const users = ['דוד כהן', 'שרה לוי', 'משה ישראלי', 'רחל אברהם', 'יוסף גולד', 'מרים שלום', 'אברהם כהן', 'רחל לוי', 'יצחק ישראלי', 'לאה אברהם'];
-        
-        const demoReports: SubmittedForm[] = Array.from({ length: 10 }, (_, index) => ({
-          id: `LF-${String(index + 1).padStart(3, '0')}`,
-          type: index % 2 === 0 ? 'lost' : 'found',
-          itemName: itemNames[index] || `פריט ${index + 1}`,
-          description: `תיאור מפורט של ${itemNames[index] || `פריט ${index + 1}`}`,
-          location: locations[index] || `מיקום ${index + 1}`,
-          date: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
-          contactPhone: `050-${String(1234567 + index).padStart(7, '0')}`,
-          timestamp: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)),
-          user: users[index] || `משתמש ${index + 1}`
+        const reports = await listLostFoundOrderedByTimestampDesc();
+        const mapped: SubmittedForm[] = reports.map((r) => ({
+          id: r.id,
+          type: r.type,
+          itemName: r.itemName,
+          description: r.description,
+          location: r.location,
+          date: r.date,
+          contactPhone: r.contactPhone,
+          timestamp: new Date(r.timestamp),
+          user: r.user
         }));
-        
-        setSubmittedForms(demoReports);
-        setReportCounter(11);
-        // Lost found reports are now managed through Firestore
+        setSubmittedForms(mapped);
+        setReportCounter(mapped.length + 1);
+      } catch (e) {
+        // Silent fail; UI can remain empty
       }
     };
-
-    loadReportsFromLocalStorage();
-    
-    // Listen for updates from FormsPage
-    const handleLostFoundUpdate = () => {
-      loadReportsFromLocalStorage();
-    };
-
-    window.addEventListener('lostFoundUpdated', handleLostFoundUpdate);
-
-    return () => {
-      window.removeEventListener('lostFoundUpdated', handleLostFoundUpdate);
-    };
+    loadFromFirestore();
   }, []);
 
   const handleInputChange = (field: string, value: string) => {
@@ -352,7 +196,7 @@ const LostFoundPage: React.FC<LostFoundPageProps> = ({ currentUser }) => {
     }));
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     // Mark all fields as touched
     const allTouched = Object.keys(formData).reduce((acc, field) => {
       acc[field] = true;
@@ -368,18 +212,36 @@ const LostFoundPage: React.FC<LostFoundPageProps> = ({ currentUser }) => {
         user: currentUser?.name || 'משתמש אנונימי'
       };
       
-      const updatedForms = [newForm, ...submittedForms];
-      setSubmittedForms(updatedForms);
-      setReportCounter(prev => prev + 1);
-      
-      // Save to localStorage
       try {
-        // Lost found reports are now managed through Firestore
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('lostFoundUpdated'));
-      } catch (error) {
-        // Error saving reports to localStorage
+        const report: LostFoundReport = {
+          id: newForm.id,
+          type: newForm.type,
+          itemName: newForm.itemName,
+          description: newForm.description,
+          location: newForm.location,
+          date: newForm.date,
+          contactPhone: newForm.contactPhone,
+          timestamp: newForm.timestamp.toISOString(),
+          user: newForm.user
+        };
+        await addLostFoundReport(report);
+        const refreshed = await listLostFoundOrderedByTimestampDesc();
+        const mapped: SubmittedForm[] = refreshed.map((r) => ({
+          id: r.id,
+          type: r.type,
+          itemName: r.itemName,
+          description: r.description,
+          location: r.location,
+          date: r.date,
+          contactPhone: r.contactPhone,
+          timestamp: new Date(r.timestamp),
+          user: r.user
+        }));
+        setSubmittedForms(mapped);
+        setReportCounter(mapped.length + 1);
+      } catch (e) {
+        setNotification({ message: 'שגיאה בשמירת הדיווח למסד', type: 'error' });
+        return;
       }
       
       setNotification({

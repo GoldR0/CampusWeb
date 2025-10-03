@@ -21,6 +21,7 @@ import {
   LinearProgress
 } from '@mui/material';
 import { CUSTOM_COLORS, TYPOGRAPHY, CARD_STYLES } from '../constants/theme';
+import { listLostFoundOrderedByTimestampDesc, deleteLostFoundReport } from '../fireStore/lostFoundService';
 import { User } from '../types';
 import {
   Description as DescriptionIcon,
@@ -235,13 +236,16 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     }
   }, [id, type, events, navigate]);
 
-  // Load events and facilities from Firestore on component mount
+  // Load events, facilities and lost-found from Firestore on component mount
   useEffect(() => {
     const loadDataFromFirestore = async () => {
       setIsLoading(true);
       try {
-        await loadEventsFromFirestore();
-        await loadFacilitiesFromFirestore();
+        await Promise.all([
+          loadEventsFromFirestore(),
+          loadFacilitiesFromFirestore(),
+          loadLostFoundFromFirestore()
+        ]);
       } finally {
         setIsLoading(false);
       }
@@ -314,6 +318,26 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           ));
           setEventCounter(maxId + 1);
         }
+      }
+    };
+
+    const loadLostFoundFromFirestore = async () => {
+      try {
+        const reports = await listLostFoundOrderedByTimestampDesc();
+        const mapped = reports.map(r => ({
+          id: r.id,
+          type: r.type,
+          itemName: r.itemName,
+          description: r.description,
+          location: r.location,
+          date: r.date,
+          contactPhone: r.contactPhone,
+          timestamp: new Date(r.timestamp),
+          user: r.user
+        }));
+        setLostFoundReports(mapped);
+      } catch (e) {
+        // keep empty
       }
     };
 
@@ -732,20 +756,36 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     setDeleteReportDialogOpen(true);
   };
 
-  const confirmDeleteReport = () => {
+  const confirmDeleteReport = async () => {
     if (reportToDelete) {
-      const updatedReports = lostFoundReports.filter(report => report.id !== reportToDelete.id);
-      setLostFoundReports(updatedReports);
-      
-      // Lost found reports are now managed through Firestore
-      window.dispatchEvent(new CustomEvent('lostFoundUpdated'));
-      
-      setNotification({
-        message: `הדיווח "${reportToDelete.id}" נמחק בהצלחה`,
-        type: 'success'
-      });
-      setDeleteReportDialogOpen(false);
-      setReportToDelete(null);
+      try {
+        await deleteLostFoundReport(reportToDelete.id);
+        const refreshed = await listLostFoundOrderedByTimestampDesc();
+        const mapped = refreshed.map(r => ({
+          id: r.id,
+          type: r.type,
+          itemName: r.itemName,
+          description: r.description,
+          location: r.location,
+          date: r.date,
+          contactPhone: r.contactPhone,
+          timestamp: new Date(r.timestamp),
+          user: r.user
+        }));
+        setLostFoundReports(mapped);
+        setNotification({
+          message: `הדיווח "${reportToDelete.id}" נמחק בהצלחה`,
+          type: 'success'
+        });
+      } catch (e) {
+        setNotification({
+          message: 'שגיאה במחיקת הדיווח מהמסד',
+          type: 'error'
+        });
+      } finally {
+        setDeleteReportDialogOpen(false);
+        setReportToDelete(null);
+      }
     }
   };
 

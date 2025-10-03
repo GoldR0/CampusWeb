@@ -8,3 +8,4 @@ export * from './tasksService';
 export * from './coursesService';
 export * from './messagesService';
 export * from './initializeCollections';
+export * from './lostFoundService';

@@ -241,3 +241,37 @@ export class Message {
     this.courseId = init.courseId;
   }
 } 
+
+export class LostFoundReportModel {
+  id: string;
+  type: 'lost' | 'found';
+  itemName: string;
+  description: string;
+  location: string;
+  date: string;
+  contactPhone: string;
+  timestamp: string; // ISO string to align with Firestore serialization
+  user: string;
+
+  constructor(init: {
+    id: string;
+    type: 'lost' | 'found';
+    itemName: string;
+    description: string;
+    location: string;
+    date: string;
+    contactPhone: string;
+    timestamp: string;
+    user: string;
+  }) {
+    this.id = init.id;
+    this.type = init.type;
+    this.itemName = init.itemName;
+    this.description = init.description;
+    this.location = init.location;
+    this.date = init.date;
+    this.contactPhone = init.contactPhone;
+    this.timestamp = init.timestamp;
+    this.user = init.user;
+  }
+}
