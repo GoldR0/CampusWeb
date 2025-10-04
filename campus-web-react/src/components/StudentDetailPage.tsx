@@ -251,7 +251,9 @@ const StudentDetailPage: React.FC = () => {
                   <Typography variant="body2" color="text.secondary">
                     ממוצע ציונים
                   </Typography>
-                  <Typography variant="body1">{student.gpa.toFixed(2)}</Typography>
+                  <Typography variant="body1">
+                    {student.gpa <= 4.0 ? (student.gpa * 25).toFixed(1) : student.gpa.toFixed(1)}
+                  </Typography>
                 </Box>
 
                 <Box mb={2}>

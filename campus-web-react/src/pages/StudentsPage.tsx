@@ -54,7 +54,7 @@ import {
   getStudentsByStatus,
   getHighGPAStudents
 } from '../data/studentsData';
-import { addStudent, listStudents, deleteStudent } from '../fireStore/studentsService';
+import { addStudent, listStudents, deleteStudent, updateAllStudentGPAs } from '../fireStore/studentsService';
 import { addCourse, listCourses, updateCourse, deleteCourse } from '../fireStore/coursesService';
 import { addTask, listTasks, deleteTask } from '../fireStore/tasksService';
 
@@ -703,6 +703,19 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
     }
   };
 
+  // Update all student GPAs from 0-4 scale to 0-100 scale
+  const handleUpdateGPAs = async () => {
+    try {
+      await updateAllStudentGPAs();
+      setNotification({ message: 'הציונים עודכנו בהצלחה מ-0-4 ל-0-100!', type: 'success' });
+      // Reload students to show updated data
+      await forceReloadStudents();
+    } catch (error) {
+      console.error('Error updating GPAs:', error);
+      setNotification({ message: 'שגיאה בעדכון הציונים', type: 'error' });
+    }
+  };
+
   // Load students from Firestore on component mount
   useEffect(() => {
     // Force reload on first load to ensure we have the correct data
@@ -1330,6 +1343,21 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
           הוספת סטודנט חדש
         </Button>
 
+        <Button
+          variant="outlined"
+          startIcon={<TrendingUpIcon />}
+          onClick={handleUpdateGPAs}
+          sx={{ 
+            borderColor: 'rgb(179, 209, 53)',
+            color: 'rgb(179, 209, 53)',
+            '&:hover': { 
+              borderColor: 'rgb(159, 189, 33)',
+              backgroundColor: 'rgba(179, 209, 53, 0.1)'
+            }
+          }}
+        >
+          עדכון ציונים ל-0-100
+        </Button>
 
       </Box>
 
@@ -1883,8 +1911,11 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="body2" color="text.secondary">ממוצע ציונים:</Typography>
                   <Chip 
-                    label={selectedStudent.gpa.toFixed(2)} 
-                    color={selectedStudent.gpa >= 3.5 ? 'success' : 'warning'}
+                    label={selectedStudent.gpa <= 4.0 ? (selectedStudent.gpa * 25).toFixed(1) : selectedStudent.gpa.toFixed(1)} 
+                    color={selectedStudent.gpa <= 4.0 ? 
+                      (selectedStudent.gpa * 25 >= 87.5 ? 'success' : selectedStudent.gpa * 25 >= 75 ? 'warning' : 'error') :
+                      (selectedStudent.gpa >= 87.5 ? 'success' : selectedStudent.gpa >= 75 ? 'warning' : 'error')
+                    }
                     size="small"
                   />
                 </Box>

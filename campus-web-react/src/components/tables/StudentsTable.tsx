@@ -108,11 +108,25 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
       align: 'center',
       format: (value) => {
         const numValue = typeof value === 'string' ? parseFloat(value) : value;
+        // Handle NaN values
+        if (isNaN(numValue)) {
+          return (
+            <Chip 
+              label="לא זמין" 
+              size="small" 
+              color="default"
+            />
+          );
+        }
+        
+        // If GPA is in 0-4 scale, convert it for display
+        const displayGPA = numValue <= 4.0 ? numValue * 25 : numValue;
+        
         return (
           <Chip 
-            label={numValue.toFixed(2)} 
+            label={displayGPA.toFixed(1)} 
             size="small" 
-            color={numValue >= 3.5 ? 'success' : numValue >= 3.0 ? 'warning' : 'error'}
+            color={displayGPA >= 87.5 ? 'success' : displayGPA >= 75 ? 'warning' : 'error'}
           />
         );
       }

@@ -94,3 +94,34 @@ export async function testFirestoreConnection(): Promise<boolean> {
         return false;
     }
 }
+
+// Function to convert GPA from 0-4 scale to 0-100 scale
+export function convertGPATo100Scale(gpa: number): number {
+    if (gpa <= 4.0 && gpa >= 0) {
+        return Math.round(gpa * 25 * 10) / 10; // Convert to 0-100 scale with 1 decimal place
+    }
+    return gpa; // Return as-is if already in 0-100 scale
+}
+
+// Function to update all student GPAs from 0-4 scale to 0-100 scale
+export async function updateAllStudentGPAs(): Promise<void> {
+    try {
+        const students = await listStudents();
+        console.log(`Found ${students.length} students to update`);
+        
+        for (const student of students) {
+            // Convert GPA from 0-4 scale to 0-100 scale
+            const newGPA = convertGPATo100Scale(student.gpa);
+            
+            if (student.gpa <= 4.0 && student.gpa >= 0) {
+                await patchStudent(student.id, { gpa: newGPA });
+                console.log(`Updated student ${student.fullName} GPA from ${student.gpa} to ${newGPA}`);
+            }
+        }
+        
+        console.log("✅ All student GPAs updated successfully!");
+    } catch (error) {
+        console.error("❌ Error updating student GPAs:", error);
+        throw error;
+    }
+}
