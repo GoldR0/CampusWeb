@@ -54,7 +54,7 @@ import {
   getStudentsByStatus,
   getHighGPAStudents
 } from '../data/studentsData';
-import { addStudent, listStudents, deleteStudent, updateAllStudentGPAs } from '../fireStore/studentsService';
+import { addStudent, listStudents, deleteStudent } from '../fireStore/studentsService';
 import { addCourse, listCourses, updateCourse, deleteCourse } from '../fireStore/coursesService';
 import { addTask, listTasks, deleteTask } from '../fireStore/tasksService';
 
@@ -703,18 +703,6 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
     }
   };
 
-  // Update all student GPAs from 0-4 scale to 0-100 scale
-  const handleUpdateGPAs = async () => {
-    try {
-      await updateAllStudentGPAs();
-      setNotification({ message: 'הציונים עודכנו בהצלחה מ-0-4 ל-0-100!', type: 'success' });
-      // Reload students to show updated data
-      await forceReloadStudents();
-    } catch (error) {
-      console.error('Error updating GPAs:', error);
-      setNotification({ message: 'שגיאה בעדכון הציונים', type: 'error' });
-    }
-  };
 
   // Load students from Firestore on component mount
   useEffect(() => {
