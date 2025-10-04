@@ -47,6 +47,7 @@ import {
   Delete as DeleteIcon
 } from '@mui/icons-material';
 import { StudentsTable } from '../components/tables';
+import StudentsChart from '../components/StudentsChart';
 import { Student, Course as CourseType, Task as TaskType } from '../types';
 import { 
   getAllStudents, 
@@ -1247,73 +1248,10 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
         </Typography>
       </Box>
 
-      {/* Statistics Cards */}
-      {statistics && (
-        <Box sx={{ 
-          display: 'grid', 
-          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-          gap: 3,
-          mb: 4 
-        }}>
-          <Card sx={{ 
-            border: '2px solid rgb(179, 209, 53)',
-            '&:hover': { transform: 'translateY(-2px)', boxShadow: 3 }
-          }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <PeopleIcon sx={{ fontSize: 40, color: 'rgb(179, 209, 53)', mb: 1 }} />
-              <Typography variant="h4" fontWeight="bold">
-                {statistics.total}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                סה"כ סטודנטים
-              </Typography>
-            </CardContent>
-          </Card>
-          
-          <Card sx={{ 
-            border: '2px solid rgb(179, 209, 53)',
-            '&:hover': { transform: 'translateY(-2px)', boxShadow: 3 }
-          }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <SchoolIcon sx={{ fontSize: 40, color: 'rgb(179, 209, 53)', mb: 1 }} />
-              <Typography variant="h4" fontWeight="bold">
-                {statistics.active}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                סטודנטים פעילים
-              </Typography>
-            </CardContent>
-          </Card>
-          
-          <Card sx={{ 
-            border: '2px solid rgb(179, 209, 53)',
-            '&:hover': { transform: 'translateY(-2px)', boxShadow: 3 }
-          }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <TrendingUpIcon sx={{ fontSize: 40, color: 'rgb(179, 209, 53)', mb: 1 }} />
-              <Typography variant="h4" fontWeight="bold">
-                {statistics.averageGPA}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                ממוצע ציונים
-              </Typography>
-            </CardContent>
-          </Card>
-          
-          <Card sx={{ 
-            border: '2px solid rgb(179, 209, 53)',
-            '&:hover': { transform: 'translateY(-2px)', boxShadow: 3 }
-          }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <WarningIcon sx={{ fontSize: 40, color: 'rgb(179, 209, 53)', mb: 1 }} />
-              <Typography variant="h4" fontWeight="bold">
-                {getHighGPAStudentsList().length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                סטודנטים מצטיינים
-              </Typography>
-            </CardContent>
-          </Card>
+      {/* Students Chart */}
+      {students.length > 0 && (
+        <Box sx={{ mb: 4 }}>
+          <StudentsChart students={students} />
         </Box>
       )}
 
