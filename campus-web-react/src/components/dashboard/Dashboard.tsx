@@ -6,10 +6,8 @@ import WelcomeBanner from './WelcomeBanner';
 import TasksCard from './TasksCard';
 import EventsCard from './EventsCard';
 import { demoEvents } from '../../data/demoData';
-import { getAllStudents } from '../../data/studentsData';
 import { listEvents, addEvent } from '../../fireStore/eventsService';
 import { listFacilities, addFacility } from '../../fireStore/facilitiesService';
-import { listTasks } from '../../fireStore/tasksService';
 
 interface DashboardProps {
   currentUser: User | null;

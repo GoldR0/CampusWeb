@@ -21,7 +21,6 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Search as SearchIcon,
-  School as SchoolIcon,
   Email as EmailIcon,
   Phone as PhoneIcon
 } from '@mui/icons-material';

@@ -1,5 +1,5 @@
 import { firestore } from "./config";
-import { collection, addDoc, getDoc, getDocs, setDoc, doc, deleteDoc, updateDoc, QueryDocumentSnapshot, DocumentData, query, where, orderBy } from "firebase/firestore";
+import { collection, addDoc, getDoc, getDocs, doc, deleteDoc, QueryDocumentSnapshot, DocumentData, query, orderBy } from "firebase/firestore";
 
 export interface Inquiry {
   id: string;

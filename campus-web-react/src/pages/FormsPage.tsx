@@ -111,7 +111,6 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   const { id, type } = useParams<{ id: string; type: string }>();
   const navigate = useNavigate();
   const [activeForm, setActiveForm] = useState<string | null>(null);
-  const [eventCounter, setEventCounter] = useState(1);
   const [events, setEvents] = useState<LocalEvent[]>([]);
   const [editingEvent, setEditingEvent] = useState<LocalEvent | null>(null);
   const [deleteEventDialogOpen, setDeleteEventDialogOpen] = useState(false);
@@ -312,7 +311,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           const maxId = Math.max(...localEvents.map((event: LocalEvent) => 
             parseInt(event.id.split('-')[1])
           ));
-          setEventCounter(maxId + 1);
+          // Event counter removed - using Firestore auto-generated IDs
         } else {
           // If no events in Firestore, create initial events
           const eventTitles = [
@@ -340,7 +339,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           }));
           
           setEvents(initialEvents);
-          setEventCounter(11);
+          // Event counter removed - using Firestore auto-generated IDs
           // Events are now managed through Firestore
         }
       } catch (error) {
@@ -355,7 +354,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           const maxId = Math.max(...parsedEvents.map((event: LocalEvent) => 
             parseInt(event.id.split('-')[1])
           ));
-          setEventCounter(maxId + 1);
+          // Event counter removed - using Firestore auto-generated IDs
         }
       }
     };

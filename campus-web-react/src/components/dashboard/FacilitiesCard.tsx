@@ -5,8 +5,7 @@ import {
   LocalLibrary as LibraryIcon,
   Restaurant as CafeteriaIcon,
   FitnessCenter as GymIcon,
-  LocalParking as ParkingIcon,
-  Business as BusinessIcon
+  LocalParking as ParkingIcon
 } from '@mui/icons-material';
 
 import { listFacilities } from '../../fireStore/facilitiesService';

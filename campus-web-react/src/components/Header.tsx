@@ -25,7 +25,7 @@ import {
   Avatar,
   Chip
 } from '@mui/material';
-import { CUSTOM_COLORS, TYPOGRAPHY } from '../constants/theme';
+import { TYPOGRAPHY } from '../constants/theme';
 import {
   Home as HomeIcon,
   School as SchoolIcon,

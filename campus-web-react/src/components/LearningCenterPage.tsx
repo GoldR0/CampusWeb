@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   Chip,
-  Divider,
   Alert,
   Snackbar
 } from '@mui/material';
