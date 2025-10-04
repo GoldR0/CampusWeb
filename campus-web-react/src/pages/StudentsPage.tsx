@@ -1343,22 +1343,6 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
           הוספת סטודנט חדש
         </Button>
 
-        <Button
-          variant="outlined"
-          startIcon={<TrendingUpIcon />}
-          onClick={handleUpdateGPAs}
-          sx={{ 
-            borderColor: 'rgb(179, 209, 53)',
-            color: 'rgb(179, 209, 53)',
-            '&:hover': { 
-              borderColor: 'rgb(159, 189, 33)',
-              backgroundColor: 'rgba(179, 209, 53, 0.1)'
-            }
-          }}
-        >
-          עדכון ציונים ל-0-100
-        </Button>
-
       </Box>
 
       {/* Students Table */}
