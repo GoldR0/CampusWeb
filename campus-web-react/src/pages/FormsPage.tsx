@@ -355,7 +355,12 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             lastUpdated: new Date().toLocaleString('he-IL')
           }));
           
-          setFacilities(localFacilities);
+          // Remove duplicates by name
+          const uniqueLocalFacilities = localFacilities.filter((facility, index, self) => 
+            index === self.findIndex(f => f.name === facility.name)
+          );
+          
+          setFacilities(uniqueLocalFacilities);
           // Facilities are now managed through Firestore
         } else {
           // If no facilities in Firestore, create initial facilities
@@ -387,14 +392,20 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         if (savedFacilities) {
           const parsedFacilities = JSON.parse(savedFacilities);
           // Remove community center if it exists
+          // Remove community center if it exists and remove duplicates
           const filteredFacilities = parsedFacilities.filter((facility: { id: string; name: string; type: string }) => 
             facility.id !== 'community-1' && facility.name !== 'מרכז קהילתי' && facility.type !== 'community'
           );
           
-          if (filteredFacilities.length === 0) {
+          // Remove duplicate facilities by name
+          const uniqueFacilities = filteredFacilities.filter((facility: any, index: number, self: any[]) => 
+            index === self.findIndex((f: any) => f.name === facility.name)
+          );
+          
+          if (uniqueFacilities.length === 0) {
             // If facilities array is empty, create initial facilities
             const facilityTypes: ('library' | 'cafeteria' | 'gym' | 'parking')[] = ['library', 'cafeteria', 'gym', 'parking'];
-            const facilityNames = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'חדר לימוד', 'חדר משחקים', 'מעבדה', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
+            const facilityNames = ['ספרייה', 'חניה', 'קפיטריה', 'חדר כושר', 'מעבדת מחשבים', 'חדר לימוד', 'חדר משחקים', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
             
             const initialFacilities: LocalFacility[] = Array.from({ length: 10 }, (_, index) => ({
               id: `facility-${index + 1}`,
@@ -407,11 +418,11 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             setFacilities(initialFacilities);
             // Facilities are now managed through Firestore
           } else {
-            setFacilities(filteredFacilities);
+            setFacilities(uniqueFacilities);
             
-            // Save the filtered data back to localStorage
-            if (filteredFacilities.length !== parsedFacilities.length) {
-              localStorage.setItem('campus-facilities-data', JSON.stringify(filteredFacilities));
+            // Save the unique data back to localStorage if duplicates were removed
+            if (uniqueFacilities.length !== parsedFacilities.length) {
+              localStorage.setItem('campus-facilities-data', JSON.stringify(uniqueFacilities));
             }
           }
           
@@ -446,7 +457,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             if (!Array.isArray(parsed) || parsed.length === 0) {
               // Reset if data is corrupted - create 10 facilities
               const facilityTypes: ('library' | 'cafeteria' | 'gym' | 'parking')[] = ['library', 'cafeteria', 'gym', 'parking'];
-              const facilityNames = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'חדר לימוד', 'חדר משחקים', 'מעבדה', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
+              const facilityNames = ['ספרייה', 'חניה', 'קפיטריה', 'חדר כושר', 'מעבדת מחשבים', 'חדר לימוד', 'חדר משחקים', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
               
               const defaultFacilities: LocalFacility[] = Array.from({ length: 10 }, (_, index) => ({
                 id: `facility-${index + 1}`,
@@ -464,7 +475,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           } catch (error) {
             // Corrupted facilities data, resetting...
             const facilityTypes: ('library' | 'cafeteria' | 'gym' | 'parking')[] = ['library', 'cafeteria', 'gym', 'parking'];
-            const facilityNames = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'חדר לימוד', 'חדר משחקים', 'מעבדה', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
+            const facilityNames = ['ספרייה', 'חניה', 'קפיטריה', 'חדר כושר', 'מעבדת מחשבים', 'חדר לימוד', 'חדר משחקים', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
             
             const defaultFacilities: LocalFacility[] = Array.from({ length: 10 }, (_, index) => ({
               id: `facility-${index + 1}`,
@@ -616,12 +627,36 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
       }
     };
 
+    // Clean up duplicates in localStorage on component mount
+    cleanupDuplicateFacilities();
     loadDataFromFirestore();
     // loadLostFoundReportsFromLocalStorage();
     // loadInquiriesFromLocalStorage();
 
     // Data is now managed through Firestore, no need for localStorage listeners
   }, []);
+
+  const cleanupDuplicateFacilities = () => {
+    try {
+      const savedFacilities = localStorage.getItem('campus-facilities-data');
+      if (savedFacilities) {
+        const parsedFacilities = JSON.parse(savedFacilities);
+        
+        // Remove duplicates by name
+        const uniqueFacilities = parsedFacilities.filter((facility: any, index: number, self: any[]) => 
+          index === self.findIndex((f: any) => f.name === facility.name)
+        );
+        
+        // Save back to localStorage if duplicates were found and removed
+        if (uniqueFacilities.length !== parsedFacilities.length) {
+          localStorage.setItem('campus-facilities-data', JSON.stringify(uniqueFacilities));
+          console.log(`Removed ${parsedFacilities.length - uniqueFacilities.length} duplicate facilities from localStorage`);
+        }
+      }
+    } catch (error) {
+      console.error('Error cleaning up duplicate facilities:', error);
+    }
+  };
 
   const forms = [
     {
