@@ -237,6 +237,44 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     }
   }, [id, type, events, navigate]);
 
+  // Load facilities from Firestore
+  const loadFacilitiesFromFirestore = async () => {
+    try {
+      const firestoreFacilities = await listFacilities();
+      if (firestoreFacilities.length > 0) {
+        // Convert Firestore facilities to local facilities format
+        const localFacilities: LocalFacility[] = firestoreFacilities.map(facility => ({
+          id: facility.id,
+          name: facility.name,
+          type: 'library', // Default type, you might need to map this based on your data
+          status: facility.status,
+          lastUpdated: new Date().toLocaleString('he-IL')
+        }));
+        
+        // Remove duplicates by name
+        const uniqueLocalFacilities = localFacilities.filter((facility, index, self) => 
+          index === self.findIndex(f => f.name === facility.name)
+        );
+        
+        setFacilities(uniqueLocalFacilities);
+        // Facilities are now managed through Firestore
+      } else {
+        // If no facilities in Firestore, create initial facilities
+        const initialFacilities: LocalFacility[] = [
+          { id: 'facility-1', name: 'ספרייה מרכזית', type: 'library', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
+          { id: 'facility-2', name: 'קפיטריה', type: 'cafeteria', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
+          { id: 'facility-3', name: 'חדר כושר', type: 'gym', status: 'closed', lastUpdated: new Date().toLocaleString('he-IL') },
+          { id: 'facility-4', name: 'חניה', type: 'parking', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') }
+        ];
+        
+        setFacilities(initialFacilities);
+        // Facilities are now managed through Firestore
+      }
+    } catch (e) {
+      // keep empty
+    }
+  };
+
   // Load events, facilities and lost-found from Firestore on component mount
   useEffect(() => {
     const loadDataFromFirestore = async () => {
@@ -339,48 +377,6 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         setLostFoundReports(mapped);
       } catch (e) {
         // keep empty
-      }
-    };
-
-    const loadFacilitiesFromFirestore = async () => {
-      try {
-        const firestoreFacilities = await listFacilities();
-        if (firestoreFacilities.length > 0) {
-          // Convert Firestore facilities to local facilities format
-          const localFacilities: LocalFacility[] = firestoreFacilities.map(facility => ({
-            id: facility.id,
-            name: facility.name,
-            type: 'library', // Default type, you might need to map this based on your data
-            status: facility.status,
-            lastUpdated: new Date().toLocaleString('he-IL')
-          }));
-          
-          // Remove duplicates by name
-          const uniqueLocalFacilities = localFacilities.filter((facility, index, self) => 
-            index === self.findIndex(f => f.name === facility.name)
-          );
-          
-          setFacilities(uniqueLocalFacilities);
-          // Facilities are now managed through Firestore
-        } else {
-          // If no facilities in Firestore, create initial facilities
-          const initialFacilities: LocalFacility[] = [
-            { id: 'facility-1', name: 'ספרייה מרכזית', type: 'library', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
-            { id: 'facility-2', name: 'קפיטריה', type: 'cafeteria', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
-            { id: 'facility-3', name: 'מכון כושר', type: 'gym', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
-            { id: 'facility-4', name: 'חניון', type: 'parking', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') }
-          ];
-          setFacilities(initialFacilities);
-          // Facilities are now managed through Firestore
-        }
-      } catch (error) {
-        console.error('Error loading facilities from Firestore:', error);
-        // Fallback to demo data
-        const savedFacilities = null;
-        if (savedFacilities) {
-          const parsedFacilities = JSON.parse(savedFacilities);
-          setFacilities(parsedFacilities);
-        }
       }
     };
 
@@ -651,11 +647,22 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         if (uniqueFacilities.length !== parsedFacilities.length) {
           localStorage.setItem('campus-facilities-data', JSON.stringify(uniqueFacilities));
           console.log(`Removed ${parsedFacilities.length - uniqueFacilities.length} duplicate facilities from localStorage`);
+          setNotification({
+            message: `נוקו ${parsedFacilities.length - uniqueFacilities.length} מתקנים כפולים מהמערכת`,
+            type: 'success'
+          });
         }
       }
     } catch (error) {
       console.error('Error cleaning up duplicate facilities:', error);
     }
+  };
+
+  // Function to manually clean up duplicates (can be called from UI if needed)
+  const handleCleanupDuplicates = () => {
+    cleanupDuplicateFacilities();
+    // Reload facilities after cleanup
+    loadFacilitiesFromFirestore();
   };
 
   const forms = [
@@ -1370,10 +1377,27 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
 
       {/* Facilities Status Overview */}
       <Box sx={{ mt: 6 }}>
-        <Typography variant="h5" gutterBottom sx={{ ...TYPOGRAPHY.h5, color: CUSTOM_COLORS.primary, mb: 3 }}>
-          <BusinessIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-          סטטוס מתקנים ({facilities.length})
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h5" gutterBottom sx={{ ...TYPOGRAPHY.h5, color: CUSTOM_COLORS.primary, mb: 0 }}>
+            <BusinessIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+            סטטוס מתקנים ({facilities.length})
+          </Typography>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleCleanupDuplicates}
+            sx={{
+              borderColor: CUSTOM_COLORS.primary,
+              color: CUSTOM_COLORS.primary,
+              '&:hover': {
+                backgroundColor: CUSTOM_COLORS.primary,
+                color: 'white'
+              }
+            }}
+          >
+            נקה כפילויות
+          </Button>
+        </Box>
         
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(5, 1fr)' }, gap: 2, mb: 4 }}>
           {facilities.map((facility) => (
