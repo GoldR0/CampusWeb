@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Box, Container, Alert, Snackbar } from '@mui/material';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -21,6 +21,19 @@ import EventDetailPage from './components/EventDetailPage';
 import DeepLinksTestPage from './components/DeepLinksTestPage';
 import { useAuth } from './hooks/useAuth';
 import { useNotifications } from './hooks/useNotifications';
+import { hasPermissionForRoute } from './utils/menuPermissions';
+
+// קומפוננטה להגנה על נתיבים
+const ProtectedRoute: React.FC<{ 
+  path: string; 
+  children: React.ReactNode; 
+  currentUser: any;
+}> = ({ path, children, currentUser }) => {
+  if (!hasPermissionForRoute(currentUser, path)) {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
+};
 
 function App() {
   const { currentUser, handleLogin, handleLogout } = useAuth();
@@ -50,17 +63,55 @@ function App() {
       <Container maxWidth="xl" sx={{ flexGrow: 1, py: 3 }}>
         <Routes>
           <Route path="/" element={<Dashboard currentUser={currentUser} />} />
-          <Route path="/debug" element={<DebugInfo currentUser={currentUser} />} />
-          <Route path="/students" element={<StudentsPage currentUser={currentUser} />} />
-          <Route path="/students/:id" element={<StudentDetailPage />} />
-          <Route path="/students/:id/edit" element={<StudentsPage currentUser={currentUser} />} />
-          <Route path="/forms" element={<FormsPage currentUser={currentUser} />} />
+          
+          {/* נתיבים מוגנים - רק למרצים */}
+          <Route path="/debug" element={
+            <ProtectedRoute path="/debug" currentUser={currentUser}>
+              <DebugInfo currentUser={currentUser} />
+            </ProtectedRoute>
+          } />
+          <Route path="/students" element={
+            <ProtectedRoute path="/students" currentUser={currentUser}>
+              <StudentsPage currentUser={currentUser} />
+            </ProtectedRoute>
+          } />
+          <Route path="/students/:id" element={
+            <ProtectedRoute path="/students" currentUser={currentUser}>
+              <StudentDetailPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/students/:id/edit" element={
+            <ProtectedRoute path="/students" currentUser={currentUser}>
+              <StudentsPage currentUser={currentUser} />
+            </ProtectedRoute>
+          } />
+          <Route path="/forms" element={
+            <ProtectedRoute path="/forms" currentUser={currentUser}>
+              <FormsPage currentUser={currentUser} />
+            </ProtectedRoute>
+          } />
+          <Route path="/forms/events/:id/edit" element={
+            <ProtectedRoute path="/forms" currentUser={currentUser}>
+              <FormsPage currentUser={currentUser} />
+            </ProtectedRoute>
+          } />
+          <Route path="/forms/tasks/:id/edit" element={
+            <ProtectedRoute path="/forms" currentUser={currentUser}>
+              <FormsPage currentUser={currentUser} />
+            </ProtectedRoute>
+          } />
+          
+          {/* נתיבים מוגנים - רק לסטודנטים */}
+          <Route path="/learning" element={
+            <ProtectedRoute path="/learning" currentUser={currentUser}>
+              <LearningCenterPage currentUser={currentUser} />
+            </ProtectedRoute>
+          } />
+          
+          {/* נתיבים פתוחים לכולם */}
           <Route path="/events/:id" element={<EventDetailPage />} />
           <Route path="/tasks/:id" element={<TaskDetailPage />} />
-          <Route path="/forms/events/:id/edit" element={<FormsPage currentUser={currentUser} />} />
-          <Route path="/forms/tasks/:id/edit" element={<FormsPage currentUser={currentUser} />} />
           <Route path="/profile" element={<ProfilePage currentUser={currentUser} />} />
-          <Route path="/learning" element={<LearningCenterPage currentUser={currentUser} />} />
           <Route path="/cafeteria" element={<CafeteriaPage />} />
           <Route path="/lost-found" element={<LostFoundPage currentUser={currentUser} />} />
           <Route path="/community" element={<CommunityPage currentUser={currentUser} />} />

@@ -42,6 +42,7 @@ import {
   BugReport as BugReportIcon
 } from '@mui/icons-material';
 import { User } from '../types';
+import { getMenuItemsForUser } from '../utils/menuPermissions';
 
 interface HeaderProps {
   currentUser: User | null;
@@ -63,19 +64,32 @@ const Header: React.FC<HeaderProps> = ({
     userType: ''
   });
 
-  const navigationItems = [
-    { id: 'home', label: 'עמוד בית', icon: <HomeIcon />, path: '/' },
-    { id: 'students', label: 'ניהול לימודים', icon: <SchoolIcon />, path: '/students' },
-    { id: 'forms', label: 'ניהול', icon: <DescriptionIcon />, path: '/forms' },
-    { id: 'profile', label: 'פרופיל אישי', icon: <PersonIcon />, path: '/profile' },
-    { id: 'learning', label: 'מרכז הלימודים', icon: <SchoolIcon />, path: '/learning' },
-    { id: 'cafeteria', label: 'קפיטריה', icon: <RestaurantIcon />, path: '/cafeteria' },
-    { id: 'lostfound', label: 'מציאות ואבדות', icon: <SearchIcon />, path: '/lost-found' },
-    { id: 'community', label: 'קהילה', icon: <GroupIcon />, path: '/community' },
-    { id: 'forum', label: 'פורום קורס', icon: <ForumIcon />, path: '/forum' },
-    { id: 'help', label: 'עזרה', icon: <HelpIcon />, path: '/help' },
-    { id: 'debug', label: 'דיבוג', icon: <BugReportIcon />, path: '/debug' }
-  ];
+  // פונקציה שמחזירה את האייקון המתאים לכל פריט תפריט
+  const getIconForMenuItem = (itemId: string) => {
+    switch (itemId) {
+      case 'home': return <HomeIcon />;
+      case 'students': return <SchoolIcon />;
+      case 'forms': return <DescriptionIcon />;
+      case 'profile': return <PersonIcon />;
+      case 'learning': return <SchoolIcon />;
+      case 'cafeteria': return <RestaurantIcon />;
+      case 'lostfound': return <SearchIcon />;
+      case 'community': return <GroupIcon />;
+      case 'forum': return <ForumIcon />;
+      case 'help': return <HelpIcon />;
+      case 'debug': return <BugReportIcon />;
+      default: return <HomeIcon />;
+    }
+  };
+
+  // קבלת התפריטים המותרים למשתמש הנוכחי
+  const allowedMenuItems = getMenuItemsForUser(currentUser);
+  
+  // יצירת רשימת פריטי התפריט עם האייקונים
+  const navigationItems = allowedMenuItems.map(item => ({
+    ...item,
+    icon: getIconForMenuItem(item.id)
+  }));
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
