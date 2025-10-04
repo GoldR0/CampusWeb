@@ -69,6 +69,16 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState<Message | null>(null);
 
+  // Auto-hide notifications after 5 seconds
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
   // Load courses and messages from Firestore
   useEffect(() => {
     const loadData = async () => {
@@ -93,6 +103,9 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
         if (allCourses.length > 0 && !selectedCourse) {
           setSelectedCourse(allCourses[0].id);
           console.log('Set default course:', allCourses[0].id);
+        } else if (allCourses.length === 0) {
+          console.log('No active courses found');
+          // Don't show error for empty courses, this is normal
         }
         
         // Load messages for selected course
@@ -118,17 +131,30 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
         console.log('Message counts loaded:', messageCounts);
       } catch (error) {
         console.error('Error loading forum data:', error);
-        setNotification({
-          message: 'שגיאה בטעינת נתוני הפורום',
-          type: 'error'
-        });
+        
+        // Initialize with empty data instead of showing error
+        setUserCourses([]);
+        setMessages([]);
+        setCourseMessageCounts({});
+        
+        // Only show error notification for critical connection errors
+        if (error instanceof Error && 
+            (error.message.includes('Firebase') || 
+             error.message.includes('network') || 
+             error.message.includes('permission'))) {
+          setNotification({
+            message: 'שגיאה בחיבור לשרת',
+            type: 'error'
+          });
+        }
+        // For other errors (like no courses), just log and continue silently
       } finally {
         setLoading(false);
       }
     };
 
     loadData();
-  }, [currentUser, selectedCourse]);
+  }, [currentUser]);
 
   // Real-time message updates using Firestore listeners
   useEffect(() => {
@@ -977,10 +1003,23 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
             color: 'white',
             p: 2,
             borderRadius: 1,
-            boxShadow: 3
+            boxShadow: 3,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            maxWidth: '400px'
           }}
         >
-          {notification.message}
+          <Typography variant="body2" sx={{ flex: 1 }}>
+            {notification.message}
+          </Typography>
+          <IconButton
+            size="small"
+            onClick={() => setNotification(null)}
+            sx={{ color: 'white', ml: 1 }}
+          >
+            <ClearIcon fontSize="small" />
+          </IconButton>
         </Box>
       )}
     </Container>
