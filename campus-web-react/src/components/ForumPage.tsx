@@ -24,11 +24,14 @@ import { TYPOGRAPHY, BUTTON_STYLES } from '../constants/theme';
 import { User, Message, Course } from '../types';
 import { 
   getMessagesByCourse, 
-  addMessage
+  addMessage,
+  testMessagesCollection
 } from '../fireStore/messagesService';
 import { 
   getActiveCourses 
 } from '../fireStore/coursesService';
+import { firestore } from '../fireStore/config';
+import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
 import {
   Send as SendIcon,
   Forum as ForumIcon,
@@ -68,8 +71,14 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
       
       setLoading(true);
       try {
+        // Test Firestore connection first
+        console.log('Testing Firestore connection...');
+        const isConnected = await testMessagesCollection();
+        console.log('Firestore connection test result:', isConnected);
+        
         // Load courses from Firestore
         const allCourses = await getActiveCourses();
+        console.log('Loaded courses:', allCourses.length);
         
         // For now, we'll show all active courses to the user
         // In a real app, you'd filter based on user enrollment
@@ -78,11 +87,14 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
         // Set first course as default if available
         if (allCourses.length > 0 && !selectedCourse) {
           setSelectedCourse(allCourses[0].id);
+          console.log('Set default course:', allCourses[0].id);
         }
         
         // Load messages for selected course
         if (selectedCourse) {
+          console.log('Loading messages for course:', selectedCourse);
           const courseMessages = await getMessagesByCourse(selectedCourse);
+          console.log('Loaded messages:', courseMessages.length);
           setMessages(courseMessages);
         }
         
@@ -98,6 +110,7 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
           }
         }
         setCourseMessageCounts(messageCounts);
+        console.log('Message counts loaded:', messageCounts);
       } catch (error) {
         console.error('Error loading forum data:', error);
         setNotification({
@@ -112,21 +125,77 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
     loadData();
   }, [currentUser, selectedCourse]);
 
-  // Auto-refresh messages every 30 seconds
+  // Real-time message updates using Firestore listeners
   useEffect(() => {
     if (!selectedCourse) return;
 
+    console.log('Setting up real-time listener for course:', selectedCourse);
+    
+    const q = query(
+      collection(firestore, "messages"),
+      where("courseId", "==", selectedCourse),
+      orderBy("timestamp", "desc")
+    );
+    
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      console.log('Real-time update received for course:', selectedCourse, 'docs:', querySnapshot.docs.length);
+      
+      const messages = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return new Message({
+          id: doc.id,
+          sender: data.sender,
+          content: data.content,
+          timestamp: data.timestamp,
+          courseId: data.courseId
+        });
+      });
+      
+      // Only update if we have messages or if the count changed
+      setMessages(prev => {
+        if (prev.length !== messages.length || 
+            prev.some((prevMsg, index) => !messages[index] || prevMsg.id !== messages[index].id)) {
+          console.log('Updating messages from real-time listener:', messages.length);
+          return messages;
+        }
+        return prev;
+      });
+      
+      setLastRefreshTime(new Date());
+      
+      // Update message counts
+      setCourseMessageCounts(prev => ({
+        ...prev,
+        [selectedCourse]: messages.length
+      }));
+    }, (error) => {
+      console.error('Real-time listener error:', error);
+      // Fallback to manual refresh
+      handleRefreshMessages();
+    });
+
+    // Fallback: Auto-refresh every 10 seconds for better responsiveness
     const interval = setInterval(async () => {
       try {
         const courseMessages = await getMessagesByCourse(selectedCourse);
-        setMessages(courseMessages);
+        setMessages(prev => {
+          if (prev.length !== courseMessages.length) {
+            console.log('Auto-refresh updated messages:', courseMessages.length);
+            return courseMessages;
+          }
+          return prev;
+        });
         setLastRefreshTime(new Date());
       } catch (error) {
         console.error('Auto-refresh error:', error);
       }
-    }, 30000); // 30 seconds
+    }, 10000); // 10 seconds for better responsiveness
 
-    return () => clearInterval(interval);
+    return () => {
+      console.log('Cleaning up real-time listener for course:', selectedCourse);
+      unsubscribe();
+      clearInterval(interval);
+    };
   }, [selectedCourse]);
 
   // Mark messages as read when course changes
@@ -153,30 +222,39 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedCourse || !currentUser) return;
 
+    const messageContent = newMessage.trim();
+    setNewMessage(''); // Clear input immediately for better UX
     setLoading(true);
+    
     try {
-      const newMessageObj = new Message({
-        id: '', // Will be generated by Firestore
+      // Create message object with temporary ID for immediate display
+      const tempId = `temp_${Date.now()}`;
+      const newMessageObj = {
         sender: currentUser.name,
-        content: newMessage.trim(),
+        content: messageContent,
         timestamp: new Date().toISOString(),
         courseId: selectedCourse
-      });
+      };
 
-      // Save to Firestore
-      await addMessage(newMessageObj);
+      console.log('Sending message to Firestore:', newMessageObj);
       
-      // Add the new message to local state immediately for better UX
-      const localMessage = new Message({
-        id: Date.now().toString(), // Temporary ID for local state
+      // Add message to local state immediately for better UX
+      const tempMessage = new Message({
+        id: tempId,
         sender: currentUser.name,
-        content: newMessage.trim(),
+        content: messageContent,
         timestamp: new Date().toISOString(),
         courseId: selectedCourse
       });
       
-      // Update local state immediately
-      setMessages(prev => [...prev, localMessage]);
+      // Add to local state immediately
+      setMessages(prev => [tempMessage, ...prev]);
+      
+      // Show immediate feedback
+      setNotification({
+        message: 'שולח הודעה...',
+        type: 'success'
+      });
       
       // Update message count for the course
       setCourseMessageCounts(prev => ({
@@ -184,17 +262,23 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
         [selectedCourse]: (prev[selectedCourse] || 0) + 1
       }));
       
-      // Refresh messages from Firestore in background to ensure consistency
+      // Save to Firestore - this will generate an ID automatically
+      const messageId = await addMessage(newMessageObj as Message);
+      console.log('Message saved with ID:', messageId);
+      
+      // Remove temporary message and refresh from Firestore to get the real message with proper ID
       setTimeout(async () => {
         try {
           const courseMessages = await getMessagesByCourse(selectedCourse);
           setMessages(courseMessages);
+          console.log('Messages refreshed from Firestore after send:', courseMessages.length, 'messages');
+          
+          // Force update last refresh time
+          setLastRefreshTime(new Date());
         } catch (error) {
-          console.error('Error refreshing messages:', error);
+          console.error('Error refreshing messages after send:', error);
         }
       }, 1000);
-      
-      setNewMessage('');
       
       setNotification({
         message: 'ההודעה נשלחה בהצלחה!',
@@ -206,6 +290,10 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
         message: 'שגיאה בשליחת ההודעה',
         type: 'error'
       });
+      // Restore the message to input if sending failed
+      setNewMessage(messageContent);
+      // Remove the temporary message from local state
+      setMessages(prev => prev.filter(msg => msg.id !== `temp_${Date.now()}`));
     } finally {
       setLoading(false);
     }
@@ -218,7 +306,7 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
     }
   };
 
-  const handleRefreshMessages = async () => {
+  const handleRefreshMessages = React.useCallback(async () => {
     if (!selectedCourse) return;
     
     setLoading(true);
@@ -239,7 +327,7 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCourse]);
 
   const getSelectedCourseName = () => {
     const course = userCourses.find(c => c.id === selectedCourse);
@@ -547,6 +635,14 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
                           sx={{ fontSize: '0.7rem', height: 20 }}
                         />
                       )}
+                      {message.id.startsWith('temp_') && (
+                        <Chip 
+                          label="שולח..." 
+                          color="info" 
+                          size="small" 
+                          sx={{ fontSize: '0.7rem', height: 20 }}
+                        />
+                      )}
                       {!readMessages.has(message.id) && (
                         <IconButton
                           size="small"
@@ -559,12 +655,14 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
                       )}
                     </Box>
                     <Box sx={{ 
-                      backgroundColor: 'white',
+                      backgroundColor: message.id.startsWith('temp_') ? '#e3f2fd' : 'white',
                       borderRadius: 2,
                       p: 2,
                       boxShadow: 1,
                       maxWidth: '80%',
-                      wordBreak: 'break-word'
+                      wordBreak: 'break-word',
+                      opacity: message.id.startsWith('temp_') ? 0.7 : 1,
+                      border: message.id.startsWith('temp_') ? '1px dashed #2196f3' : 'none'
                     }}>
                       <Typography variant="body1">
                         {highlightSearchTerm(message.content, searchTerm)}

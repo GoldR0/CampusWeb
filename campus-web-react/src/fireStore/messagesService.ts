@@ -15,8 +15,10 @@ const messageConverter = {
 
 const messagesCollection = collection(firestore, "messages").withConverter(messageConverter);
 
-export async function addMessage(message: Message): Promise<void> {
-    await addDoc(messagesCollection, message);
+export async function addMessage(message: Message): Promise<string> {
+    const docRef = await addDoc(messagesCollection, message);
+    console.log('Message added with ID:', docRef.id);
+    return docRef.id;
 }
 
 export async function listMessages(): Promise<Message[]> {
