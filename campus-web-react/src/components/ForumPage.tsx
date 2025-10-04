@@ -15,6 +15,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogActions,
   IconButton,
   Chip,
   Card,
@@ -25,6 +26,7 @@ import { User, Message, Course } from '../types';
 import { 
   getMessagesByCourse, 
   addMessage,
+  deleteMessage,
   testMessagesCollection
 } from '../fireStore/messagesService';
 import { 
@@ -42,7 +44,8 @@ import {
   Search as SearchIcon,
   Clear as ClearIcon,
   MarkEmailRead as MarkEmailReadIcon,
-  CheckCircle as CheckCircleIcon
+  CheckCircle as CheckCircleIcon,
+  Delete as DeleteIcon
 } from '@mui/icons-material';
 
 // Using Message type from types/index.ts instead of custom ForumMessage interface
@@ -63,6 +66,8 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
   const [courseMessageCounts, setCourseMessageCounts] = useState<{[courseId: string]: number}>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [readMessages, setReadMessages] = useState<Set<string>>(new Set());
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState<Message | null>(null);
 
   // Load courses and messages from Firestore
   useEffect(() => {
@@ -339,6 +344,11 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
     return courseMessages.filter(msg => !readMessages.has(msg.id)).length;
   };
 
+  // Check if current user can delete messages (only lecturers)
+  const canDeleteMessages = () => {
+    return currentUser?.role === 'lecturer' || currentUser?.role === 'admin';
+  };
+
   const markAllMessagesAsRead = () => {
     const messageIds = messages.map(msg => msg.id);
     setReadMessages(prev => {
@@ -358,6 +368,60 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
       newSet.add(messageId);
       return newSet;
     });
+  };
+
+  // Handle delete message button click
+  const handleDeleteMessageClick = (message: Message) => {
+    setMessageToDelete(message);
+    setDeleteDialogOpen(true);
+  };
+
+  // Handle delete message confirmation
+  const handleDeleteMessage = async () => {
+    if (!messageToDelete || !canDeleteMessages()) return;
+
+    setLoading(true);
+    try {
+      console.log('Deleting message:', messageToDelete.id);
+      
+      // Delete from Firestore
+      await deleteMessage(messageToDelete.id);
+      
+      // Remove from local state immediately
+      setMessages(prev => prev.filter(msg => msg.id !== messageToDelete.id));
+      
+      // Update message count
+      if (messageToDelete.courseId) {
+        const courseId = messageToDelete.courseId;
+        setCourseMessageCounts(prev => ({
+          ...prev,
+          [courseId]: Math.max(0, (prev[courseId] || 1) - 1)
+        }));
+      }
+      
+      setNotification({
+        message: 'ההודעה נמחקה בהצלחה',
+        type: 'success'
+      });
+      
+      console.log('Message deleted successfully');
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      setNotification({
+        message: 'שגיאה במחיקת ההודעה',
+        type: 'error'
+      });
+    } finally {
+      setLoading(false);
+      setDeleteDialogOpen(false);
+      setMessageToDelete(null);
+    }
+  };
+
+  // Handle cancel delete
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setMessageToDelete(null);
   };
 
   const highlightSearchTerm = (text: string, searchTerm: string) => {
@@ -653,6 +717,17 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
                           <CheckCircleIcon fontSize="small" color="success" />
                         </IconButton>
                       )}
+                      {canDeleteMessages() && !message.id.startsWith('temp_') && (
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDeleteMessageClick(message)}
+                          sx={{ ml: 1 }}
+                          title="מחק הודעה זו"
+                          color="error"
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      )}
                     </Box>
                     <Box sx={{ 
                       backgroundColor: message.id.startsWith('temp_') ? '#e3f2fd' : 'white',
@@ -834,6 +909,60 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
             ))}
           </List>
         </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog 
+        open={deleteDialogOpen} 
+        onClose={handleCancelDelete}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <DeleteIcon color="error" />
+            מחק הודעה
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            האם אתה בטוח שברצונך למחוק את ההודעה הבאה?
+          </Typography>
+          {messageToDelete && (
+            <Paper sx={{ p: 2, backgroundColor: '#f5f5f5', mb: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                מאת: {messageToDelete.sender}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {new Date(messageToDelete.timestamp).toLocaleString('he-IL')}
+              </Typography>
+              <Typography variant="body1">
+                {messageToDelete.content}
+              </Typography>
+            </Paper>
+          )}
+          <Typography variant="body2" color="error" sx={{ fontWeight: 'bold' }}>
+            ⚠️ פעולה זו אינה ניתנת לביטול!
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={handleCancelDelete}
+            variant="outlined"
+            disabled={loading}
+          >
+            ביטול
+          </Button>
+          <Button 
+            onClick={handleDeleteMessage}
+            variant="contained"
+            color="error"
+            disabled={loading}
+            startIcon={<DeleteIcon />}
+          >
+            מחק לצמיתות
+          </Button>
+        </DialogActions>
       </Dialog>
 
       {/* Notification */}
