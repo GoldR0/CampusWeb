@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Card, CardMedia, CardContent, Container } from '@mui/material';
+import { Box, Typography, Card, CardMedia, Container } from '@mui/material';
 
 // Import all cafeteria images
 import a1 from '../assets/a1.png';

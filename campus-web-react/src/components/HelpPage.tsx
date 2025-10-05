@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Container,
@@ -11,8 +11,11 @@ import {
 } from '@mui/material';
 import { CUSTOM_COLORS, TYPOGRAPHY } from '../constants/theme';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Chatbot from './Chatbot';
 
 const HelpPage: React.FC = () => {
+  const [isChatbotExpanded, setIsChatbotExpanded] = useState(false);
+
   const helpSections = [
     {
       title: "מה זה קמפוס?",
@@ -85,80 +88,121 @@ const HelpPage: React.FC = () => {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom sx={{ 
-          ...TYPOGRAPHY.h3,
-          color: CUSTOM_COLORS.primary,
-          textAlign: 'center',
-          mb: 3
-        }}>
-          מרכז העזרה
-        </Typography>
-        <Typography variant="h6" sx={{ 
-          textAlign: 'center', 
-          color: 'text.secondary',
-          mb: 4
-        }}>
-          כאן תוכל למצוא תשובות לכל השאלות הנפוצות על השימוש במערכת קמפוס
-        </Typography>
-      </Box>
+    <>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h3" component="h1" gutterBottom sx={{ 
+            ...TYPOGRAPHY.h3,
+            color: CUSTOM_COLORS.primary,
+            textAlign: 'center',
+            mb: 3
+          }}>
+            מרכז העזרה
+          </Typography>
+          <Typography variant="h6" sx={{ 
+            textAlign: 'center', 
+            color: 'text.secondary',
+            mb: 4
+          }}>
+            כאן תוכל למצוא תשובות לכל השאלות הנפוצות על השימוש במערכת קמפוס
+          </Typography>
+        </Box>
 
-      <Paper elevation={3} sx={{ p: 3 }}>
-        {helpSections.map((section, index) => (
-          <Box key={index}>
-            <Accordion sx={{ 
-              mb: 1,
-              '&:before': {
-                display: 'none',
-              },
-              boxShadow: 'none',
-              border: '1px solid #e0e0e0',
-              borderRadius: 2
-            }}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                sx={{
-                  backgroundColor: 'rgb(179, 209, 53)',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: 'rgb(159, 189, 33)',
-                  },
-                  borderRadius: index === 0 ? '8px 8px 0 0' : '0',
-                  '& .MuiAccordionSummary-content': {
-                    margin: '12px 0',
-                  }
-                }}
-              >
-                <Typography variant="h6" sx={TYPOGRAPHY.h6}>
-                  {section.title}
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ 
-                backgroundColor: '#fafafa',
-                p: 3
-              }}>
-                <Typography variant="body1" sx={{ 
-                  lineHeight: 1.8,
-                  fontSize: '1.1rem'
-                }}>
-                  {section.content}
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
-            {index < helpSections.length - 1 && (
-              <Divider sx={{ my: 1 }} />
-            )}
+        <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>
+          <Box sx={{ flex: 2 }}>
+            <Paper elevation={3} sx={{ p: 3 }}>
+              {helpSections.map((section, index) => (
+                <Box key={index}>
+                  <Accordion sx={{ 
+                    mb: 1,
+                    '&:before': {
+                      display: 'none',
+                    },
+                    boxShadow: 'none',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: 2
+                  }}>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      sx={{
+                        backgroundColor: 'rgb(179, 209, 53)',
+                        color: 'white',
+                        '&:hover': {
+                          backgroundColor: 'rgb(159, 189, 33)',
+                        },
+                        borderRadius: index === 0 ? '8px 8px 0 0' : '0',
+                        '& .MuiAccordionSummary-content': {
+                          margin: '12px 0',
+                        }
+                      }}
+                    >
+                      <Typography variant="h6" sx={TYPOGRAPHY.h6}>
+                        {section.title}
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ 
+                      backgroundColor: '#fafafa',
+                      p: 3
+                    }}>
+                      <Typography variant="body1" sx={{ 
+                        lineHeight: 1.8,
+                        fontSize: '1.1rem'
+                      }}>
+                        {section.content}
+                      </Typography>
+                    </AccordionDetails>
+                  </Accordion>
+                  {index < helpSections.length - 1 && (
+                    <Divider sx={{ my: 1 }} />
+                  )}
+                </Box>
+              ))}
+            </Paper>
           </Box>
-        ))}
-      </Paper>
+          
+          <Box sx={{ flex: 1, minWidth: { md: 300 } }}>
+            <Paper elevation={3} sx={{ p: 3, height: 'fit-content' }}>
+              <Typography variant="h5" sx={{ 
+                color: CUSTOM_COLORS.primary,
+                mb: 2,
+                textAlign: 'center'
+              }}>
+                עוזר וירטואלי
+              </Typography>
+              <Typography variant="body2" sx={{ 
+                color: 'text.secondary',
+                mb: 3,
+                textAlign: 'center'
+              }}>
+                שאל את העוזר הווירטואלי שלנו כל שאלה על השימוש באתר קמפוס
+              </Typography>
+              <Box sx={{ 
+                textAlign: 'center',
+                p: 2,
+                backgroundColor: '#f5f5f5',
+                borderRadius: 2,
+                mb: 2
+              }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  העוזר זמין בפינה הימנית התחתונה של המסך
+                </Typography>
+              </Box>
+            </Paper>
+          </Box>
+        </Box>
 
-      <Box sx={{ mt: 4, textAlign: 'center' }}>
-        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-          לא מצאת את התשובה שחיפשת? צור קשר עם התמיכה הטכנית
-        </Typography>
-      </Box>
-    </Container>
+        <Box sx={{ mt: 4, textAlign: 'center' }}>
+          <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+            לא מצאת את התשובה שחיפשת? צור קשר עם התמיכה הטכנית
+          </Typography>
+        </Box>
+      </Container>
+      
+      <Chatbot 
+        isExpanded={isChatbotExpanded}
+        onToggle={() => setIsChatbotExpanded(!isChatbotExpanded)}
+      />
+    </>
   );
 };
 

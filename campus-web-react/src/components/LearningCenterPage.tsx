@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   Chip,
-  Divider,
   Alert,
   Snackbar
 } from '@mui/material';
@@ -33,7 +32,7 @@ interface StudentCourse {
 }
 
 interface StudentTask {
-  taskId: string;
+  id: string;
   title: string;
   type: string;
   date: string;
@@ -58,7 +57,7 @@ const LearningCenterPage: React.FC<LearningCenterPageProps> = ({ currentUser }) 
   useEffect(() => {
     if (currentUser) {
       // Load courses from localStorage
-      const savedCourses = localStorage.getItem('campus-courses-data');
+      const savedCourses = null; // Courses are now managed through Firestore
       if (savedCourses) {
         try {
           const allCourses = JSON.parse(savedCourses);
@@ -68,7 +67,7 @@ const LearningCenterPage: React.FC<LearningCenterPageProps> = ({ currentUser }) 
           setStudentCourses(userCourses);
           
           // Load tasks from localStorage after courses are loaded
-          const savedTasks = localStorage.getItem('campus-tasks-data');
+          const savedTasks = null; // Tasks are now managed through Firestore
           if (savedTasks) {
             try {
               const allTasks = JSON.parse(savedTasks);
@@ -274,7 +273,7 @@ const LearningCenterPage: React.FC<LearningCenterPageProps> = ({ currentUser }) 
                 </Box>
                 
                 {studentTasks.map((task) => (
-                  <Box key={task.taskId} sx={{ 
+                  <Box key={task.id} sx={{ 
                     display: 'grid', 
                     gridTemplateColumns: 'auto 1fr 1fr 1fr auto',
                     gap: 2,
@@ -283,7 +282,7 @@ const LearningCenterPage: React.FC<LearningCenterPageProps> = ({ currentUser }) 
                     '&:hover': { backgroundColor: '#f9f9f9' },
                     '&:last-child': { borderBottom: 'none' }
                   }}>
-                    <Box sx={{ fontWeight: 'bold', color: customColors.primary }}>{task.taskId}</Box>
+                    <Box sx={{ fontWeight: 'bold', color: customColors.primary }}>{task.id}</Box>
                     <Box>{task.title}</Box>
                     <Box>
                       <Chip 

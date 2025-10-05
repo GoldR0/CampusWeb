@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAdminResponsive } from '../hooks/useResponsive';
+import { listEvents, deleteEvent, patchEvent, addEvent } from '../fireStore/eventsService';
+import { listFacilities, patchFacility } from '../fireStore/facilitiesService';
+import { Event } from '../types';
 import {
   Box,
   Container,
@@ -14,9 +19,11 @@ import {
   TextField,
   Alert,
   Snackbar,
-  IconButton
+  IconButton,
+  LinearProgress
 } from '@mui/material';
 import { CUSTOM_COLORS, TYPOGRAPHY, CARD_STYLES } from '../constants/theme';
+import { listLostFoundOrderedByTimestampDesc, deleteLostFoundReport } from '../fireStore/lostFoundService';
 import { User } from '../types';
 import {
   Description as DescriptionIcon,
@@ -26,6 +33,7 @@ import {
   CheckCircle as CheckCircleIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  Visibility as VisibilityIcon,
   Business as BusinessIcon,
   LibraryBooks as LibraryIcon,
   Restaurant as RestaurantIcon,
@@ -43,7 +51,6 @@ interface FormsPageProps {
 
 interface FormData {
   event: {
-    eventId: string;
     title: string;
     description: string;
     date: string;
@@ -60,8 +67,8 @@ interface ValidationErrors {
   location?: string;
 }
 
-interface Event {
-  eventId: string;
+interface LocalEvent {
+  id: string;
   title: string;
   description: string;
   date: string;
@@ -71,11 +78,11 @@ interface Event {
   createdAt: string;
 }
 
-interface Facility {
+interface LocalFacility {
   id: string;
   name: string;
   type: 'library' | 'cafeteria' | 'gym' | 'parking';
-  status: 'open' | 'closed';
+  status: 'open' | 'closed' | 'busy';
   lastUpdated: string;
 }
 
@@ -92,7 +99,7 @@ interface LostFoundReport {
 }
 
 interface Inquiry {
-  inquiryId: string;
+  id: string;
   category: 'complaint' | 'improvement';
   description: string;
   date: string;
@@ -102,13 +109,15 @@ interface Inquiry {
 }
 
 const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
+  const { id, type } = useParams<{ id: string; type: string }>();
+  const navigate = useNavigate();
+  const { isAdminSupported, adminMessage } = useAdminResponsive();
   const [activeForm, setActiveForm] = useState<string | null>(null);
-  const [eventCounter, setEventCounter] = useState(1);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [events, setEvents] = useState<LocalEvent[]>([]);
+  const [editingEvent, setEditingEvent] = useState<LocalEvent | null>(null);
   const [deleteEventDialogOpen, setDeleteEventDialogOpen] = useState(false);
-  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
-  const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [eventToDelete, setEventToDelete] = useState<LocalEvent | null>(null);
+  const [facilities, setFacilities] = useState<LocalFacility[]>([]);
   const [lostFoundReports, setLostFoundReports] = useState<LostFoundReport[]>([]);
   const [deleteReportDialogOpen, setDeleteReportDialogOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<LostFoundReport | null>(null);
@@ -117,7 +126,6 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   const [inquiryToDelete, setInquiryToDelete] = useState<Inquiry | null>(null);
   const [formData, setFormData] = useState<FormData>({
     event: {
-      eventId: `EVENT-${String(eventCounter).padStart(3, '0')}`,
       title: '',
       description: '',
       date: '',
@@ -130,6 +138,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const customColors = {
     primary: 'rgb(179, 209, 53)',
@@ -204,54 +213,109 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     return isValid;
   };
 
-  // Load events and facilities from localStorage on component mount
+  // Handle deep link editing - open edit dialog if ID is in URL
   useEffect(() => {
+    if (id && type) {
+      if (type === 'events' && events.length > 0) {
+        const eventToEdit = events.find(event => event.id === id);
+        if (eventToEdit) {
+          setEditingEvent(eventToEdit);
+          setFormData({
+            event: {
+              title: eventToEdit.title,
+              description: eventToEdit.description,
+              date: eventToEdit.date,
+              time: eventToEdit.time,
+              location: eventToEdit.location,
+              maxParticipants: eventToEdit.maxParticipants
+            }
+          });
+          setActiveForm('event');
+          // Clear the URL parameter
+          navigate('/forms', { replace: true });
+        }
+      }
+    }
+  }, [id, type, events, navigate]);
 
-    const loadEventsFromLocalStorage = () => {
+  // Load facilities from Firestore
+  const loadFacilitiesFromFirestore = async () => {
+    try {
+      const firestoreFacilities = await listFacilities();
+      if (firestoreFacilities.length > 0) {
+        // Convert Firestore facilities to local facilities format
+        const localFacilities: LocalFacility[] = firestoreFacilities.map(facility => ({
+          id: facility.id,
+          name: facility.name,
+          type: 'library', // Default type, you might need to map this based on your data
+          status: facility.status,
+          lastUpdated: new Date().toLocaleString('he-IL')
+        }));
+        
+        // Remove duplicates by name
+        const uniqueLocalFacilities = localFacilities.filter((facility, index, self) => 
+          index === self.findIndex(f => f.name === facility.name)
+        );
+        
+        setFacilities(uniqueLocalFacilities);
+        // Facilities are now managed through Firestore
+      } else {
+        // If no facilities in Firestore, create initial facilities
+        const initialFacilities: LocalFacility[] = [
+          { id: 'facility-1', name: 'ספרייה מרכזית', type: 'library', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
+          { id: 'facility-2', name: 'קפיטריה', type: 'cafeteria', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
+          { id: 'facility-3', name: 'חדר כושר', type: 'gym', status: 'closed', lastUpdated: new Date().toLocaleString('he-IL') },
+          { id: 'facility-4', name: 'חניה', type: 'parking', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') }
+        ];
+        
+        setFacilities(initialFacilities);
+        // Facilities are now managed through Firestore
+      }
+    } catch (e) {
+      // keep empty
+    }
+  };
+
+  // Load events, facilities and lost-found from Firestore on component mount
+  useEffect(() => {
+    const loadDataFromFirestore = async () => {
+      setIsLoading(true);
       try {
-        const savedEvents = localStorage.getItem('campus-events-data');
-        if (savedEvents) {
-          const parsedEvents = JSON.parse(savedEvents);
-          if (parsedEvents.length === 0) {
-            // If events array is empty, create initial events
-            const eventTitles = [
-              'הרצאה על בינה מלאכותית',
-              'סדנת תכנות',
-              'מפגש סטודנטים',
-              'הרצאה על אבטחת מידע',
-              'סדנת פיתוח אפליקציות',
-              'מפגש בוגרים',
-              'הרצאה על רשתות מחשבים',
-              'סדנת מסדי נתונים',
-              'מפגש חברתי',
-              'הרצאה על אלגוריתמים'
-            ];
-            
-            const initialEvents: Event[] = Array.from({ length: 10 }, (_, index) => ({
-              eventId: `EVENT-${String(index + 1).padStart(3, '0')}`,
-              title: eventTitles[index],
-              description: `תיאור מפורט של ${eventTitles[index]}`,
-              date: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-              time: `${10 + (index % 8)}:00`,
-              location: `חדר ${index + 1}`,
-              maxParticipants: 30 + (index * 5),
-              createdAt: new Date().toLocaleString('he-IL')
-            }));
-            
-            setEvents(initialEvents);
-            setEventCounter(11);
-            localStorage.setItem('campus-events-data', JSON.stringify(initialEvents));
-          } else {
-            setEvents(parsedEvents);
-            
-            // Set counter to next available number
-            const maxId = Math.max(...parsedEvents.map((event: Event) => 
-              parseInt(event.eventId.split('-')[1])
-            ));
-            setEventCounter(maxId + 1);
-          }
+        await Promise.all([
+          loadEventsFromFirestore(),
+          loadFacilitiesFromFirestore(),
+          loadLostFoundFromFirestore()
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const loadEventsFromFirestore = async () => {
+      try {
+        const firestoreEvents = await listEvents();
+        if (firestoreEvents.length > 0) {
+          // Convert Firestore events to local events format
+          const localEvents: LocalEvent[] = firestoreEvents.map(event => ({
+            id: event.id,
+            title: event.title,
+            description: event.description,
+            date: event.date,
+            time: event.time,
+            location: event.roomId, // Map roomId to location
+            maxParticipants: 50, // Default value
+            createdAt: new Date().toLocaleString('he-IL')
+          }));
+          
+          setEvents(localEvents);
+          
+          // Set counter to next available number
+          const maxId = Math.max(...localEvents.map((event: LocalEvent) => 
+            parseInt(event.id.split('-')[1])
+          ));
+          // Event counter removed - using Firestore auto-generated IDs
         } else {
-          // Create initial events if none exist
+          // If no events in Firestore, create initial events
           const eventTitles = [
             'הרצאה על בינה מלאכותית',
             'סדנת תכנות',
@@ -265,8 +329,8 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             'הרצאה על אלגוריתמים'
           ];
           
-          const initialEvents: Event[] = Array.from({ length: 10 }, (_, index) => ({
-            eventId: `EVENT-${String(index + 1).padStart(3, '0')}`,
+          const initialEvents: LocalEvent[] = Array.from({ length: 10 }, (_, index) => ({
+            id: `event-${index + 1}`,
             title: eventTitles[index],
             description: `תיאור מפורט של ${eventTitles[index]}`,
             date: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -277,13 +341,47 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           }));
           
           setEvents(initialEvents);
-          setEventCounter(11);
-          localStorage.setItem('campus-events-data', JSON.stringify(initialEvents));
+          // Event counter removed - using Firestore auto-generated IDs
+          // Events are now managed through Firestore
         }
       } catch (error) {
-        // Error loading events from localStorage
+        console.error('Error loading events from Firestore:', error);
+        // Fallback to demo data
+        const savedEvents = null;
+        if (savedEvents) {
+          const parsedEvents = JSON.parse(savedEvents);
+          setEvents(parsedEvents);
+          
+          // Set counter to next available number
+          const maxId = Math.max(...parsedEvents.map((event: LocalEvent) => 
+            parseInt(event.id.split('-')[1])
+          ));
+          // Event counter removed - using Firestore auto-generated IDs
+        }
       }
     };
+
+    const loadLostFoundFromFirestore = async () => {
+      try {
+        const reports = await listLostFoundOrderedByTimestampDesc();
+        const mapped = reports.map(r => ({
+          id: r.id,
+          type: r.type,
+          itemName: r.itemName,
+          description: r.description,
+          location: r.location,
+          date: r.date,
+          contactPhone: r.contactPhone,
+          timestamp: new Date(r.timestamp),
+          user: r.user
+        }));
+        setLostFoundReports(mapped);
+      } catch (e) {
+        // keep empty
+      }
+    };
+
+    // Events are now loaded from Firestore in loadEventsFromFirestore
 
     const loadFacilitiesFromLocalStorage = () => {
       try {
@@ -291,16 +389,22 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         if (savedFacilities) {
           const parsedFacilities = JSON.parse(savedFacilities);
           // Remove community center if it exists
+          // Remove community center if it exists and remove duplicates
           const filteredFacilities = parsedFacilities.filter((facility: { id: string; name: string; type: string }) => 
             facility.id !== 'community-1' && facility.name !== 'מרכז קהילתי' && facility.type !== 'community'
           );
           
-          if (filteredFacilities.length === 0) {
+          // Remove duplicate facilities by name
+          const uniqueFacilities = filteredFacilities.filter((facility: any, index: number, self: any[]) => 
+            index === self.findIndex((f: any) => f.name === facility.name)
+          );
+          
+          if (uniqueFacilities.length === 0) {
             // If facilities array is empty, create initial facilities
             const facilityTypes: ('library' | 'cafeteria' | 'gym' | 'parking')[] = ['library', 'cafeteria', 'gym', 'parking'];
-            const facilityNames = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'חדר לימוד', 'חדר משחקים', 'מעבדה', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
+            const facilityNames = ['ספרייה', 'חניה', 'קפיטריה', 'חדר כושר', 'מעבדת מחשבים', 'חדר לימוד', 'חדר משחקים', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
             
-            const initialFacilities: Facility[] = Array.from({ length: 10 }, (_, index) => ({
+            const initialFacilities: LocalFacility[] = Array.from({ length: 10 }, (_, index) => ({
               id: `facility-${index + 1}`,
               name: facilityNames[index] || `מתקן ${index + 1}`,
               type: facilityTypes[index % facilityTypes.length],
@@ -309,13 +413,13 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             }));
             
             setFacilities(initialFacilities);
-            localStorage.setItem('campus-facilities-data', JSON.stringify(initialFacilities));
+            // Facilities are now managed through Firestore
           } else {
-            setFacilities(filteredFacilities);
+            setFacilities(uniqueFacilities);
             
-            // Save the filtered data back to localStorage
-            if (filteredFacilities.length !== parsedFacilities.length) {
-              localStorage.setItem('campus-facilities-data', JSON.stringify(filteredFacilities));
+            // Save the unique data back to localStorage if duplicates were removed
+            if (uniqueFacilities.length !== parsedFacilities.length) {
+              localStorage.setItem('campus-facilities-data', JSON.stringify(uniqueFacilities));
             }
           }
           
@@ -326,7 +430,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           const facilityTypes: ('library' | 'cafeteria' | 'gym' | 'parking')[] = ['library', 'cafeteria', 'gym', 'parking'];
           const facilityNames = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'חדר לימוד', 'חדר משחקים', 'מעבדה', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
           
-          const defaultFacilities: Facility[] = Array.from({ length: 10 }, (_, index) => ({
+          const defaultFacilities: LocalFacility[] = Array.from({ length: 10 }, (_, index) => ({
             id: `facility-${index + 1}`,
             name: facilityNames[index] || `מתקן ${index + 1}`,
             type: facilityTypes[index % facilityTypes.length],
@@ -350,9 +454,9 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             if (!Array.isArray(parsed) || parsed.length === 0) {
               // Reset if data is corrupted - create 10 facilities
               const facilityTypes: ('library' | 'cafeteria' | 'gym' | 'parking')[] = ['library', 'cafeteria', 'gym', 'parking'];
-              const facilityNames = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'חדר לימוד', 'חדר משחקים', 'מעבדה', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
+              const facilityNames = ['ספרייה', 'חניה', 'קפיטריה', 'חדר כושר', 'מעבדת מחשבים', 'חדר לימוד', 'חדר משחקים', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
               
-              const defaultFacilities: Facility[] = Array.from({ length: 10 }, (_, index) => ({
+              const defaultFacilities: LocalFacility[] = Array.from({ length: 10 }, (_, index) => ({
                 id: `facility-${index + 1}`,
                 name: facilityNames[index] || `מתקן ${index + 1}`,
                 type: facilityTypes[index % facilityTypes.length],
@@ -368,9 +472,9 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           } catch (error) {
             // Corrupted facilities data, resetting...
             const facilityTypes: ('library' | 'cafeteria' | 'gym' | 'parking')[] = ['library', 'cafeteria', 'gym', 'parking'];
-            const facilityNames = ['ספרייה', 'קפיטריה', 'חדר כושר', 'חניה', 'חדר לימוד', 'חדר משחקים', 'מעבדה', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
+            const facilityNames = ['ספרייה', 'חניה', 'קפיטריה', 'חדר כושר', 'מעבדת מחשבים', 'חדר לימוד', 'חדר משחקים', 'אודיטוריום', 'גינה', 'מרכז סטודנטים'];
             
-            const defaultFacilities: Facility[] = Array.from({ length: 10 }, (_, index) => ({
+            const defaultFacilities: LocalFacility[] = Array.from({ length: 10 }, (_, index) => ({
               id: `facility-${index + 1}`,
               name: facilityNames[index] || `מתקן ${index + 1}`,
               type: facilityTypes[index % facilityTypes.length],
@@ -413,7 +517,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             }));
             
             setLostFoundReports(initialReports);
-            localStorage.setItem('campus-lost-found-data', JSON.stringify(initialReports));
+            // Lost found reports are now managed through Firestore
           } else {
             // Convert timestamp strings back to Date objects
             const reportsWithDates = parsedReports.map((report: { timestamp: string | Date; [key: string]: any }) => ({
@@ -441,7 +545,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           }));
           
           setLostFoundReports(initialReports);
-          localStorage.setItem('campus-lost-found-data', JSON.stringify(initialReports));
+          // Lost found reports are now managed through Firestore
         }
       } catch (error) {
         // Error loading lost-found reports from localStorage
@@ -471,7 +575,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             const inquiryUsers2 = ['דוד כהן', 'שרה לוי', 'משה ישראלי', 'רחל אברהם', 'יוסף גולד', 'מרים שלום', 'אברהם כהן', 'רחל לוי', 'יצחק ישראלי', 'לאה אברהם'];
             
             const initialInquiries: Inquiry[] = Array.from({ length: 10 }, (_, index) => ({
-              inquiryId: `INQUIRY-${String(index + 1).padStart(3, '0')}`,
+              id: `inquiry-${index + 1}`,
               category: index % 2 === 0 ? 'complaint' : 'improvement',
               description: inquiryDescriptions[index] || `תיאור פנייה ${index + 1}`,
               date: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
@@ -481,7 +585,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             }));
             
             setInquiries(initialInquiries);
-            localStorage.setItem('campus-inquiries-data', JSON.stringify(initialInquiries));
+            // Inquiries are now managed through Firestore
           } else {
             setInquiries(parsedInquiries);
           }
@@ -503,7 +607,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           const inquiryUsers2 = ['דוד כהן', 'שרה לוי', 'משה ישראלי', 'רחל אברהם', 'יוסף גולד', 'מרים שלום', 'אברהם כהן', 'רחל לוי', 'יצחק ישראלי', 'לאה אברהם'];
           
           const initialInquiries: Inquiry[] = Array.from({ length: 10 }, (_, index) => ({
-            inquiryId: `INQUIRY-${String(index + 1).padStart(3, '0')}`,
+            id: `inquiry-${index + 1}`,
             category: index % 2 === 0 ? 'complaint' : 'improvement',
             description: inquiryDescriptions[index] || `תיאור פנייה ${index + 1}`,
             date: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)).toISOString().split('T')[0],
@@ -513,35 +617,54 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           }));
           
           setInquiries(initialInquiries);
-          localStorage.setItem('campus-inquiries-data', JSON.stringify(initialInquiries));
+          // Inquiries are now managed through Firestore
         }
       } catch (error) {
         // Error loading inquiries from localStorage
       }
     };
 
-    loadEventsFromLocalStorage();
-    loadFacilitiesFromLocalStorage();
-    loadLostFoundReportsFromLocalStorage();
-    loadInquiriesFromLocalStorage();
+    // Clean up duplicates in localStorage on component mount
+    cleanupDuplicateFacilities();
+    loadDataFromFirestore();
+    // loadLostFoundReportsFromLocalStorage();
+    // loadInquiriesFromLocalStorage();
 
-    // Listen for updates from other tabs
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'campus-facilities-data') {
-        loadFacilitiesFromLocalStorage();
-      } else if (e.key === 'campus-lost-found-data') {
-        loadLostFoundReportsFromLocalStorage();
-      } else if (e.key === 'campus-inquiries-data') {
-        loadInquiriesFromLocalStorage();
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
+    // Data is now managed through Firestore, no need for localStorage listeners
   }, []);
+
+  const cleanupDuplicateFacilities = () => {
+    try {
+      const savedFacilities = localStorage.getItem('campus-facilities-data');
+      if (savedFacilities) {
+        const parsedFacilities = JSON.parse(savedFacilities);
+        
+        // Remove duplicates by name
+        const uniqueFacilities = parsedFacilities.filter((facility: any, index: number, self: any[]) => 
+          index === self.findIndex((f: any) => f.name === facility.name)
+        );
+        
+        // Save back to localStorage if duplicates were found and removed
+        if (uniqueFacilities.length !== parsedFacilities.length) {
+          localStorage.setItem('campus-facilities-data', JSON.stringify(uniqueFacilities));
+          console.log(`Removed ${parsedFacilities.length - uniqueFacilities.length} duplicate facilities from localStorage`);
+          setNotification({
+            message: `נוקו ${parsedFacilities.length - uniqueFacilities.length} מתקנים כפולים מהמערכת`,
+            type: 'success'
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error cleaning up duplicate facilities:', error);
+    }
+  };
+
+  // Function to manually clean up duplicates (can be called from UI if needed)
+  const handleCleanupDuplicates = () => {
+    cleanupDuplicateFacilities();
+    // Reload facilities after cleanup
+    loadFacilitiesFromFirestore();
+  };
 
   const forms = [
     {
@@ -567,7 +690,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     }
   ];
 
-  const handleFormSubmit = (formType: string) => {
+  const handleFormSubmit = async (formType: string) => {
     if (formType === 'event') {
       // Mark all fields as touched
       const allTouched = ['title', 'date', 'time', 'location'].reduce((acc, field) => {
@@ -577,7 +700,8 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
       setTouched(allTouched);
 
       if (validateEventForm()) {
-        const newEvent: Event = {
+        const newEvent: LocalEvent = {
+          id: `event-${Date.now()}`, // Generate unique ID using timestamp
           ...formData.event,
           createdAt: new Date().toLocaleString('he-IL')
         };
@@ -585,26 +709,33 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         const updatedEvents = [...events, newEvent];
         setEvents(updatedEvents);
 
-        // Save to localStorage
+        // Save to Firestore
         try {
-          localStorage.setItem('campus-events-data', JSON.stringify(updatedEvents));
+          const eventData = {
+            id: newEvent.id,
+            title: newEvent.title,
+            description: newEvent.description,
+            date: newEvent.date,
+            time: newEvent.time,
+            roomId: newEvent.location,
+            urgent: false
+          };
+          await addEvent(new Event(eventData));
           
           // Dispatch custom event to notify other components
           window.dispatchEvent(new CustomEvent('eventsUpdated'));
         } catch (error) {
-          // Error saving events to localStorage
+          console.error('Error saving event to Firestore:', error);
         }
 
         setNotification({
-          message: `אירוע "${formData.event.title}" נוצר בהצלחה! מזהה: ${formData.event.eventId}`,
+          message: `אירוע "${formData.event.title}" נוצר בהצלחה!`,
           type: 'success'
         });
 
-        // Reset form and increment counter
-        setEventCounter(prev => prev + 1);
+        // Reset form
         setFormData({
           event: {
-            eventId: `EVENT-${String(eventCounter + 1).padStart(3, '0')}`,
             title: '',
             description: '',
             date: '',
@@ -628,37 +759,34 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   };
 
   // Facility management functions
-  const handleFacilityStatusToggle = (facilityId: string) => {
-    const updatedFacilities = facilities.map(facility => {
-      if (facility.id === facilityId) {
-        const newStatus: 'open' | 'closed' = facility.status === 'open' ? 'closed' : 'open';
-        return {
-          ...facility,
-          status: newStatus,
-          lastUpdated: new Date().toLocaleString('he-IL')
-        };
-      }
-      return facility;
-    });
-    
-    setFacilities(updatedFacilities);
-    
-    // Save to localStorage
+  const handleFacilityStatusToggle = async (facilityId: string) => {
+    const target = facilities.find(f => f.id === facilityId);
+    const toggledStatus: 'open' | 'closed' = target?.status === 'open' ? 'closed' : 'open';
     try {
-      localStorage.setItem('campus-facilities-data', JSON.stringify(updatedFacilities));
-      
-      // Dispatch custom event to notify other components
+      await patchFacility(facilityId, { status: toggledStatus });
+      const updatedFacilities = facilities.map(facility => {
+        if (facility.id === facilityId) {
+          return {
+            ...facility,
+            status: toggledStatus,
+            lastUpdated: new Date().toLocaleString('he-IL')
+          };
+        }
+        return facility;
+      });
+      setFacilities(updatedFacilities);
+      // Facilities are now managed through Firestore
       window.dispatchEvent(new CustomEvent('facilityUpdated'));
+      setNotification({
+        message: `המתקן "${target?.name}" שונה למצב ${toggledStatus === 'open' ? 'פתוח' : 'סגור'}`,
+        type: 'success'
+      });
     } catch (error) {
-      // Error saving facilities to localStorage
+      setNotification({
+        message: 'שגיאה בעדכון מצב המתקן במסד',
+        type: 'error'
+      });
     }
-    
-    const facility = facilities.find(f => f.id === facilityId);
-    const newStatus = facility?.status === 'open' ? 'סגור' : 'פתוח';
-    setNotification({
-      message: `המתקן "${facility?.name}" שונה למצב ${newStatus}`,
-      type: 'success'
-    });
   };
 
   const getFacilityIcon = (type: string) => {
@@ -681,27 +809,36 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     setDeleteReportDialogOpen(true);
   };
 
-  const confirmDeleteReport = () => {
+  const confirmDeleteReport = async () => {
     if (reportToDelete) {
-      const updatedReports = lostFoundReports.filter(report => report.id !== reportToDelete.id);
-      setLostFoundReports(updatedReports);
-      
-      // Save to localStorage
       try {
-        localStorage.setItem('campus-lost-found-data', JSON.stringify(updatedReports));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('lostFoundUpdated'));
-      } catch (error) {
-        // Error saving reports to localStorage
+        await deleteLostFoundReport(reportToDelete.id);
+        const refreshed = await listLostFoundOrderedByTimestampDesc();
+        const mapped = refreshed.map(r => ({
+          id: r.id,
+          type: r.type,
+          itemName: r.itemName,
+          description: r.description,
+          location: r.location,
+          date: r.date,
+          contactPhone: r.contactPhone,
+          timestamp: new Date(r.timestamp),
+          user: r.user
+        }));
+        setLostFoundReports(mapped);
+        setNotification({
+          message: `הדיווח "${reportToDelete.id}" נמחק בהצלחה`,
+          type: 'success'
+        });
+      } catch (e) {
+        setNotification({
+          message: 'שגיאה במחיקת הדיווח מהמסד',
+          type: 'error'
+        });
+      } finally {
+        setDeleteReportDialogOpen(false);
+        setReportToDelete(null);
       }
-      
-      setNotification({
-        message: `הדיווח "${reportToDelete.id}" נמחק בהצלחה`,
-        type: 'success'
-      });
-      setDeleteReportDialogOpen(false);
-      setReportToDelete(null);
     }
   };
 
@@ -727,7 +864,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
       [formType]: {
         ...prev[formType as keyof FormData],
         [field]: value
-      } as any
+      }
     }));
 
     // Clear error when user starts typing
@@ -764,21 +901,14 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
 
   const confirmDeleteInquiry = () => {
     if (inquiryToDelete) {
-      const updatedInquiries = inquiries.filter(inquiry => inquiry.inquiryId !== inquiryToDelete.inquiryId);
+      const updatedInquiries = inquiries.filter(inquiry => inquiry.id !== inquiryToDelete.id);
       setInquiries(updatedInquiries);
       
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-inquiries-data', JSON.stringify(updatedInquiries));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('inquiriesUpdated'));
-      } catch (error) {
-        // Error saving inquiries to localStorage
-      }
+      // Inquiries are now managed through Firestore
+      window.dispatchEvent(new CustomEvent('inquiriesUpdated'));
       
       setNotification({
-        message: `הפנייה "${inquiryToDelete.inquiryId}" נמחקה בהצלחה`,
+        message: `הפנייה "${inquiryToDelete.id}" נמחקה בהצלחה`,
         type: 'success'
       });
       setDeleteInquiryDialogOpen(false);
@@ -792,91 +922,84 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   };
 
   // Event management functions
-  const handleEditEvent = (event: Event) => {
-    setEditingEvent(event);
-    setFormData({
-      event: {
-        eventId: event.eventId,
-        title: event.title,
-        description: event.description,
-        date: event.date,
-        time: event.time,
-        location: event.location,
-        maxParticipants: event.maxParticipants
-      }
-    });
-    setActiveForm('event');
+  const handleViewEvent = (event: LocalEvent) => {
+    navigate(`/events/${event.id}`);
   };
 
-  const handleDeleteEvent = (event: Event) => {
+  const handleEditEvent = (event: LocalEvent) => {
+    navigate(`/forms/events/${event.id}/edit`);
+  };
+
+  const handleDeleteEvent = (event: LocalEvent) => {
     setEventToDelete(event);
     setDeleteEventDialogOpen(true);
   };
 
-  const confirmDeleteEvent = () => {
+  const confirmDeleteEvent = async () => {
     if (eventToDelete) {
-      const updatedEvents = events.filter(event => event.eventId !== eventToDelete.eventId);
-      setEvents(updatedEvents);
-      
-      // Save to localStorage
       try {
-        localStorage.setItem('campus-events-data', JSON.stringify(updatedEvents));
-        
-        // Dispatch custom event to notify other components
+        await deleteEvent(eventToDelete.id);
+        const updatedEvents = events.filter(event => event.id !== eventToDelete.id);
+        setEvents(updatedEvents);
+        // Events are now managed through Firestore
         window.dispatchEvent(new CustomEvent('eventsUpdated'));
+        setNotification({
+          message: `האירוע "${eventToDelete.title}" נמחק בהצלחה`,
+          type: 'success'
+        });
       } catch (error) {
-        // Error saving events to localStorage
+        setNotification({
+          message: 'שגיאה במחיקת האירוע מהמסד',
+          type: 'error'
+        });
+      } finally {
+        setDeleteEventDialogOpen(false);
+        setEventToDelete(null);
       }
-      
-      setNotification({
-        message: `האירוע "${eventToDelete.title}" נמחק בהצלחה`,
-        type: 'success'
-      });
-      setDeleteEventDialogOpen(false);
-      setEventToDelete(null);
     }
   };
 
-  const handleUpdateEvent = () => {
+  const handleUpdateEvent = async () => {
     if (editingEvent) {
-      const updatedEvents = events.map(event => 
-        event.eventId === editingEvent.eventId 
-          ? { ...formData.event, createdAt: editingEvent.createdAt }
-          : event
-      );
-      setEvents(updatedEvents);
-      
-      // Save to localStorage
       try {
-        localStorage.setItem('campus-events-data', JSON.stringify(updatedEvents));
-        
-        // Dispatch custom event to notify other components
+        await patchEvent(editingEvent.id, {
+          title: formData.event.title,
+          description: formData.event.description,
+          date: formData.event.date,
+          time: formData.event.time,
+          roomId: formData.event.location
+        });
+        const updatedEvents = events.map(event => 
+          event.id === editingEvent.id 
+            ? { ...event, ...formData.event, createdAt: editingEvent.createdAt } as LocalEvent
+            : event
+        );
+        setEvents(updatedEvents);
+        // Events are now managed through Firestore
         window.dispatchEvent(new CustomEvent('eventsUpdated'));
+        setNotification({
+          message: `האירוע "${formData.event.title}" עודכן בהצלחה`,
+          type: 'success'
+        });
       } catch (error) {
-        // Error saving events to localStorage
+        setNotification({
+          message: 'שגיאה בעדכון האירוע במסד',
+          type: 'error'
+        });
+      } finally {
+        setEditingEvent(null);
+        setActiveForm(null);
+        setFormData({
+          event: {
+            title: '',
+            description: '',
+            date: '',
+            time: '',
+            location: '',
+            maxParticipants: 10
+          }
+        });
       }
-      
-      setNotification({
-        message: `האירוע "${formData.event.title}" עודכן בהצלחה`,
-        type: 'success'
-      });
-      
-      setEditingEvent(null);
-      setActiveForm(null);
-      
-      // Reset form
-      setEventCounter(prev => prev + 1);
-      setFormData({
-        event: {
-          eventId: `EVENT-${String(eventCounter + 1).padStart(3, '0')}`,
-          title: '',
-          description: '',
-          date: '',
-          time: '',
-          location: '',
-          maxParticipants: 10
-        }
-      });
     }
   };
 
@@ -889,23 +1012,6 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
               {editingEvent ? 'עריכת אירוע' : 'יצירת אירוע'}
             </Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
-              <TextField
-                fullWidth
-                label="מזהה אירוע"
-                value={formData.event.eventId}
-                InputProps={{ 
-                  readOnly: true,
-                  sx: { 
-                    backgroundColor: '#f5f5f5',
-                    '& .MuiInputBase-input': {
-                      color: '#666',
-                      fontWeight: 'bold'
-                    }
-                  }
-                }}
-                helperText="נוצר אוטומטית"
-                sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}
-              />
               <TextField
                 fullWidth
                 label="כותרת האירוע"
@@ -1147,8 +1253,39 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     }
   };
 
+  // Show admin message if not desktop
+  if (!isAdminSupported) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h5" color="error" gutterBottom>
+            {adminMessage}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            מסכי הניהול זמינים רק במחשבים שולחניים
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
+      {/* Loading Progress */}
+      {isLoading && (
+        <Box sx={{ width: '100%', mb: 2 }}>
+          <LinearProgress 
+            sx={{ 
+              height: 4,
+              backgroundColor: 'rgba(179, 209, 53, 0.2)',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: 'rgb(179, 209, 53)'
+              }
+            }} 
+          />
+        </Box>
+      )}
+
       {/* Page Header */}
       <Box sx={{ mb: 4 }}>
         <Box>
@@ -1257,10 +1394,27 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
 
       {/* Facilities Status Overview */}
       <Box sx={{ mt: 6 }}>
-        <Typography variant="h5" gutterBottom sx={{ ...TYPOGRAPHY.h5, color: CUSTOM_COLORS.primary, mb: 3 }}>
-          <BusinessIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-          סטטוס מתקנים ({facilities.length})
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h5" gutterBottom sx={{ ...TYPOGRAPHY.h5, color: CUSTOM_COLORS.primary, mb: 0 }}>
+            <BusinessIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+            סטטוס מתקנים ({facilities.length})
+          </Typography>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleCleanupDuplicates}
+            sx={{
+              borderColor: CUSTOM_COLORS.primary,
+              color: CUSTOM_COLORS.primary,
+              '&:hover': {
+                backgroundColor: CUSTOM_COLORS.primary,
+                color: 'white'
+              }
+            }}
+          >
+            נקה כפילויות
+          </Button>
+        </Box>
         
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(5, 1fr)' }, gap: 2, mb: 4 }}>
           {facilities.map((facility) => (
@@ -1300,7 +1454,22 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
           ניהול אירועים ({events.length})
         </Typography>
         
-        {events.length === 0 ? (
+        {isLoading ? (
+          <Box sx={{ width: '100%', mt: 2 }}>
+            <LinearProgress 
+              sx={{ 
+                height: 3,
+                backgroundColor: 'rgba(179, 209, 53, 0.2)',
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: 'rgb(179, 209, 53)'
+                }
+              }} 
+            />
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 1 }}>
+              טוען אירועים...
+            </Typography>
+          </Box>
+        ) : events.length === 0 ? (
           <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
             אין אירועים עדיין. צור אירוע חדש באמצעות הטופס למעלה.
           </Typography>
@@ -1327,7 +1496,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             </Box>
             
             {events.map((event) => (
-              <Box key={event.eventId} sx={{ 
+              <Box key={event.id} sx={{ 
                 display: 'grid', 
                 gridTemplateColumns: 'auto 1fr 1fr 1fr 1fr 1fr auto auto',
                 gap: 2,
@@ -1336,13 +1505,21 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
                 '&:hover': { backgroundColor: '#f9f9f9' },
                 '&:last-child': { borderBottom: 'none' }
               }}>
-                <Box sx={{ fontWeight: 'bold', color: customColors.primary }}>{event.eventId}</Box>
+                <Box sx={{ fontWeight: 'bold', color: customColors.primary }}>{event.id}</Box>
                 <Box>{event.title}</Box>
                 <Box>{event.date}</Box>
                 <Box>{event.time}</Box>
                 <Box>{event.location}</Box>
                 <Box>{event.maxParticipants}</Box>
-                <Box>
+                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                  <IconButton
+                    size="small"
+                    color="info"
+                    onClick={() => handleViewEvent(event)}
+                    sx={{ '&:hover': { backgroundColor: 'rgba(2, 136, 209, 0.1)' } }}
+                  >
+                    <VisibilityIcon fontSize="small" />
+                  </IconButton>
                   <IconButton
                     size="small"
                     color="primary"
@@ -1351,8 +1528,6 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
                   >
                     <EditIcon fontSize="small" />
                   </IconButton>
-                </Box>
-                <Box>
                   <IconButton
                     size="small"
                     color="error"
@@ -1402,7 +1577,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
             </Box>
             
             {inquiries.map((inquiry) => (
-              <Box key={inquiry.inquiryId} sx={{ 
+              <Box key={inquiry.id} sx={{ 
                 display: 'grid', 
                 gridTemplateColumns: 'auto 1fr 1fr 1fr 1fr 1fr auto',
                 gap: 2,
@@ -1411,7 +1586,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
                 '&:hover': { backgroundColor: '#f9f9f9' },
                 '&:last-child': { borderBottom: 'none' }
               }}>
-                <Box sx={{ fontWeight: 'bold', color: customColors.primary }}>{inquiry.inquiryId}</Box>
+                <Box sx={{ fontWeight: 'bold', color: customColors.primary }}>{inquiry.id}</Box>
                 <Box>
                   <Box sx={{ 
                     display: 'inline-block',
@@ -1502,7 +1677,7 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         <DialogTitle>אישור מחיקת פנייה</DialogTitle>
         <DialogContent>
           <Typography>
-            האם אתה בטוח שברצונך למחוק את הפנייה "{inquiryToDelete?.inquiryId}"?
+            האם אתה בטוח שברצונך למחוק את הפנייה "{inquiryToDelete?.id}"?
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             קטגוריה: {inquiryToDelete?.category === 'complaint' ? 'תלונה' : 'הצעה לשיפור'}

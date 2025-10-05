@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, Box, Typography } from '@mui/material';
-import { CalendarToday as CalendarIcon, AccessTime as TimeIcon, MeetingRoom as RoomIcon } from '@mui/icons-material';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, Box, Typography, LinearProgress, IconButton, Tooltip } from '@mui/material';
+import { CalendarToday as CalendarIcon, AccessTime as TimeIcon, MeetingRoom as RoomIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 
-import { demoEvents } from '../../data/demoData';
+import { useQuery } from '@tanstack/react-query';
+import { listEvents } from '../../fireStore/eventsService';
 
 interface Event {
-  eventId: string;
+  id: string;
   title: string;
   description: string;
   date: string;
@@ -22,67 +24,31 @@ interface EventsCardProps {
 }
 
 const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const loadEventsFromLocalStorage = () => {
-      try {
-        const savedEvents = localStorage.getItem('campus-events-data');
-        if (savedEvents) {
-          const parsedEvents = JSON.parse(savedEvents);
-          setEvents(parsedEvents);
-        } else {
-          // If no saved events, use demo events
-          setEvents(demoEvents.map(demoEvent => ({
-            eventId: demoEvent.id,
-            title: demoEvent.title,
-            description: demoEvent.description,
-            date: demoEvent.date,
-            time: demoEvent.time,
-            location: `חדר ${demoEvent.roomId}`,
-            maxParticipants: 50,
-            createdAt: new Date().toLocaleString('he-IL')
-          })));
-        }
-      } catch (error) {
-        // Error loading events from localStorage
-        // Fallback to demo events
-        setEvents(demoEvents.map(demoEvent => ({
-          eventId: demoEvent.id,
-          title: demoEvent.title,
-          description: demoEvent.description,
-          date: demoEvent.date,
-          time: demoEvent.time,
-          location: `חדר ${demoEvent.roomId}`,
-          maxParticipants: 50,
-          createdAt: new Date().toLocaleString('he-IL')
-        })));
-      }
-    };
+  const { data: events = [], isLoading } = useQuery<Event[]>({
+    queryKey: ['events'],
+    queryFn: async () => {
+      const firestoreEvents = await listEvents();
+      return firestoreEvents.map(event => ({
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        date: event.date,
+        time: event.time,
+        location: event.roomId,
+        maxParticipants: 50,
+        createdAt: new Date().toLocaleString('he-IL')
+      }));
+    },
+    staleTime: 60_000,
+  });
 
-    loadEventsFromLocalStorage();
-    
-    // Listen for storage changes to update when events are modified in FormsPage
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'campus-events-data') {
-        loadEventsFromLocalStorage();
-      }
-    };
+  const handleViewEvent = (event: Event) => {
+    navigate(`/events/${event.id}`);
+  };
 
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Also listen for custom events (for same-tab updates)
-    const handleEventsUpdate = () => {
-      loadEventsFromLocalStorage();
-    };
-
-    window.addEventListener('eventsUpdated', handleEventsUpdate);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('eventsUpdated', handleEventsUpdate);
-    };
-  }, []);
+  
 
   return (
     <Card sx={{ border: `2px solid ${customColors.primary}` }}>
@@ -91,32 +57,48 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
           <CalendarIcon sx={{ mr: 1 }} />
           <Typography variant="h6">לוח אירועים ({events.length})</Typography>
         </Box>
-        <Box sx={{ 
-          maxHeight: { xs: 'none', lg: '500px' }, 
-          overflow: 'auto',
-          '&::-webkit-scrollbar': {
-            width: '6px'
-          },
-          '&::-webkit-scrollbar-track': {
-            backgroundColor: '#f1f1f1',
-            borderRadius: '3px'
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: '#888',
-            borderRadius: '3px',
-            '&:hover': {
-              backgroundColor: '#555'
-            }
-          }
-        }}>
-          {events.length === 0 ? (
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-              אין אירועים מתוכננים
+        {isLoading ? (
+          <Box sx={{ width: '100%', mt: 2 }}>
+            <LinearProgress 
+              sx={{ 
+                height: 3,
+                backgroundColor: 'rgba(179, 209, 53, 0.2)',
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: 'rgb(179, 209, 53)'
+                }
+              }} 
+            />
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 1 }}>
+              טוען אירועים...
             </Typography>
-          ) : (
-            events.map((event, index) => (
+          </Box>
+        ) : (
+          <Box sx={{ 
+            maxHeight: { xs: 'none', lg: '500px' }, 
+            overflow: 'auto',
+            '&::-webkit-scrollbar': {
+              width: '6px'
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: '#f1f1f1',
+              borderRadius: '3px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: '#888',
+              borderRadius: '3px',
+              '&:hover': {
+                backgroundColor: '#555'
+              }
+            }
+          }}>
+            {events.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+                אין אירועים מתוכננים
+              </Typography>
+            ) : (
+              events.map((event, index) => (
               <Box 
-                key={event.eventId} 
+                key={event.id} 
                 sx={{ 
                   p: 2.5, 
                   mb: 2, 
@@ -134,17 +116,30 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
                   }
                 }}
               >
-                <Typography 
-                  variant="subtitle1" 
-                  color="primary"
-                  sx={{ 
-                    fontWeight: 'bold', 
-                    mb: 1,
-                    fontSize: '1.1rem'
-                  }}
-                >
-                  {event.title}
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Typography 
+                    variant="subtitle1" 
+                    color="primary"
+                    sx={{ 
+                      fontWeight: 'bold', 
+                      fontSize: '1.1rem'
+                    }}
+                  >
+                    {event.title}
+                  </Typography>
+                  <Tooltip title="צפייה בפרטי האירוע">
+                    <IconButton 
+                      size="small" 
+                      onClick={() => handleViewEvent(event)}
+                      sx={{ 
+                        color: 'primary.main',
+                        '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.1)' }
+                      }}
+                    >
+                      <VisibilityIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
                 
                 <Typography 
                   variant="body2" 
@@ -163,21 +158,21 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
                   gap: { xs: 1, sm: 2 },
                   alignItems: { xs: 'flex-start', sm: 'center' }
                 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box key={`date-${event.id}`} sx={{ display: 'flex', alignItems: 'center' }}>
                     <CalendarIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
                     <Typography variant="caption" sx={{ fontWeight: 'medium' }}>
                       {event.date}
                     </Typography>
                   </Box>
                   
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box key={`time-${event.id}`} sx={{ display: 'flex', alignItems: 'center' }}>
                     <TimeIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
                     <Typography variant="caption" sx={{ fontWeight: 'medium' }}>
                       {event.time}
                     </Typography>
                   </Box>
                   
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box key={`location-${event.id}`} sx={{ display: 'flex', alignItems: 'center' }}>
                     <RoomIcon sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
                     <Typography variant="caption" sx={{ fontWeight: 'medium' }}>
                       {event.location}
@@ -185,9 +180,10 @@ const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
                   </Box>
                 </Box>
               </Box>
-            ))
-          )}
-        </Box>
+              ))
+            )}
+          </Box>
+        )}
       </CardContent>
     </Card>
   );

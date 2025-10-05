@@ -3,6 +3,8 @@
 // Handles data fetching, filtering, and actions
 
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAdminResponsive } from '../hooks/useResponsive';
 import {
   Box,
   Container,
@@ -30,7 +32,8 @@ import {
   ListItem,
   ListItemText,
   ListItemButton,
-  FormHelperText
+  FormHelperText,
+  LinearProgress
 } from '@mui/material';
 import { CUSTOM_COLORS, TYPOGRAPHY } from '../constants/theme';
 import { User } from '../types';
@@ -45,16 +48,19 @@ import {
   Delete as DeleteIcon
 } from '@mui/icons-material';
 import { StudentsTable } from '../components/tables';
-import { Student } from '../types/Student';
+import StudentsChart from '../components/StudentsChart';
+import { Student, Course as CourseType, Task as TaskType } from '../types';
 import { 
   getAllStudents, 
   getStudentsStatistics,
   getStudentsByStatus,
   getHighGPAStudents
 } from '../data/studentsData';
+import { addStudent, listStudents, deleteStudent } from '../fireStore/studentsService';
+import { addCourse, listCourses, updateCourse, deleteCourse } from '../fireStore/coursesService';
+import { addTask, listTasks, deleteTask } from '../fireStore/tasksService';
 
 interface TaskFormData {
-  taskId: string;
   title: string;
   type: string;
   date: string;
@@ -73,6 +79,7 @@ interface CourseFormData {
 }
 
 interface Task extends TaskFormData {
+  id: string;
   createdAt: string;
 }
 
@@ -126,18 +133,21 @@ interface TaskValidationErrors {
 }
 
 const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { isAdminSupported, adminMessage } = useAdminResponsive();
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [statistics, setStatistics] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Form states
   const [taskCounter, setTaskCounter] = useState(1);
   const [courseCounter, setCourseCounter] = useState(1);
   const [taskFormData, setTaskFormData] = useState<TaskFormData>({
-    taskId: `TASK-${String(taskCounter).padStart(3, '0')}`,
     title: '',
     type: '',
     date: '',
@@ -201,18 +211,27 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
     setStatistics(getStudentsStatistics());
   }, []);
 
-  // Handle view student
+  // Handle deep link editing - open edit dialog if ID is in URL
+  useEffect(() => {
+    if (id && students.length > 0) {
+      const studentToEdit = students.find(student => student.id === id);
+      if (studentToEdit) {
+        setSelectedStudent(studentToEdit);
+        setViewDialogOpen(true);
+        // Clear the URL parameter
+        navigate('/students', { replace: true });
+      }
+    }
+  }, [id, students, navigate]);
+
+  // Handle view student - navigate to student details page
   const handleViewStudent = (student: Student) => {
-    setSelectedStudent(student);
-    setViewDialogOpen(true);
+    navigate(`/students/${student.id}`);
   };
 
-  // Handle edit student (placeholder for future implementation)
+  // Handle edit student - navigate to edit page
   const handleEditStudent = (student: Student) => {
-    setNotification({
-      message: `עריכת סטודנט: ${student.fullName} - פונקציונליות תתווסף בהמשך`,
-      type: 'success'
-    });
+    navigate(`/students/${student.id}/edit`);
   };
 
   // Handle delete student
@@ -222,32 +241,27 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
   };
 
   // Confirm delete
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (selectedStudent) {
-      // Update students state
-      setStudents(prev => {
-        const updatedStudents = prev.filter(s => s.id !== selectedStudent.id);
-        
-        // Save updated data to localStorage
-        try {
-          const studentsJson = JSON.stringify(updatedStudents);
-          localStorage.setItem('campus-students-data', studentsJson);
-          
-          // Dispatch custom event to notify other components
-          window.dispatchEvent(new CustomEvent('studentsUpdated'));
-        } catch (error) {
-          // Error saving to localStorage
-        }
-        
-        return updatedStudents;
-      });
-      
-      setNotification({
-        message: `הסטודנט ${selectedStudent.fullName} נמחק בהצלחה`,
-        type: 'success'
-      });
-      setDeleteDialogOpen(false);
-      setSelectedStudent(null);
+      try {
+        await deleteStudent(selectedStudent.id);
+        // Update students state after Firestore deletion
+        setStudents(prev => prev.filter(s => s.id !== selectedStudent.id));
+        // Dispatch custom event to notify other components
+        window.dispatchEvent(new CustomEvent('studentsUpdated'));
+        setNotification({
+          message: `הסטודנט ${selectedStudent.fullName} נמחק בהצלחה`,
+          type: 'success'
+        });
+      } catch (error) {
+        setNotification({
+          message: 'שגיאה במחיקת הסטודנט מהמסד',
+          type: 'error'
+        });
+      } finally {
+        setDeleteDialogOpen(false);
+        setSelectedStudent(null);
+      }
     }
   };
 
@@ -415,19 +429,16 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
         const updatedStudents = [...students, newStudent];
         setStudents(updatedStudents);
 
-        // Save to localStorage
-        const studentsJson = JSON.stringify(updatedStudents);
-        localStorage.setItem('campus-students-data', studentsJson);
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('studentsUpdated'));
+        // Students are now managed through Firestore
+        addStudent(newStudent)
+        .then(() => {
+          window.dispatchEvent(new CustomEvent('studentsUpdated'));
 
-        setNotification({
-          message: `סטודנט חדש נוסף בהצלחה! מספר סטודנט: ${newStudentNumber}`,
-          type: 'success'
-        });
-        
-        // Reset form and close dialog
+          setNotification({
+            message: `סטודנט חדש נוסף בהצלחה! מספר סטודנט: ${newStudentNumber}`,
+            type: 'success'
+          });
+                  // Reset form and close dialog
         setStudentFormData({
           firstName: '',
           lastName: '',
@@ -446,6 +457,43 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
         setStudentTouched({});
         setStudentFormDialogOpen(false);
         
+      })
+        .catch((error) => {
+          setNotification({
+            message: 'שגיאה בהוספת סטודנט חדש',
+            type: 'error'
+          });
+        });
+        
+        
+        
+        // Dispatch custom event to notify other components
+        //window.dispatchEvent(new CustomEvent('studentsUpdated'));
+
+        // setNotification({
+        //   message: `סטודנט חדש נוסף בהצלחה! מספר סטודנט: ${newStudentNumber}`,
+        //   type: 'success'
+        // });
+        
+        // Reset form and close dialog
+        // setStudentFormData({
+        //   firstName: '',
+        //   lastName: '',
+        //   email: '',
+        //   phone: '',
+        //   address: '',
+        //   department: 'מדעי המחשב',
+        //   year: 1,
+        //   semester: 'א',
+        //   city: 'תל אביב',
+        //   emergencyContact: '',
+        //   emergencyPhone: '',
+        //   notes: ''
+        // });
+        // setStudentErrors({});
+        // setStudentTouched({});
+        // setStudentFormDialogOpen(false);
+        
       } catch (error) {
         // Error adding new student
         setNotification({
@@ -453,7 +501,9 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
           type: 'error'
         });
       }
-    } else {
+
+    }
+     else {
       setNotification({
         message: 'יש שגיאות בטופס. אנא בדוק את השדות המסומנים.',
         type: 'error'
@@ -637,62 +687,51 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
 
 
 
-  // Force reload students data from demo data
-  const forceReloadStudents = () => {
-    // Clear existing data
-    localStorage.removeItem('campus-students-data');
-    // Load fresh data
-    const allStudents = getAllStudents();
-    setStudents(allStudents);
-    setStatistics(getStudentsStatistics());
-    localStorage.setItem('campus-students-data', JSON.stringify(allStudents));
-
+  // Force reload students data from Firestore
+  const forceReloadStudents = async () => {
+    setIsLoading(true);
+    try {
+      // Load fresh data from Firestore
+      const allStudents = await listStudents();
+      setStudents(allStudents);
+      setStatistics(getStudentsStatistics());
+    } catch (error) {
+      console.error('Error loading students from Firestore:', error);
+      // Fallback to demo data if Firestore fails
+      const allStudents = getAllStudents();
+      setStudents(allStudents);
+      setStatistics(getStudentsStatistics());
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Load students from localStorage on component mount
+
+  // Load students from Firestore on component mount
   useEffect(() => {
     // Force reload on first load to ensure we have the correct data
     forceReloadStudents();
 
-    const loadCoursesFromLocalStorage = () => {
+    const loadCoursesFromFirestore = async () => {
       try {
-        const savedCourses = localStorage.getItem('campus-courses-data');
-        if (savedCourses) {
-          const parsedCourses = JSON.parse(savedCourses);
-          if (parsedCourses.length === 0) {
-            // If courses array is empty, create initial courses
-            const courseNames = [
-              'מבוא למדעי המחשב',
-              'אלגוריתמים',
-              'מבני נתונים',
-              'מסדי נתונים',
-              'תכנות מונחה עצמים',
-              'רשתות מחשבים',
-              'אבטחת מידע',
-              'בינה מלאכותית',
-              'פיתוח אפליקציות',
-              'ניהול פרויקטים'
-            ];
-            
-            const initialCourses: Course[] = Array.from({ length: 10 }, (_, index) => ({
-              courseId: `COURSE-${String(index + 1).padStart(3, '0')}`,
-              courseName: courseNames[index],
-              lecturer: `ד"ר ${['כהן', 'לוי', 'ישראלי', 'אברהם', 'גולד'][index % 5]}`,
-              semester: ['a', 'b', 'summer'][index % 3],
-              year: '2025',
-              students: '0',
-              credits: String((index % 4) + 2),
-              selectedStudents: [],
-              createdAt: new Date().toLocaleString('he-IL')
-            }));
-            
-            setCourses(initialCourses);
-            localStorage.setItem('campus-courses-data', JSON.stringify(initialCourses));
-          } else {
-            setCourses(parsedCourses);
-          }
+        // Load courses from Firestore
+        const firestoreCourses = await listCourses();
+        if (firestoreCourses.length > 0) {
+          // Convert Firestore courses to local format
+          const localCourses: Course[] = firestoreCourses.map(course => ({
+            courseId: course.id,
+            courseName: course.name,
+            lecturer: course.instructor,
+            semester: 'a', // Default semester
+            year: '2025', // Default year
+            students: '0',
+            credits: course.credits.toString(),
+            selectedStudents: [],
+            createdAt: new Date().toLocaleString('he-IL')
+          }));
+          setCourses(localCourses);
         } else {
-          // Create initial courses if none exist
+          // Create initial courses if none exist in Firestore
           const courseNames = [
             'מבוא למדעי המחשב',
             'אלגוריתמים',
@@ -719,49 +758,47 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
           }));
           
           setCourses(initialCourses);
-          localStorage.setItem('campus-courses-data', JSON.stringify(initialCourses));
+          
+          // Save initial courses to Firestore
+          for (const course of initialCourses) {
+            try {
+              const courseData = {
+                id: course.courseId,
+                name: course.courseName,
+                code: course.courseId,
+                instructor: course.lecturer,
+                credits: parseInt(course.credits),
+                status: 'active' as const,
+                progress: 0
+              };
+              await addCourse(new CourseType(courseData));
+            } catch (error) {
+              console.error('Error adding initial course to Firestore:', error);
+            }
+          }
         }
       } catch (error) {
-        // Error loading courses from localStorage
+        console.error('Error loading courses from Firestore:', error);
       }
     };
 
-    const loadTasksFromLocalStorage = () => {
+    const loadTasksFromFirestore = async () => {
       try {
-        const savedTasks = localStorage.getItem('campus-tasks-data');
-        if (savedTasks) {
-          const parsedTasks = JSON.parse(savedTasks);
-          if (parsedTasks.length === 0) {
-            // If tasks array is empty, create initial tasks
-            const taskTitles = [
-              'מטלת תכנות בסיסית',
-              'מבחן אלגוריתמים',
-              'בוחן מבני נתונים',
-              'הצגת פרויקט',
-              'מטלת מסדי נתונים',
-              'מבחן רשתות',
-              'בוחן אבטחה',
-              'הצגת בינה מלאכותית',
-              'מטלת פיתוח',
-              'מבחן ניהול פרויקטים'
-            ];
-            
-            const initialTasks: Task[] = Array.from({ length: 10 }, (_, index) => ({
-              taskId: `TASK-${String(index + 1).padStart(3, '0')}`,
-              title: taskTitles[index],
-              type: ['assignment', 'exam', 'quiz', 'presentation'][index % 4],
-              date: new Date(Date.now() + (index + 1) * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-              course: `COURSE-${String(index + 1).padStart(3, '0')}`,
-              createdAt: new Date().toLocaleString('he-IL')
-            }));
-            
-            setTasks(initialTasks);
-            localStorage.setItem('campus-tasks-data', JSON.stringify(initialTasks));
-          } else {
-            setTasks(parsedTasks);
-          }
+        // Load tasks from Firestore
+        const firestoreTasks = await listTasks();
+        if (firestoreTasks.length > 0) {
+          // Convert Firestore tasks to local format
+          const localTasks: Task[] = firestoreTasks.map(task => ({
+            id: task.id,
+            title: task.title,
+            type: task.type,
+            date: task.dueDate,
+            course: task.course,
+            createdAt: new Date().toLocaleString('he-IL')
+          }));
+          setTasks(localTasks);
         } else {
-          // Create initial tasks if none exist
+          // Create initial tasks if none exist in Firestore
           const taskTitles = [
             'מטלת תכנות בסיסית',
             'מבחן אלגוריתמים',
@@ -776,7 +813,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
           ];
           
           const initialTasks: Task[] = Array.from({ length: 10 }, (_, index) => ({
-            taskId: `TASK-${String(index + 1).padStart(3, '0')}`,
+            id: `task-${index + 1}`,
             title: taskTitles[index],
             type: ['assignment', 'exam', 'quiz', 'presentation'][index % 4],
             date: new Date(Date.now() + (index + 1) * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -785,15 +822,33 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
           }));
           
           setTasks(initialTasks);
-          localStorage.setItem('campus-tasks-data', JSON.stringify(initialTasks));
+          
+          // Save initial tasks to Firestore
+          for (const task of initialTasks) {
+            try {
+              const taskData = {
+                id: task.id,
+                title: task.title,
+                type: task.type as 'exam' | 'assignment' | 'homework' | 'quiz' | 'presentation',
+                course: task.course,
+                dueDate: task.date,
+                priority: 'medium' as const,
+                status: 'pending' as const,
+                description: task.title
+              };
+              await addTask(new TaskType(taskData));
+            } catch (error) {
+              console.error('Error adding initial task to Firestore:', error);
+            }
+          }
         }
       } catch (error) {
-        // Error loading tasks from localStorage
+        console.error('Error loading tasks from Firestore:', error);
       }
     };
 
-    loadCoursesFromLocalStorage();
-    loadTasksFromLocalStorage();
+    loadCoursesFromFirestore();
+    loadTasksFromFirestore();
   }, []);
 
   // Task form handlers
@@ -828,9 +883,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
   const handleTaskSubmit = () => {
     // Mark all fields as touched
     const allTouched = Object.keys(taskFormData).reduce((acc, field) => {
-      if (field !== 'taskId' && field !== 'createdAt') {
-        acc[field] = true;
-      }
+      acc[field] = true;
       return acc;
     }, {} as Record<string, boolean>);
     setTaskTouched(allTouched);
@@ -849,6 +902,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
 
       // Create new task with creation date
       const newTask: Task = {
+        id: `task-${Date.now()}`, // Generate unique ID using timestamp
         ...taskFormData,
         createdAt: new Date().toLocaleString('he-IL')
       };
@@ -857,24 +911,32 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       const updatedTasks = [...tasks, newTask];
       setTasks(updatedTasks);
 
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-tasks-data', JSON.stringify(updatedTasks));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('tasksUpdated'));
-      } catch (error) {
-        // Error saving tasks to localStorage
-      }
+      // Persist to Firestore and notify
+      (async () => {
+        try {
+          const taskData = {
+            id: newTask.id,
+            title: newTask.title,
+            type: newTask.type as 'exam' | 'assignment' | 'homework' | 'quiz' | 'presentation',
+            course: newTask.course,
+            dueDate: newTask.date,
+            priority: 'medium' as const,
+            status: 'pending' as const,
+            description: newTask.title
+          };
+          await addTask(new TaskType(taskData));
+          window.dispatchEvent(new CustomEvent('tasksUpdated'));
+        } catch (error) {
+          console.error('Error saving task to Firestore:', error);
+        }
+      })();
 
       setNotification({
-        message: `מטלה חדשה נוצרה בהצלחה! מזהה: ${taskFormData.taskId}`,
+        message: `מטלה חדשה נוצרה בהצלחה!`,
         type: 'success'
       });
       
-      setTaskCounter(prev => prev + 1);
       setTaskFormData({
-        taskId: `TASK-${String(taskCounter + 1).padStart(3, '0')}`,
         title: '',
         type: '',
         date: '',
@@ -941,15 +1003,24 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       const updatedCourses = [...courses, newCourse];
       setCourses(updatedCourses);
 
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-courses-data', JSON.stringify(updatedCourses));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('coursesUpdated'));
-      } catch (error) {
-        // Error saving courses to localStorage
-      }
+      // Persist to Firestore and notify
+      (async () => {
+        try {
+          const courseData = {
+            id: newCourse.courseId,
+            name: newCourse.courseName,
+            code: newCourse.courseId,
+            instructor: newCourse.lecturer,
+            credits: parseInt(newCourse.credits),
+            status: 'active' as const,
+            progress: 0
+          };
+          await addCourse(new CourseType(courseData));
+          window.dispatchEvent(new CustomEvent('coursesUpdated'));
+        } catch (error) {
+          console.error('Error saving course to Firestore:', error);
+        }
+      })();
 
       setNotification({
         message: `קורס חדש נוצר בהצלחה! מזהה: ${courseFormData.courseId}`,
@@ -1040,15 +1111,24 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       
       setCourses(updatedCourses);
       
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-courses-data', JSON.stringify(updatedCourses));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('coursesUpdated'));
-      } catch (error) {
-        // Error saving courses to localStorage
-      }
+      // Persist to Firestore (update course students) and notify
+      (async () => {
+        try {
+          const courseData = {
+            id: editingCourse.courseId,
+            name: editingCourse.courseName,
+            code: editingCourse.courseId,
+            instructor: editingCourse.lecturer,
+            credits: parseInt(editingCourse.credits),
+            status: 'active' as const,
+            progress: 0
+          };
+          await updateCourse(new CourseType(courseData));
+          window.dispatchEvent(new CustomEvent('coursesUpdated'));
+        } catch (error) {
+          console.error('Error updating course students in Firestore:', error);
+        }
+      })();
 
       setNotification({
         message: `עודכנו ${selectedCount} סטודנטים בקורס ${editingCourse.courseName}`,
@@ -1096,18 +1176,18 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
 
   const confirmDeleteTask = () => {
     if (taskToDelete) {
-      const updatedTasks = tasks.filter(task => task.taskId !== taskToDelete.taskId);
+      const updatedTasks = tasks.filter(task => task.id !== taskToDelete.id);
       setTasks(updatedTasks);
       
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-tasks-data', JSON.stringify(updatedTasks));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('tasksUpdated'));
-      } catch (error) {
-        // Error saving tasks to localStorage
-      }
+      // Delete from Firestore and notify
+      (async () => {
+        try {
+          await deleteTask(taskToDelete.id);
+          window.dispatchEvent(new CustomEvent('tasksUpdated'));
+        } catch (error) {
+          console.error('Error deleting task from Firestore:', error);
+        }
+      })();
       
       setNotification({
         message: `המטלה "${taskToDelete.title}" נמחקה בהצלחה`,
@@ -1123,15 +1203,15 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       const updatedCourses = courses.filter(course => course.courseId !== courseToDelete.courseId);
       setCourses(updatedCourses);
       
-      // Save to localStorage
-      try {
-        localStorage.setItem('campus-courses-data', JSON.stringify(updatedCourses));
-        
-        // Dispatch custom event to notify other components
-        window.dispatchEvent(new CustomEvent('coursesUpdated'));
-      } catch (error) {
-        // Error saving courses to localStorage
-      }
+      // Delete from Firestore and notify
+      (async () => {
+        try {
+          await deleteCourse(courseToDelete.courseId);
+          window.dispatchEvent(new CustomEvent('coursesUpdated'));
+        } catch (error) {
+          console.error('Error deleting course from Firestore:', error);
+        }
+      })();
       
       setNotification({
         message: `הקורס "${courseToDelete.courseName}" נמחק בהצלחה`,
@@ -1142,8 +1222,39 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
     }
   };
 
+  // Show admin message if not desktop
+  if (!isAdminSupported) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h5" color="error" gutterBottom>
+            {adminMessage}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            מסכי הניהול זמינים רק במחשבים שולחניים
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
+      {/* Loading Progress */}
+      {isLoading && (
+        <Box sx={{ width: '100%', mb: 2 }}>
+          <LinearProgress 
+            sx={{ 
+              height: 4,
+              backgroundColor: 'rgba(179, 209, 53, 0.2)',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: 'rgb(179, 209, 53)'
+              }
+            }} 
+          />
+        </Box>
+      )}
+
       {/* Page Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" gutterBottom sx={{ ...TYPOGRAPHY.h4, color: CUSTOM_COLORS.primary }}>
@@ -1155,73 +1266,10 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
         </Typography>
       </Box>
 
-      {/* Statistics Cards */}
-      {statistics && (
-        <Box sx={{ 
-          display: 'grid', 
-          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-          gap: 3,
-          mb: 4 
-        }}>
-          <Card sx={{ 
-            border: '2px solid rgb(179, 209, 53)',
-            '&:hover': { transform: 'translateY(-2px)', boxShadow: 3 }
-          }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <PeopleIcon sx={{ fontSize: 40, color: 'rgb(179, 209, 53)', mb: 1 }} />
-              <Typography variant="h4" fontWeight="bold">
-                {statistics.total}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                סה"כ סטודנטים
-              </Typography>
-            </CardContent>
-          </Card>
-          
-          <Card sx={{ 
-            border: '2px solid rgb(179, 209, 53)',
-            '&:hover': { transform: 'translateY(-2px)', boxShadow: 3 }
-          }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <SchoolIcon sx={{ fontSize: 40, color: 'rgb(179, 209, 53)', mb: 1 }} />
-              <Typography variant="h4" fontWeight="bold">
-                {statistics.active}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                סטודנטים פעילים
-              </Typography>
-            </CardContent>
-          </Card>
-          
-          <Card sx={{ 
-            border: '2px solid rgb(179, 209, 53)',
-            '&:hover': { transform: 'translateY(-2px)', boxShadow: 3 }
-          }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <TrendingUpIcon sx={{ fontSize: 40, color: 'rgb(179, 209, 53)', mb: 1 }} />
-              <Typography variant="h4" fontWeight="bold">
-                {statistics.averageGPA}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                ממוצע ציונים
-              </Typography>
-            </CardContent>
-          </Card>
-          
-          <Card sx={{ 
-            border: '2px solid rgb(179, 209, 53)',
-            '&:hover': { transform: 'translateY(-2px)', boxShadow: 3 }
-          }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <WarningIcon sx={{ fontSize: 40, color: 'rgb(179, 209, 53)', mb: 1 }} />
-              <Typography variant="h4" fontWeight="bold">
-                {getHighGPAStudentsList().length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                סטודנטים מצטיינים
-              </Typography>
-            </CardContent>
-          </Card>
+      {/* Students Chart */}
+      {students.length > 0 && (
+        <Box sx={{ mb: 4 }}>
+          <StudentsChart students={students} />
         </Box>
       )}
 
@@ -1239,16 +1287,32 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
           הוספת סטודנט חדש
         </Button>
 
-
       </Box>
 
       {/* Students Table */}
-      <StudentsTable
-        students={students}
-        onViewStudent={handleViewStudent}
-        onEditStudent={handleEditStudent}
-        onDeleteStudent={handleDeleteStudent}
-      />
+      {isLoading ? (
+        <Box sx={{ width: '100%', mt: 4 }}>
+          <LinearProgress 
+            sx={{ 
+              height: 4,
+              backgroundColor: 'rgba(179, 209, 53, 0.2)',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: 'rgb(179, 209, 53)'
+              }
+            }} 
+          />
+          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 2 }}>
+            טוען נתוני סטודנטים...
+          </Typography>
+        </Box>
+      ) : (
+        <StudentsTable
+          students={students}
+          onViewStudent={handleViewStudent}
+          onEditStudent={handleEditStudent}
+          onDeleteStudent={handleDeleteStudent}
+        />
+      )}
 
       {/* Forms Section */}
       <Box sx={{ mt: 6 }}>
@@ -1289,23 +1353,6 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
             ) : (
               <>
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
-                  <TextField
-                    fullWidth
-                    label="מזהה מטלה"
-                    value={taskFormData.taskId}
-                    InputProps={{ 
-                      readOnly: true,
-                      sx: { 
-                        backgroundColor: '#f5f5f5',
-                        '& .MuiInputBase-input': {
-                          color: '#666',
-                          fontWeight: 'bold'
-                        }
-                      }
-                    }}
-                    helperText="נוצר אוטומטית"
-                    sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}
-                  />
                   <TextField
                     fullWidth
                     label="כותרת"
@@ -1618,7 +1665,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
                 </Box>
                 
                 {tasks.map((task, index) => (
-                  <Box key={task.taskId} sx={{ 
+                  <Box key={task.id} sx={{ 
                     display: 'grid', 
                     gridTemplateColumns: 'auto 1fr 1fr 1fr auto auto',
                     gap: 2,
@@ -1627,7 +1674,7 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
                     '&:hover': { backgroundColor: '#f9f9f9' },
                     '&:last-child': { borderBottom: 'none' }
                   }}>
-                    <Box sx={{ fontWeight: 'bold', color: 'rgb(179, 209, 53)' }}>{task.taskId}</Box>
+                    <Box sx={{ fontWeight: 'bold', color: 'rgb(179, 209, 53)' }}>{task.id}</Box>
                     <Box>{task.title}</Box>
                     <Box>
                       <Chip 
@@ -1792,8 +1839,11 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="body2" color="text.secondary">ממוצע ציונים:</Typography>
                   <Chip 
-                    label={selectedStudent.gpa.toFixed(2)} 
-                    color={selectedStudent.gpa >= 3.5 ? 'success' : 'warning'}
+                    label={selectedStudent.gpa <= 4.0 ? (selectedStudent.gpa * 25).toFixed(1) : selectedStudent.gpa.toFixed(1)} 
+                    color={selectedStudent.gpa <= 4.0 ? 
+                      (selectedStudent.gpa * 25 >= 87.5 ? 'success' : selectedStudent.gpa * 25 >= 75 ? 'warning' : 'error') :
+                      (selectedStudent.gpa >= 87.5 ? 'success' : selectedStudent.gpa >= 75 ? 'warning' : 'error')
+                    }
                     size="small"
                   />
                 </Box>

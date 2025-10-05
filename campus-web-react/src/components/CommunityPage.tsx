@@ -13,7 +13,8 @@ import {
   Button,
   Alert,
   Snackbar,
-  FormHelperText
+  FormHelperText,
+  LinearProgress
 } from '@mui/material';
 import { CUSTOM_COLORS, TYPOGRAPHY, BUTTON_STYLES } from '../constants/theme';
 import { User } from '../types';
@@ -23,6 +24,7 @@ import {
   Clear as ClearIcon
 } from '@mui/icons-material';
 import FacilitiesCard from './dashboard/FacilitiesCard';
+import { addInquiry, listInquiries } from '../fireStore';
 
 interface CommunityPageProps {
   currentUser: User | null;
@@ -52,6 +54,9 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
     textOnPrimary: 'white'
   };
 
+  // Loading state
+  const [isLoading, setIsLoading] = useState(false);
+
   // Inquiry form state
   const [inquiryCounter, setInquiryCounter] = useState(1);
   const [inquiryFormData, setInquiryFormData] = useState<InquiryFormData>({
@@ -66,28 +71,32 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  // Load existing inquiries counter on component mount
+  // Load existing inquiries counter from Firestore on component mount
   useEffect(() => {
-    try {
-      const savedInquiries = localStorage.getItem('campus-inquiries-data');
-      if (savedInquiries) {
-        const inquiries = JSON.parse(savedInquiries);
-        if (inquiries.length > 0) {
-          // Find the highest inquiry counter
-          const maxId = Math.max(...inquiries.map((inquiry: { inquiryId: string }) => 
-            parseInt(inquiry.inquiryId.split('-')[1])
-          ));
+    const loadCounter = async () => {
+      try {
+        const inquiries = await listInquiries();
+        if (inquiries && inquiries.length > 0) {
+          // Expecting ids like "INQUIRY-001" or any string with numeric suffix after '-'
+          const numericIds = inquiries
+            .map((inq: any) => inq.id)
+            .map((id: string) => {
+              const parts = id.split('-');
+              const num = parseInt(parts[parts.length - 1]);
+              return isNaN(num) ? 0 : num;
+            });
+          const maxId = Math.max(...numericIds);
           setInquiryCounter(maxId + 1);
-          // Update form data with new counter
           setInquiryFormData(prev => ({
             ...prev,
             inquiryId: `INQUIRY-${String(maxId + 1).padStart(3, '0')}`
           }));
         }
+      } catch (e) {
+        // keep silent, UI still works
       }
-    } catch (error) {
-      // Error loading inquiries counter from localStorage
-    }
+    };
+    loadCounter();
   }, []);
 
   // Validation functions
@@ -185,7 +194,7 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
     }));
   };
 
-  const handleInquirySubmit = () => {
+  const handleInquirySubmit = async () => {
     // Mark all fields as touched
     const allTouched = Object.keys(inquiryFormData).reduce((acc, field) => {
       if (field !== 'inquiryId') {
@@ -196,9 +205,9 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
     setTouched(allTouched);
 
     if (validateForm()) {
-      // Create new inquiry object with additional metadata
+      setIsLoading(true);
       const newInquiry = {
-        inquiryId: inquiryFormData.inquiryId,
+        id: inquiryFormData.inquiryId,
         category: inquiryFormData.category as 'complaint' | 'improvement',
         description: inquiryFormData.description,
         date: inquiryFormData.date,
@@ -206,36 +215,54 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
         createdAt: new Date().toLocaleString('he-IL'),
         user: currentUser?.name || 'משתמש אלמוני'
       };
-
-      // Save to localStorage
       try {
-        const existingInquiries = localStorage.getItem('campus-inquiries-data');
-        const inquiries = existingInquiries ? JSON.parse(existingInquiries) : [];
-        const updatedInquiries = [...inquiries, newInquiry];
-        
-        localStorage.setItem('campus-inquiries-data', JSON.stringify(updatedInquiries));
-        
-        // Dispatch custom event to notify other components
+        await addInquiry(newInquiry);
         window.dispatchEvent(new CustomEvent('inquiriesUpdated'));
+        setNotification({
+          message: `פנייה חדשה נוצרה בהצלחה! מזהה: ${inquiryFormData.inquiryId}`,
+          type: 'success'
+        });
+        // Refresh counter from Firestore to avoid race conditions
+        try {
+          const inquiries = await listInquiries();
+          const numericIds = inquiries
+            .map((inq: any) => inq.id)
+            .map((id: string) => {
+              const parts = id.split('-');
+              const num = parseInt(parts[parts.length - 1]);
+              return isNaN(num) ? 0 : num;
+            });
+          const maxId = numericIds.length ? Math.max(...numericIds) : 0;
+          const next = maxId + 1;
+          setInquiryCounter(next);
+          setInquiryFormData({
+            inquiryId: `INQUIRY-${String(next).padStart(3, '0')}`,
+            category: '',
+            description: '',
+            date: '',
+            location: ''
+          });
+        } catch (_) {
+          const next = inquiryCounter + 1;
+          setInquiryCounter(next);
+          setInquiryFormData({
+            inquiryId: `INQUIRY-${String(next).padStart(3, '0')}`,
+            category: '',
+            description: '',
+            date: '',
+            location: ''
+          });
+        }
+        setErrors({});
+        setTouched({});
       } catch (error) {
-        // Error saving inquiry to localStorage
+        setNotification({
+          message: 'שגיאה בשמירת הפנייה למסד',
+          type: 'error'
+        });
+      } finally {
+        setIsLoading(false);
       }
-      
-      setNotification({
-        message: `פנייה חדשה נוצרה בהצלחה! מזהה: ${inquiryFormData.inquiryId}`,
-        type: 'success'
-      });
-      
-      setInquiryCounter(prev => prev + 1);
-      setInquiryFormData({
-        inquiryId: `INQUIRY-${String(inquiryCounter + 1).padStart(3, '0')}`,
-        category: '',
-        description: '',
-        date: '',
-        location: ''
-      });
-      setErrors({});
-      setTouched({});
     } else {
       setNotification({
         message: 'יש שגיאות בטופס. אנא בדוק את השדות המסומנים.',
@@ -262,6 +289,21 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
 
   return (
     <Container maxWidth="xl">
+      {/* Loading Progress */}
+      {isLoading && (
+        <Box sx={{ width: '100%', mb: 2 }}>
+          <LinearProgress 
+            sx={{ 
+              height: 4,
+              backgroundColor: 'rgba(179, 209, 53, 0.2)',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: 'rgb(179, 209, 53)'
+              }
+            }} 
+          />
+        </Box>
+      )}
+
       {/* Header */}
       <Box sx={{ 
         display: 'flex', 

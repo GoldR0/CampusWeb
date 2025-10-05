@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -64,6 +64,22 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser }) => {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+  // טעינת נתוני המשתמש הנוכחי
+  useEffect(() => {
+    if (currentUser) {
+      const nameParts = currentUser.name?.split(' ') || ['', ''];
+      setFormData({
+        firstName: nameParts[0] || '',
+        lastName: nameParts[1] || '',
+        email: currentUser.email || '',
+        phone: currentUser.phone || '',
+        address: currentUser.city || '', // נשתמש ב-city ככתובת
+        department: '', // נטען בהתאם לסוג המשתמש
+        year: '' // נטען בהתאם לסוג המשתמש
+      });
+    }
+  }, [currentUser]);
+
   const customColors = {
     primary: 'rgb(179, 209, 53)',
     primaryDark: 'rgb(159, 189, 33)',
@@ -123,13 +139,36 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser }) => {
     const newErrors: ValidationErrors = {};
     let isValid = true;
 
-    Object.keys(formData).forEach(field => {
+    // בדיקת שדות בסיסיים
+    const basicFields = ['firstName', 'lastName', 'email', 'phone', 'address'];
+    basicFields.forEach(field => {
       const error = validateField(field, formData[field as keyof ProfileFormData]);
       if (error) {
         newErrors[field as keyof ValidationErrors] = error;
         isValid = false;
       }
     });
+
+    // בדיקת שדות לפי סוג משתמש
+    if (currentUser?.role === 'student') {
+      const studentFields = ['department', 'year'];
+      studentFields.forEach(field => {
+        const error = validateField(field, formData[field as keyof ProfileFormData]);
+        if (error) {
+          newErrors[field as keyof ValidationErrors] = error;
+          isValid = false;
+        }
+      });
+    } else if (currentUser?.role === 'lecturer') {
+      const lecturerFields = ['department'];
+      lecturerFields.forEach(field => {
+        const error = validateField(field, formData[field as keyof ProfileFormData]);
+        if (error) {
+          newErrors[field as keyof ValidationErrors] = error;
+          isValid = false;
+        }
+      });
+    }
 
     setErrors(newErrors);
     return isValid;
@@ -163,7 +202,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser }) => {
     }));
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     // סמן את כל השדות כנגעו
     const allTouched = Object.keys(formData).reduce((acc, field) => {
       acc[field] = true;
@@ -172,13 +211,34 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser }) => {
     setTouched(allTouched);
 
     if (validateForm()) {
-      setNotification({
-        message: 'הפרופיל עודכן בהצלחה!',
-        type: 'success'
-      });
-      
-      // כאן אפשר להוסיף לוגיקה לשמירת הנתונים
-      // Profile data saved
+      try {
+        // כאן אפשר להוסיף לוגיקה לשמירת הנתונים ב-Firestore
+        // כרגע נשמור ב-localStorage לדוגמה
+        
+        const updatedUser = {
+          ...currentUser,
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          phone: formData.phone,
+          city: formData.address
+        };
+
+        // שמירה ב-localStorage (במקום Firestore כרגע)
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+        
+        setNotification({
+          message: 'הפרופיל עודכן בהצלחה!',
+          type: 'success'
+        });
+        
+        console.log('Profile updated:', updatedUser);
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        setNotification({
+          message: 'שגיאה בעדכון הפרופיל',
+          type: 'error'
+        });
+      }
     } else {
       setNotification({
         message: 'יש שגיאות בטופס. אנא בדוק את השדות המסומנים.',
@@ -188,15 +248,18 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser }) => {
   };
 
   const handleClearForm = () => {
-    setFormData({
-      firstName: currentUser?.name?.split(' ')[0] || '',
-      lastName: currentUser?.name?.split(' ')[1] || '',
-      email: currentUser?.email || '',
-      phone: currentUser?.phone || '',
-      address: '',
-      department: '',
-      year: ''
-    });
+    if (currentUser) {
+      const nameParts = currentUser.name?.split(' ') || ['', ''];
+      setFormData({
+        firstName: nameParts[0] || '',
+        lastName: nameParts[1] || '',
+        email: currentUser.email || '',
+        phone: currentUser.phone || '',
+        address: currentUser.city || '',
+        department: '',
+        year: ''
+      });
+    }
     setErrors({});
     setTouched({});
   };
@@ -347,12 +410,72 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser }) => {
               }}
             />
             
-            <FormControl fullWidth error={shouldShowError('department')} required>
-              <InputLabel>חוג</InputLabel>
-              <Select
+            {/* שדות לסטודנטים בלבד */}
+            {currentUser?.role === 'student' && (
+              <>
+                <FormControl fullWidth error={shouldShowError('department')} required>
+                  <InputLabel>חוג</InputLabel>
+                  <Select
+                    value={formData.department}
+                    onChange={(e) => handleInputChange('department', e.target.value)}
+                    onBlur={() => handleBlur('department')}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: customColors.primary
+                        }
+                      }
+                    }}
+                  >
+                    <MenuItem value="computer-science">מדעי המחשב</MenuItem>
+                    <MenuItem value="engineering">הנדסה</MenuItem>
+                    <MenuItem value="business">ניהול</MenuItem>
+                    <MenuItem value="arts">אמנויות</MenuItem>
+                    <MenuItem value="medicine">רפואה</MenuItem>
+                    <MenuItem value="law">משפטים</MenuItem>
+                  </Select>
+                  {shouldShowError('department') && (
+                    <FormHelperText>{errors.department}</FormHelperText>
+                  )}
+                </FormControl>
+                
+                <FormControl fullWidth error={shouldShowError('year')} required>
+                  <InputLabel>שנה</InputLabel>
+                  <Select
+                    value={formData.year}
+                    onChange={(e) => handleInputChange('year', e.target.value)}
+                    onBlur={() => handleBlur('year')}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: customColors.primary
+                        }
+                      }
+                    }}
+                  >
+                    <MenuItem value="1">שנה א</MenuItem>
+                    <MenuItem value="2">שנה ב</MenuItem>
+                    <MenuItem value="3">שנה ג</MenuItem>
+                    <MenuItem value="4">שנה ד</MenuItem>
+                  </Select>
+                  {shouldShowError('year') && (
+                    <FormHelperText>{errors.year}</FormHelperText>
+                  )}
+                </FormControl>
+              </>
+            )}
+            
+            {/* שדות למרצים */}
+            {currentUser?.role === 'lecturer' && (
+              <TextField
+                fullWidth
+                label="מחלקה"
                 value={formData.department}
                 onChange={(e) => handleInputChange('department', e.target.value)}
                 onBlur={() => handleBlur('department')}
+                error={shouldShowError('department')}
+                helperText={shouldShowError('department') ? errors.department : ''}
+                required
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
@@ -360,42 +483,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ currentUser }) => {
                     }
                   }
                 }}
-              >
-                <MenuItem value="computer-science">מדעי המחשב</MenuItem>
-                <MenuItem value="engineering">הנדסה</MenuItem>
-                <MenuItem value="business">ניהול</MenuItem>
-                <MenuItem value="arts">אמנויות</MenuItem>
-                <MenuItem value="medicine">רפואה</MenuItem>
-                <MenuItem value="law">משפטים</MenuItem>
-              </Select>
-              {shouldShowError('department') && (
-                <FormHelperText>{errors.department}</FormHelperText>
-              )}
-            </FormControl>
-            
-            <FormControl fullWidth error={shouldShowError('year')} required>
-              <InputLabel>שנה</InputLabel>
-              <Select
-                value={formData.year}
-                onChange={(e) => handleInputChange('year', e.target.value)}
-                onBlur={() => handleBlur('year')}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: customColors.primary
-                    }
-                  }
-                }}
-              >
-                <MenuItem value="1">שנה א</MenuItem>
-                <MenuItem value="2">שנה ב</MenuItem>
-                <MenuItem value="3">שנה ג</MenuItem>
-                <MenuItem value="4">שנה ד</MenuItem>
-              </Select>
-              {shouldShowError('year') && (
-                <FormHelperText>{errors.year}</FormHelperText>
-              )}
-            </FormControl>
+              />
+            )}
           </Box>
 
           {/* Action Buttons */}
