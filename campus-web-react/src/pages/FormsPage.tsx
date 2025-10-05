@@ -24,6 +24,7 @@ import {
 } from '@mui/material';
 import { CUSTOM_COLORS, TYPOGRAPHY, CARD_STYLES } from '../constants/theme';
 import { listLostFoundOrderedByTimestampDesc, deleteLostFoundReport } from '../fireStore/lostFoundService';
+import { listInquiries, deleteInquiry } from '../fireStore/inquiriesService';
 import { User } from '../types';
 import {
   Description as DescriptionIcon,
@@ -276,6 +277,17 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     }
   };
 
+  // Load inquiries from Firestore
+  const loadInquiriesFromFirestore = async () => {
+    try {
+      const firestoreInquiries = await listInquiries();
+      setInquiries(firestoreInquiries);
+    } catch (e) {
+      console.error('Error loading inquiries from Firestore:', e);
+      setInquiries([]);
+    }
+  };
+
   // Load events, facilities and lost-found from Firestore on component mount
   useEffect(() => {
     const loadDataFromFirestore = async () => {
@@ -284,7 +296,8 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         await Promise.all([
           loadEventsFromFirestore(),
           loadFacilitiesFromFirestore(),
-          loadLostFoundFromFirestore()
+          loadLostFoundFromFirestore(),
+          loadInquiriesFromFirestore()
         ]);
       } finally {
         setIsLoading(false);
@@ -383,6 +396,19 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     loadDataFromFirestore();
 
     // Data is now managed through Firestore, no need for localStorage listeners
+  }, []);
+
+  // Listen for inquiries updates
+  useEffect(() => {
+    const handleInquiriesUpdate = () => {
+      loadInquiriesFromFirestore();
+    };
+
+    window.addEventListener('inquiriesUpdated', handleInquiriesUpdate);
+    
+    return () => {
+      window.removeEventListener('inquiriesUpdated', handleInquiriesUpdate);
+    };
   }, []);
 
   const cleanupDuplicateFacilities = () => {
@@ -651,20 +677,30 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
     setDeleteInquiryDialogOpen(true);
   };
 
-  const confirmDeleteInquiry = () => {
+  const confirmDeleteInquiry = async () => {
     if (inquiryToDelete) {
-      const updatedInquiries = inquiries.filter(inquiry => inquiry.id !== inquiryToDelete.id);
-      setInquiries(updatedInquiries);
-      
-      // Inquiries are now managed through Firestore
-      window.dispatchEvent(new CustomEvent('inquiriesUpdated'));
-      
-      setNotification({
-        message: `הפנייה "${inquiryToDelete.id}" נמחקה בהצלחה`,
-        type: 'success'
-      });
-      setDeleteInquiryDialogOpen(false);
-      setInquiryToDelete(null);
+      try {
+        // Delete from Firestore
+        await deleteInquiry(inquiryToDelete.id);
+        
+        // Update local state
+        const updatedInquiries = inquiries.filter(inquiry => inquiry.id !== inquiryToDelete.id);
+        setInquiries(updatedInquiries);
+        
+        setNotification({
+          message: `הפנייה "${inquiryToDelete.id}" נמחקה בהצלחה`,
+          type: 'success'
+        });
+      } catch (error) {
+        console.error('Error deleting inquiry:', error);
+        setNotification({
+          message: 'שגיאה במחיקת הפנייה',
+          type: 'error'
+        });
+      } finally {
+        setDeleteInquiryDialogOpen(false);
+        setInquiryToDelete(null);
+      }
     }
   };
 
