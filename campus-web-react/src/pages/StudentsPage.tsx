@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAdminResponsive } from '../hooks/useResponsive';
 import {
   Box,
   Container,
@@ -134,6 +135,7 @@ interface TaskValidationErrors {
 const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { isAdminSupported, adminMessage } = useAdminResponsive();
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
@@ -1219,6 +1221,22 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       setCourseToDelete(null);
     }
   };
+
+  // Show admin message if not desktop
+  if (!isAdminSupported) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h5" color="error" gutterBottom>
+            {adminMessage}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            מסכי הניהול זמינים רק במחשבים שולחניים
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>

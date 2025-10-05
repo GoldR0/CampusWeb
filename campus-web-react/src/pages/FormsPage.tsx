@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAdminResponsive } from '../hooks/useResponsive';
 import { listEvents, deleteEvent, patchEvent, addEvent } from '../fireStore/eventsService';
 import { listFacilities, patchFacility } from '../fireStore/facilitiesService';
 import { Event } from '../types';
@@ -110,6 +111,7 @@ interface Inquiry {
 const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
   const { id, type } = useParams<{ id: string; type: string }>();
   const navigate = useNavigate();
+  const { isAdminSupported, adminMessage } = useAdminResponsive();
   const [activeForm, setActiveForm] = useState<string | null>(null);
   const [events, setEvents] = useState<LocalEvent[]>([]);
   const [editingEvent, setEditingEvent] = useState<LocalEvent | null>(null);
@@ -1250,6 +1252,22 @@ const FormsPage: React.FC<FormsPageProps> = ({ currentUser }) => {
         return null;
     }
   };
+
+  // Show admin message if not desktop
+  if (!isAdminSupported) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h5" color="error" gutterBottom>
+            {adminMessage}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            מסכי הניהול זמינים רק במחשבים שולחניים
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>

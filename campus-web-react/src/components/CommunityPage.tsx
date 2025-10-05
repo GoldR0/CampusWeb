@@ -13,7 +13,8 @@ import {
   Button,
   Alert,
   Snackbar,
-  FormHelperText
+  FormHelperText,
+  LinearProgress
 } from '@mui/material';
 import { CUSTOM_COLORS, TYPOGRAPHY, BUTTON_STYLES } from '../constants/theme';
 import { User } from '../types';
@@ -52,6 +53,9 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
     primaryLight: 'rgb(199, 229, 73)',
     textOnPrimary: 'white'
   };
+
+  // Loading state
+  const [isLoading, setIsLoading] = useState(false);
 
   // Inquiry form state
   const [inquiryCounter, setInquiryCounter] = useState(1);
@@ -201,6 +205,7 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
     setTouched(allTouched);
 
     if (validateForm()) {
+      setIsLoading(true);
       const newInquiry = {
         id: inquiryFormData.inquiryId,
         category: inquiryFormData.category as 'complaint' | 'improvement',
@@ -255,6 +260,8 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
           message: 'שגיאה בשמירת הפנייה למסד',
           type: 'error'
         });
+      } finally {
+        setIsLoading(false);
       }
     } else {
       setNotification({
@@ -282,6 +289,21 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
 
   return (
     <Container maxWidth="xl">
+      {/* Loading Progress */}
+      {isLoading && (
+        <Box sx={{ width: '100%', mb: 2 }}>
+          <LinearProgress 
+            sx={{ 
+              height: 4,
+              backgroundColor: 'rgba(179, 209, 53, 0.2)',
+              '& .MuiLinearProgress-bar': {
+                backgroundColor: 'rgb(179, 209, 53)'
+              }
+            }} 
+          />
+        </Box>
+      )}
+
       {/* Header */}
       <Box sx={{ 
         display: 'flex', 
