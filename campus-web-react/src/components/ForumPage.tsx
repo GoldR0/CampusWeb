@@ -154,7 +154,7 @@ const ForumPage: React.FC<ForumPageProps> = ({ currentUser }) => {
     };
 
     loadData();
-  }, [currentUser]);
+  }, [currentUser, selectedCourse]);
 
   // Real-time message updates using Firestore listeners
   useEffect(() => {

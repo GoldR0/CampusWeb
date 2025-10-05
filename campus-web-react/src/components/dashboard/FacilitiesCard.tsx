@@ -44,11 +44,30 @@ const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
             status: facility.status,
             lastUpdated: new Date().toLocaleString('he-IL')
           }));
-          setManagedFacilities(localFacilities);
-          setFacilities(localFacilities);
+          
+          // Remove duplicates by name - keep only the first occurrence
+          const uniqueFacilities = localFacilities.filter((facility, index, self) => 
+            index === self.findIndex(f => f.name === facility.name)
+          );
+          
+          // Filter to only show the 5 required facilities
+          const requiredFacilities = uniqueFacilities.filter(facility => 
+            ['ספרייה', 'חניה', 'קפיטריה', 'חדר כושר', 'מעבדת מחשבים'].includes(facility.name)
+          );
+          
+          setManagedFacilities(requiredFacilities);
+          setFacilities(requiredFacilities);
         } else {
-          setManagedFacilities([]);
-          setFacilities([]);
+          // Create default facilities if none exist
+          const defaultFacilities: ManagedFacility[] = [
+            { id: 'facility-1', name: 'ספרייה', type: 'library', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
+            { id: 'facility-2', name: 'חניה', type: 'parking', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
+            { id: 'facility-3', name: 'קפיטריה', type: 'cafeteria', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') },
+            { id: 'facility-4', name: 'חדר כושר', type: 'gym', status: 'closed', lastUpdated: new Date().toLocaleString('he-IL') },
+            { id: 'facility-5', name: 'מעבדת מחשבים', type: 'library', status: 'open', lastUpdated: new Date().toLocaleString('he-IL') }
+          ];
+          setManagedFacilities(defaultFacilities);
+          setFacilities(defaultFacilities);
         }
       } catch (error) {
         console.error('Error loading facilities from Firestore:', error);
@@ -88,6 +107,7 @@ const FacilitiesCard: React.FC<FacilitiesCardProps> = ({ customColors }) => {
     // Fallback to name-based matching for demo facilities
     switch (facilityName) {
       case 'ספרייה':
+      case 'מעבדת מחשבים':
         return <LibraryIcon sx={{ fontSize: 24, color: customColors.primary }} />;
       case 'קפיטריה':
         return <CafeteriaIcon sx={{ fontSize: 24, color: customColors.primary }} />;

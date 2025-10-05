@@ -9,7 +9,6 @@ import {
   Box,
   Container,
   Typography,
-  Paper,
   Card,
   CardContent,
   Button,
@@ -41,8 +40,6 @@ import {
   Add as AddIcon,
   School as SchoolIcon,
   People as PeopleIcon,
-  TrendingUp as TrendingUpIcon,
-  Warning as WarningIcon,
   Assignment as AssignmentIcon,
   Book as BookIcon,
   Delete as DeleteIcon
@@ -52,9 +49,7 @@ import StudentsChart from '../components/StudentsChart';
 import { Student, Course as CourseType, Task as TaskType } from '../types';
 import { 
   getAllStudents, 
-  getStudentsStatistics,
-  getStudentsByStatus,
-  getHighGPAStudents
+  getStudentsStatistics
 } from '../data/studentsData';
 import { addStudent, listStudents, deleteStudent } from '../fireStore/studentsService';
 import { addCourse, listCourses, updateCourse, deleteCourse } from '../fireStore/coursesService';
@@ -141,11 +136,9 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  const [statistics, setStatistics] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   
   // Form states
-  const [taskCounter, setTaskCounter] = useState(1);
   const [courseCounter, setCourseCounter] = useState(1);
   const [taskFormData, setTaskFormData] = useState<TaskFormData>({
     title: '',
@@ -206,10 +199,6 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
   const [taskErrors, setTaskErrors] = useState<TaskValidationErrors>({});
   const [taskTouched, setTaskTouched] = useState<Record<string, boolean>>({});
 
-  // Load statistics on component mount
-  useEffect(() => {
-    setStatistics(getStudentsStatistics());
-  }, []);
 
   // Handle deep link editing - open edit dialog if ID is in URL
   useEffect(() => {
@@ -265,9 +254,6 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
     }
   };
 
-  // Get statistics
-  const getActiveStudents = () => getStudentsByStatus('active');
-  const getHighGPAStudentsList = () => getHighGPAStudents();
 
   // Validation functions for student form
   const validateStudentName = (name: string, fieldName: string): string | undefined => {
@@ -643,10 +629,6 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
     return undefined;
   };
 
-  const validateTaskRequired = (value: string, fieldName: string): string | undefined => {
-    if (!value || value.trim() === '') return `${fieldName} הוא שדה חובה`;
-    return undefined;
-  };
 
   const validateTaskField = (field: string, value: string): string | undefined => {
     switch (field) {
@@ -694,13 +676,11 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
       // Load fresh data from Firestore
       const allStudents = await listStudents();
       setStudents(allStudents);
-      setStatistics(getStudentsStatistics());
     } catch (error) {
       console.error('Error loading students from Firestore:', error);
       // Fallback to demo data if Firestore fails
       const allStudents = getAllStudents();
       setStudents(allStudents);
-      setStatistics(getStudentsStatistics());
     } finally {
       setIsLoading(false);
     }
@@ -1145,12 +1125,6 @@ const StudentsPage: React.FC<{ currentUser: User | null }> = ({ currentUser }) =
     }));
   };
 
-  const getCourseStudentNames = (course: Course) => {
-    return (course.selectedStudents || [])
-      .map(studentId => students.find(s => s.id === studentId)?.fullName)
-      .filter(Boolean)
-      .join(', ');
-  };
 
   // Delete functions
   const handleDeleteTask = (task: Task) => {

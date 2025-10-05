@@ -121,7 +121,6 @@ const CommunityPage: React.FC<CommunityPageProps> = ({ currentUser }) => {
 
   const validateDate = (date: string): string | undefined => {
     if (!date) return 'תאריך הוא שדה חובה';
-    const selectedDate = new Date(date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
