@@ -5,9 +5,6 @@ import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/s
 import { CssBaseline } from '@mui/material';
 import './index.css';
 import App from './App';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { queryClient } from './queryClient';
 
 const theme = responsiveFontSizes(createTheme({
   palette: {
@@ -33,14 +30,11 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <App />
-        </ThemeProvider>
-      </BrowserRouter>
-      {process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
-    </QueryClientProvider>
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <App />
+      </ThemeProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );

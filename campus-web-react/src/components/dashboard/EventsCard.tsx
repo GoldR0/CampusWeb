@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, Box, Typography, LinearProgress, IconButton, Tooltip } from '@mui/material';
 import { CalendarToday as CalendarIcon, AccessTime as TimeIcon, MeetingRoom as RoomIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 
-import { useQuery } from '@tanstack/react-query';
 import { listEvents } from '../../fireStore/eventsService';
 
 interface Event {
@@ -25,24 +24,35 @@ interface EventsCardProps {
 
 const EventsCard: React.FC<EventsCardProps> = ({ customColors }) => {
   const navigate = useNavigate();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: events = [], isLoading } = useQuery<Event[]>({
-    queryKey: ['events'],
-    queryFn: async () => {
-      const firestoreEvents = await listEvents();
-      return firestoreEvents.map(event => ({
-        id: event.id,
-        title: event.title,
-        description: event.description,
-        date: event.date,
-        time: event.time,
-        location: event.roomId,
-        maxParticipants: 50,
-        createdAt: new Date().toLocaleString('he-IL')
-      }));
-    },
-    staleTime: 60_000,
-  });
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setIsLoading(true);
+        const firestoreEvents = await listEvents();
+        const formattedEvents = firestoreEvents.map(event => ({
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          date: event.date,
+          time: event.time,
+          location: event.roomId,
+          maxParticipants: 50,
+          createdAt: new Date().toLocaleString('he-IL')
+        }));
+        setEvents(formattedEvents);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        setEvents([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const handleViewEvent = (event: Event) => {
     navigate(`/events/${event.id}`);
